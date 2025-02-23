@@ -1062,6 +1062,22 @@
             background: rgba(205, 127, 50, 0.2);
             border: 2px solid #cd7f32;
         }
+
+        .reset-button {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .reset-button:hover {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
@@ -1226,6 +1242,7 @@
         <button class="leaderboard-button" onclick="toggleLeaderboard(true)">🏅</button>
         <button class="profile-button" onclick="toggleProfile(true)">👤</button>
         <button class="mute-button">🔊</button>
+        <button class="reset-button" onclick="resetGame()">🔄</button>
         <h1>
             <span class="logo">🧙‍♂️</span>
             SCROGGY'S CASINO
@@ -1289,7 +1306,9 @@
         };
 
         let money = 500;
+        let legitimateMoney = 500; // Track legitimate earnings separately
         const SPIN_COST = 25;
+        let spinCounter = 0;
 
         // Audio Context and Sounds
         let audioContext;
@@ -1430,6 +1449,11 @@
                 }, 5000);
             } else {
                 devilPopup.classList.remove('show');
+            }
+
+            // Update legitimate money for non-cheat users
+            if (playerName.toLowerCase() !== 'cashmeoutside' || playerEmoji !== '🤑') {
+                legitimateMoney = money;
             }
         }
 
@@ -1680,9 +1704,8 @@
                 { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
             ];
 
-            const apiUrl = window.location.hostname === 'localhost' 
-                ? '/api/leaderboard'
-                : 'https://scroggy.netlify.app/api/leaderboard';
+            // Use relative path for API endpoint
+            const apiUrl = '/api/leaderboard';
 
             fetch(apiUrl)
                 .then(response => {
@@ -1755,16 +1778,21 @@
                 return;
             }
 
-            if (!playerEmoji || !highScore) {
-                console.log('Missing required data - Emoji:', playerEmoji, 'Score:', highScore);
+            // Block cheat code user from leaderboard
+            if (playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑') {
+                console.log('Cheat code user blocked from leaderboard');
                 return;
             }
 
-            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Score:', highScore);
+            if (!playerEmoji || !legitimateMoney) {
+                console.log('Missing required data - Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
+                return;
+            }
+
+            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
             
-            const apiUrl = window.location.hostname === 'localhost' 
-                ? '/api/leaderboard'
-                : 'https://scroggy.netlify.app/api/leaderboard';
+            // Use relative path for API endpoint
+            const apiUrl = '/api/leaderboard';
 
             // Send score to server
             fetch(apiUrl, {
@@ -1776,7 +1804,7 @@
                 body: JSON.stringify({
                     name: playerName,
                     emoji: playerEmoji,
-                    score: highScore
+                    score: legitimateMoney // Use legitimate money for leaderboard
                 })
             })
             .then(response => {
@@ -1791,8 +1819,8 @@
                 if (result.success) {
                     console.log('Updating leaderboard display');
                     updateLeaderboard();
-                    saveGameState(); // Save state after successful server update
-                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${highScore.toLocaleString()} coins!`;
+                    saveGameState();
+                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
                     message.classList.add('show');
                 } else {
                     console.error('Failed to save score:', result.error);
@@ -1899,11 +1927,31 @@
             reel2.classList.remove('win');
             reel3.classList.remove('win');
 
-            setTimeout(() => spinReel(reel1, 1000), 0);
-            setTimeout(() => spinReel(reel2, 1500), 200);
-            setTimeout(() => spinReel(reel3, 2000), 400);
+            // Increment spin counter for cheat code
+            spinCounter++;
+            const isCheatUser = playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑';
+            const isJackpotSpin = isCheatUser && spinCounter % 10 === 0;
 
-            setTimeout(checkWin, 2500);
+            if (isJackpotSpin) {
+                // Guaranteed jackpot for cheat code
+                setTimeout(() => {
+                    reel1.textContent = '🤑';
+                    reel2.textContent = '🤑';
+                    reel3.textContent = '🤑';
+                    checkWin();
+                }, 2500);
+                
+                // Fake spinning animation
+                setTimeout(() => spinReel(reel1, 1000, true), 0);
+                setTimeout(() => spinReel(reel2, 1500, true), 200);
+                setTimeout(() => spinReel(reel3, 2000, true), 400);
+            } else {
+                // Normal spin
+                setTimeout(() => spinReel(reel1, 1000), 0);
+                setTimeout(() => spinReel(reel2, 1500), 200);
+                setTimeout(() => spinReel(reel3, 2000), 400);
+                setTimeout(checkWin, 2500);
+            }
         }
 
         function getWeightedRandomEmoji() {
@@ -1917,7 +1965,7 @@
             return emojis[0];
         }
 
-        function spinReel(reel, duration) {
+        function spinReel(reel, duration, isCheatSpin = false) {
             reel.classList.add('spinning');
             
             const soundInterval = playSpinSound(Array.from(reel.parentNode.children).indexOf(reel));
@@ -1932,8 +1980,12 @@
                 createBeep(200, 0.2);
                 reel.classList.remove('spinning');
                 reel.classList.add('stopping');
-                const finalEmoji = getWeightedRandomEmoji();
-                reel.textContent = finalEmoji;
+                
+                if (!isCheatSpin) {
+                    const finalEmoji = getWeightedRandomEmoji();
+                    reel.textContent = finalEmoji;
+                }
+                // If isCheatSpin is true, we don't set the emoji here as it's handled in the spin function
                 
                 setTimeout(() => {
                     reel.classList.remove('stopping');
@@ -1980,8 +2032,9 @@
             spinButton.disabled = false;
             betAllButton.disabled = false;
             
-            if (money > highScore) {
-                highScore = money;
+            // Only update high score with legitimate money
+            if (legitimateMoney > highScore) {
+                highScore = legitimateMoney;
                 updatePlayerScore();
             }
             saveGameState();
@@ -2055,8 +2108,9 @@
             betAllButton.disabled = false;
             spinButton.disabled = false;
             
-            if (money > highScore) {
-                highScore = money;
+            // Only update high score with legitimate money
+            if (legitimateMoney > highScore) {
+                highScore = legitimateMoney;
                 updatePlayerScore();
             }
             saveGameState();
@@ -2079,9 +2133,11 @@
         function saveGameState() {
             const gameState = {
                 money: money,
+                legitimateMoney: legitimateMoney,
                 playerName: playerName,
                 playerEmoji: playerEmoji,
                 highScore: highScore,
+                spinCounter: spinCounter,
                 timestamp: Date.now()
             };
             localStorage.setItem('scroggysCasino_gameState', JSON.stringify(gameState));
@@ -2100,15 +2156,18 @@
                     if (gameState.playerName && gameState.playerEmoji) {
                         playerName = gameState.playerName;
                         playerEmoji = gameState.playerEmoji;
+                        document.querySelector('.logo').textContent = playerEmoji;
                         // Hide name input immediately if we have saved data
                         nameInput.style.display = 'none';
                         message.textContent = `Welcome back, ${playerEmoji} ${playerName}! 🎰`;
                         message.classList.add('show');
                     }
                     
-                    // Restore money and high score
+                    // Restore money, legitimate money, and high score
                     money = gameState.money || 500;
+                    legitimateMoney = gameState.legitimateMoney || 500;
                     highScore = gameState.highScore || 500;
+                    spinCounter = gameState.spinCounter || 0;
                     updateMoney();
                     
                     console.log('Game state restored - Name:', playerName, 'Emoji:', playerEmoji, 'Money:', money, 'High Score:', highScore);
@@ -2125,6 +2184,13 @@
                 money = 500;
                 highScore = 500;
                 updateMoney();
+            }
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset the game? This will clear your progress and set your balance back to 500 coins.')) {
+                localStorage.removeItem('scroggysCasino_gameState');
+                location.reload();
             }
         }
     </script>
