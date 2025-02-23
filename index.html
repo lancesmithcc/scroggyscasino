@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Scroggy's Casino</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sigmar+One&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#50ff50">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,9 +15,9 @@
     <style>
         /* Font loading optimization */
         @font-face {
-            font-family: 'Bungee Spice';
+            font-family: 'Sigmar One';
             font-display: optional;
-            src: local('Bungee Spice'), url(https://fonts.gstatic.com/s/bungeespice/v11/nwpTtK2nIhxE0q-IwgSpZBqCzw.woff2) format('woff2');
+            src: local('Sigmar One'), url(https://fonts.gstatic.com/s/sigmarone/v11/wq_F3-6Wk4ZpxAzd_DEvw2Jx.woff2) format('woff2');
             font-weight: normal;
             font-style: normal;
         }
@@ -241,7 +241,7 @@
 
         body {
             background-color: #1a1a1a;
-            font-family: var(--font-family);
+            font-family: 'Sigmar One', 'Comic Sans MS', cursive;
             min-height: 100vh;
             min-height: -webkit-fill-available; /* iOS viewport fix */
             display: flex;
@@ -906,7 +906,7 @@
 
         /* Font loading detection */
         .fonts-loaded {
-            --font-family: 'Bungee Spice', "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+            --font-family: 'Sigmar One', "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
         }
 
         .fonts-loaded body {
@@ -1585,8 +1585,8 @@
             // Try to load custom font
             if ('fonts' in document) {
                 try {
-                    const font = new FontFace('Bungee Spice', 
-                        'url(https://fonts.gstatic.com/s/bungeespice/v11/nwpTtK2nIhxE0q-IwgSpZBqCzw.woff2)',
+                    const font = new FontFace('Sigmar One', 
+                        'url(https://fonts.gstatic.com/s/sigmarone/v11/wq_F3-6Wk4ZpxAzd_DEvw2Jx.woff2)',
                         { 
                             style: 'normal',
                             weight: 'normal',

@@ -30,7 +30,8 @@ async function getLeaderboard(store) {
 async function saveLeaderboard(store, scores) {
     try {
         console.log('Saving leaderboard data:', scores);
-        await store.set('leaderboard', JSON.stringify(scores));
+        const plainScores = scores.map(entry => ({ name: entry.name, emoji: entry.emoji, highScore: entry.highScore }));
+        await store.set('leaderboard', JSON.stringify(plainScores));
         console.log('Leaderboard saved successfully');
         return true;
     } catch (error) {
@@ -120,18 +121,15 @@ exports.handler = async function(event, context) {
                 // Save updated leaderboard
                 const saved = await saveLeaderboard(store, scores);
                 
-                if (saved) {
-                    return {
-                        statusCode: 200,
-                        headers: CORS_HEADERS,
-                        body: JSON.stringify({
-                            success: true,
-                            scores: scores
-                        })
-                    };
-                } else {
-                    throw new Error('Failed to save leaderboard');
-                }
+                return {
+                    statusCode: 200,
+                    headers: CORS_HEADERS,
+                    body: JSON.stringify({
+                        success: saved,
+                        scores: scores,
+                        message: saved ? 'Leaderboard updated successfully.' : 'Leaderboard update skipped due to storage restrictions.'
+                    })
+                };
             } catch (error) {
                 console.error('Error updating score:', error);
                 return {
