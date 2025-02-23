@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scroggy's Casino</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#50ff50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Scroggy's">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+    <style>
+        /* Font loading optimization */
+        @font-face {
+            font-family: 'Bungee Spice';
+            font-display: optional;
+            src: local('Bungee Spice'), url(https://fonts.gstatic.com/s/bungeespice/v11/nwpTtK2nIhxE0q-IwgSpZBqCzw.woff2) format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Aurora and Stars Background */
+        @keyframes aurora {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .aurora-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+            background: #1a1a1a;
+        }
+
+        .aurora {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: 50%;
+            left: 50%;
+            background: linear-gradient(
+                45deg,
+                rgba(139, 69, 19, 0.3) 0%,
+                rgba(34, 139, 34, 0.3) 25%,
+                rgba(139, 69, 19, 0.3) 50%,
+                rgba(34, 139, 34, 0.3) 75%,
+                rgba(139, 69, 19, 0.3) 100%
+            );
+            filter: blur(60px);
+            animation: aurora 15s linear infinite;
+            mix-blend-mode: screen;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        :root {
+            --machine-padding: clamp(15px, 4vw, 30px);
+            --reel-size: clamp(80px, 20vw, 100px);
+            --title-size: clamp(32px, 6vw, 48px);
+            --logo-size: clamp(48px, 8vw, 64px);
+            --button-width: clamp(180px, 50vw, 200px);
+            --spin-text-size: clamp(24px, 5vw, 32px);
+            --balance-size: clamp(32px, 6vw, 42px);
+            --font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+        }
+
+        /* Desktop size adjustments */
+        @media (min-width: 1024px) {
+            :root {
+                --machine-padding: 25px;
+                --reel-size: 130px;
+                --title-size: 32px;
+                --logo-size: 48px;
+                --button-width: 280px;
+                --spin-text-size: 22px;
+                --balance-size: 28px;
+            }
+
+            .slot-machine {
+                width: min(90vw, 700px) !important;
+                min-height: min-content;
+                max-height: none;
+                margin: 20px auto;
+                display: flex;
+                flex-direction: column;
+                padding: var(--machine-padding);
+            }
+
+            h1 {
+                margin-bottom: 15px;
+            }
+
+            .reels {
+                margin-bottom: 20px;
+                padding: 20px;
+            }
+
+            .reel {
+                margin: 0 12px;
+            }
+
+            .money-display {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            .button-container {
+                flex-direction: row !important;
+                gap: 15px;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
+            #spin-button, #bet-all-button {
+                width: 280px;
+                padding: 10px;
+            }
+
+            #spin-button .cost, #bet-all-button .cost {
+                font-size: 11px;
+                margin-top: 3px;
+            }
+
+            .message {
+                font-size: 18px;
+                margin-top: 12px;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+                line-height: 1.2;
+                min-height: 44px;
+                height: auto;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+
+            /* Adjust coin animations for desktop */
+            .coin {
+                width: 20px;
+                height: 20px;
+                font-size: 14px;
+            }
+
+            body {
+                min-height: 100vh;
+                height: auto;
+                padding: 20px 10px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Additional optimization for shorter screens */
+        @media (min-width: 1024px) and (max-height: 800px) {
+            :root {
+                --machine-padding: 20px;
+                --reel-size: 120px;
+                --title-size: 42px;
+                --logo-size: 64px;
+                --button-width: 260px;
+                --spin-text-size: 28px;
+                --balance-size: 36px;
+            }
+
+            .reels {
+                margin-bottom: 20px;
+                padding: 20px;
+            }
+
+            .money-display {
+                margin-bottom: 15px;
+            }
+
+            .button-container {
+                gap: 15px;
+            }
+
+            #spin-button, #bet-all-button {
+                width: 260px;
+                padding: 12px;
+            }
+
+            #spin-button .cost, #bet-all-button .cost {
+                font-size: 12px;
+            }
+
+            .message {
+                margin-top: 15px;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            font-family: var(--font-family);
+            min-height: 100vh;
+            min-height: -webkit-fill-available; /* iOS viewport fix */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            color: gold; /* Ensure text is visible while font loads */
+        }
+
+        /* iOS height fix */
+        html {
+            height: -webkit-fill-available;
+        }
+
+        .slot-machine {
+            width: min(95vw, 400px);
+            margin: auto;
+            padding: var(--machine-padding);
+            border: clamp(4px, 1.5vw, 8px) solid gold;
+            border-radius: clamp(15px, 4vw, 20px);
+            background: linear-gradient(45deg, #2c2c2c, #1a1a1a);
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
+                        inset 0 0 20px rgba(255, 215, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: var(--title-size);
+            margin-bottom: clamp(20px, 4vw, 30px);
+            color: #50ff50;
+            text-shadow: 0 0 15px rgba(80, 255, 80, 0.5),
+                         0 0 30px rgba(80, 255, 80, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(5px, 2vw, 10px);
+            line-height: 1.2;
+        }
+
+        .logo {
+            font-size: var(--logo-size);
+            filter: drop-shadow(0 0 10px rgba(80, 255, 80, 0.5));
+        }
+
+        .reels {
+            display: flex;
+            justify-content: center;
+            margin-bottom: clamp(20px, 4vw, 30px);
+            padding: clamp(15px, 3vw, 20px);
+            background: #000;
+            border-radius: clamp(10px, 3vw, 15px);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+            perspective: 1000px;
+        }
+
+        .reel {
+            width: var(--reel-size);
+            height: var(--reel-size);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: calc(var(--reel-size) * 0.5);
+            border: 3px solid gold;
+            border-radius: clamp(10px, 3vw, 15px);
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            margin: 0 clamp(5px, 2vw, 10px);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .reel.spinning {
+            animation: spin 0.2s linear infinite;
+        }
+
+        .reel.stopping {
+            animation: stopSpin 0.5s ease-out forwards;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotateX(0deg);
+            }
+            100% {
+                transform: rotateX(360deg);
+            }
+        }
+
+        @keyframes stopSpin {
+            0% {
+                transform: rotateX(360deg);
+            }
+            90% {
+                transform: rotateX(10deg);
+            }
+            95% {
+                transform: rotateX(-5deg);
+            }
+            100% {
+                transform: rotateX(0deg);
+            }
+        }
+
+        .reel::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            border-radius: clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px) 0 0;
+        }
+
+        .reel::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            border-radius: 0 0 clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px);
+        }
+
+        .money-display {
+            font-size: clamp(20px, 4vw, 28px);
+            color: gold;
+            margin-bottom: clamp(15px, 3vw, 20px);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3px, 1vw, 5px);
+        }
+
+        .balance {
+            font-size: var(--balance-size);
+            color: gold;
+        }
+
+        .balance.negative {
+            color: #ff6b6b;
+        }
+
+        /* Add button container */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        #spin-button, #bet-all-button {
+            width: var(--button-width);
+            padding: clamp(10px, 2vw, 15px);
+            font-size: var(--spin-text-size);
+            font-family: var(--font-family);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .message {
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s, transform 1s;
+            margin-top: clamp(15px, 3vw, 20px);
+            line-height: 1.2;
+            padding: 0 10px;
+        }
+
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reel.win {
+            animation: pulse 0.5s infinite;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .slot-machine::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #ffd700);
+            z-index: -1;
+            filter: blur(20px);
+            opacity: 0.5;
+        }
+
+        .coin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #2c2c2c;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            pointer-events: none;
+        }
+
+        @keyframes coinFly {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .jackpot-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Devil popup styles */
+        .devil-popup {
+            position: fixed;
+            bottom: -150px;
+            right: 20px;
+            font-size: 64px;
+            transition: bottom 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+            z-index: 2000;
+        }
+
+        .devil-popup.show {
+            bottom: 20px;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            background: #ff3333;
+            color: white;
+            padding: 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            width: max-content;
+            max-width: 200px;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+            font-family: var(--font-family);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            text-shadow: none;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #ff3333 transparent transparent;
+        }
+
+        .devil-popup.show .speech-bubble {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Name input overlay */
+        .name-input-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .name-input-container {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid gold;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            max-width: 90%;
+            width: 400px;
+            position: relative;
+        }
+
+        .name-input-container h2 {
+            color: #50ff50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
+        }
+
+        .emoji-scroll-container {
+            position: relative;
+            margin: 20px auto;
+            max-width: 420px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+
+        .emoji-scroll-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .emoji-scroll-arrow {
+            position: static;
+            transform: none;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            border: none;
+            color: #2c2c2c;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 0;
+            max-width: none;
+            width: 100%;
+            max-height: 240px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: gold rgba(255, 215, 0, 0.1);
+            scroll-behavior: smooth;
+        }
+
+        .emoji-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-track {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-thumb {
+            background: gold;
+            border-radius: 4px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-thumb:hover {
+            background: #ffd700;
+        }
+
+        .emoji-option {
+            font-size: 24px; /* Slightly smaller to fit more */
+            padding: 8px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 215, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+        }
+
+        .emoji-option:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .emoji-option.selected {
+            border-color: gold;
+            background: rgba(255, 215, 0, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .name-input-container input {
+            background: #333;
+            border: 2px solid gold;
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            font-family: var(--font-family);
+        }
+
+        .name-input-container button {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #2c2c2c;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .name-input-container button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Leaderboard styles */
+        .leaderboard-button, .profile-button, .mute-button {
+            position: absolute;
+            background: none;
+            border: none;
+            color: gold;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+            padding: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .leaderboard-button {
+            top: 10px;
+            left: 10px;
+        }
+
+        .profile-button {
+            top: 10px;
+            right: 45px;
+        }
+
+        .mute-button {
+            top: 10px;
+            right: 10px;
+        }
+
+        .leaderboard-button:hover, .profile-button:hover, .mute-button:hover {
+            transform: scale(1.2);
+        }
+
+        /* Profile overlay styles */
+        .profile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .profile-container {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid gold;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            max-width: 90%;
+            width: 400px;
+            position: relative;
+        }
+
+        .profile-container h2 {
+            color: #50ff50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
+        }
+
+        .profile-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .profile-close:hover {
+            color: gold;
+        }
+
+        #updatePlayerName {
+            background: #333;
+            border: 2px solid gold;
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            font-family: var(--font-family);
+        }
+
+        .profile-container button:not(.profile-close) {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #2c2c2c;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .profile-container button:not(.profile-close):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .profile-container button:not(.profile-close):disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Landscape mode optimizations */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                align-items: flex-start;
+                padding: 10px;
+            }
+
+            .slot-machine {
+                margin: 0 auto;
+                padding: calc(var(--machine-padding) * 0.7);
+            }
+
+            h1 {
+                margin-bottom: calc(clamp(20px, 4vw, 30px) * 0.7);
+            }
+
+            .money-display {
+                margin-bottom: calc(clamp(15px, 3vw, 20px) * 0.7);
+            }
+
+            .reels {
+                margin-bottom: calc(clamp(20px, 4vw, 30px) * 0.7);
+            }
+        }
+
+        /* Small screen optimizations */
+        @media (max-width: 350px) {
+            .slot-machine {
+                padding: calc(var(--machine-padding) * 0.8);
+            }
+
+            h1 {
+                font-size: calc(var(--title-size) * 0.9);
+            }
+
+            .reel {
+                margin: 0 calc(clamp(5px, 2vw, 10px) * 0.7);
+            }
+        }
+
+        /* Add text stroke for better visibility */
+        h1, .money-display, .message, #spin-button {
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* iOS specific text rendering */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                letter-spacing: 1px;
+            }
+            
+            h1, .money-display, .message, #spin-button, .balance {
+                font-weight: 800;
+                text-shadow: 
+                    0 0 15px rgba(0, 0, 0, 0.7),
+                    0 0 5px rgba(0, 0, 0, 0.9);
+            }
+
+            h1 {
+                color: #50ff50;
+                text-shadow: 
+                    0 0 20px rgba(80, 255, 80, 0.8),
+                    0 0 10px rgba(0, 0, 0, 0.8);
+            }
+
+            .balance {
+                text-shadow: 
+                    0 0 20px rgba(255, 215, 0, 0.8),
+                    0 0 10px rgba(0, 0, 0, 0.8);
+            }
+
+            #spin-button {
+                font-weight: 800;
+                text-shadow: none;
+            }
+        }
+
+        /* Font loading detection */
+        .fonts-loaded {
+            --font-family: 'Bungee Spice', "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+        }
+
+        .fonts-loaded body {
+            opacity: 1;
+        }
+
+        #spin-button {
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            color: #2c2c2c;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        #spin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(145deg, #ffa500, #ffd700);
+        }
+
+        #spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #bet-all-button {
+            background: linear-gradient(145deg, #ff3333, #cc0000);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        #bet-all-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(255, 0, 0, 0.4);
+            background: linear-gradient(145deg, #ff4444, #dd0000);
+        }
+
+        #bet-all-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #spin-button .cost, #bet-all-button .cost {
+            font-size: clamp(12px, 2.5vw, 14px);
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        @media (min-width: 1024px) {
+            #spin-button .cost, #bet-all-button .cost {
+                font-size: 16px;
+            }
+        }
+
+        /* Leaderboard styles */
+        .leaderboard-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .leaderboard-container {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid gold;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            max-width: 90%;
+            width: 400px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .leaderboard-container h2 {
+            color: #50ff50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
+        }
+
+        .leaderboard-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .leaderboard-close:hover {
+            color: gold;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .leaderboard-item .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .leaderboard-item .trophy {
+            font-size: 20px;
+        }
+
+        .leaderboard-item .player-emoji {
+            font-size: 24px;
+        }
+
+        .rank-1 {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid gold;
+        }
+
+        .rank-2 {
+            background: rgba(192, 192, 192, 0.2);
+            border: 2px solid silver;
+        }
+
+        .rank-3 {
+            background: rgba(205, 127, 50, 0.2);
+            border: 2px solid #cd7f32;
+        }
+    </style>
+</head>
+<body>
+    <div class="aurora-container">
+        <div class="aurora"></div>
+    </div>
+    <div class="stars"></div>
+    <div class="name-input-overlay" id="nameInput">
+        <div class="name-input-container">
+            <h2>Choose Your Avatar, Gambler! 🎲</h2>
+            <div class="emoji-scroll-container">
+                <div class="emoji-grid">
+                    <!-- Fantasy/Magic -->
+                    <div class="emoji-option" data-emoji="🧙‍♂️">🧙‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧙‍♀️">🧙‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧝‍♂️">🧝‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧝‍♀️">🧝‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧚‍♂️">🧚‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧚‍♀️">🧚‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧞‍♂️">🧞‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧞‍♀️">🧞‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧜‍♂️">🧜‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧜‍♀️">🧜‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧛‍♂️">🧛‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧛‍♀️">🧛‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧟‍♂️">🧟‍♂️</div>
+                    <div class="emoji-option" data-emoji="🧟‍♀️">🧟‍♀️</div>
+                    <div class="emoji-option" data-emoji="🧌">🧌</div>
+
+                    <!-- Gambling/Games -->
+                    <div class="emoji-option" data-emoji="🎲">🎲</div>
+                    <div class="emoji-option" data-emoji="🎰">🎰</div>
+                    <div class="emoji-option" data-emoji="🎯">🎯</div>
+                    <div class="emoji-option" data-emoji="🎪">🎪</div>
+                    <div class="emoji-option" data-emoji="🎮">🎮</div>
+                    <div class="emoji-option" data-emoji="🎨">🎨</div>
+                    <div class="emoji-option" data-emoji="🎭">🎭</div>
+                    <div class="emoji-option" data-emoji="🎪">🎪</div>
+                    <div class="emoji-option" data-emoji="🃏">🃏</div>
+                    <div class="emoji-option" data-emoji="🎴">🎴</div>
+
+                    <!-- Money/Wealth -->
+                    <div class="emoji-option" data-emoji="🤑">🤑</div>
+                    <div class="emoji-option" data-emoji="💰">💰</div>
+                    <div class="emoji-option" data-emoji="💎">💎</div>
+                    <div class="emoji-option" data-emoji="👑">👑</div>
+                    <div class="emoji-option" data-emoji="💍">💍</div>
+                    <div class="emoji-option" data-emoji="💸">💸</div>
+                    <div class="emoji-option" data-emoji="💵">💵</div>
+                    <div class="emoji-option" data-emoji="💶">💶</div>
+                    <div class="emoji-option" data-emoji="💷">💷</div>
+                    <div class="emoji-option" data-emoji="💴">💴</div>
+
+                    <!-- Faces/Expressions -->
+                    <div class="emoji-option" data-emoji="😎">😎</div>
+                    <div class="emoji-option" data-emoji="🤪">🤪</div>
+                    <div class="emoji-option" data-emoji="😈">😈</div>
+                    <div class="emoji-option" data-emoji="🤡">🤡</div>
+                    <div class="emoji-option" data-emoji="👻">👻</div>
+                    <div class="emoji-option" data-emoji="🤓">🤓</div>
+                    <div class="emoji-option" data-emoji="🥸">🥸</div>
+                    <div class="emoji-option" data-emoji="😇">😇</div>
+                    <div class="emoji-option" data-emoji="🥳">🥳</div>
+                    <div class="emoji-option" data-emoji="😤">😤</div>
+
+                    <!-- Animals -->
+                    <div class="emoji-option" data-emoji="🦊">🦊</div>
+                    <div class="emoji-option" data-emoji="🐉">🐉</div>
+                    <div class="emoji-option" data-emoji="🦄">🦄</div>
+                    <div class="emoji-option" data-emoji="🦁">🦁</div>
+                    <div class="emoji-option" data-emoji="🐯">🐯</div>
+                    <div class="emoji-option" data-emoji="🦅">🦅</div>
+                    <div class="emoji-option" data-emoji="🦉">🦉</div>
+                    <div class="emoji-option" data-emoji="🐺">🐺</div>
+                    <div class="emoji-option" data-emoji="🦇">🦇</div>
+                    <div class="emoji-option" data-emoji="🦋">🦋</div>
+
+                    <!-- Heroes/Characters -->
+                    <div class="emoji-option" data-emoji="🦸‍♂️">🦸‍♂️</div>
+                    <div class="emoji-option" data-emoji="🦸‍♀️">🦸‍♀️</div>
+                    <div class="emoji-option" data-emoji="🦹‍♂️">🦹‍♂️</div>
+                    <div class="emoji-option" data-emoji="🦹‍♀️">🦹‍♀️</div>
+                    <div class="emoji-option" data-emoji="🥷">🥷</div>
+                    <div class="emoji-option" data-emoji="👨‍🎤">👨‍🎤</div>
+                    <div class="emoji-option" data-emoji="👩‍🎤">👩‍🎤</div>
+                    <div class="emoji-option" data-emoji="👨‍🚀">👨‍🚀</div>
+                    <div class="emoji-option" data-emoji="👩‍🚀">👩‍🚀</div>
+                    <div class="emoji-option" data-emoji="🕴">🕴</div>
+
+                    <!-- Objects/Symbols -->
+                    <div class="emoji-option" data-emoji="⭐">⭐</div>
+                    <div class="emoji-option" data-emoji="🌟">🌟</div>
+                    <div class="emoji-option" data-emoji="✨">✨</div>
+                    <div class="emoji-option" data-emoji="🔮">🔮</div>
+                    <div class="emoji-option" data-emoji="⚡">⚡</div>
+                    <div class="emoji-option" data-emoji="🎵">🎵</div>
+                    <div class="emoji-option" data-emoji="🎸">🎸</div>
+                    <div class="emoji-option" data-emoji="🏆">🏆</div>
+                    <div class="emoji-option" data-emoji="🎭">🎭</div>
+                    <div class="emoji-option" data-emoji="🎪">🎪</div>
+
+                    <!-- Food/Drinks -->
+                    <div class="emoji-option" data-emoji="🍕">🍕</div>
+                    <div class="emoji-option" data-emoji="🌮">🌮</div>
+                    <div class="emoji-option" data-emoji="🍔">🍔</div>
+                    <div class="emoji-option" data-emoji="🍦">🍦</div>
+                    <div class="emoji-option" data-emoji="🍺">🍺</div>
+                    <div class="emoji-option" data-emoji="🍷">🍷</div>
+                    <div class="emoji-option" data-emoji="🍹">🍹</div>
+                    <div class="emoji-option" data-emoji="🧃">🧃</div>
+                    <div class="emoji-option" data-emoji="🍪">🍪</div>
+                    <div class="emoji-option" data-emoji="🍩">🍩</div>
+
+                    <!-- Nature/Weather -->
+                    <div class="emoji-option" data-emoji="🌈">🌈</div>
+                    <div class="emoji-option" data-emoji="🌙">🌙</div>
+                    <div class="emoji-option" data-emoji="☀️">☀️</div>
+                    <div class="emoji-option" data-emoji="🌺">🌺</div>
+                    <div class="emoji-option" data-emoji="🌸">🌸</div>
+                    <div class="emoji-option" data-emoji="🍀">🍀</div>
+                    <div class="emoji-option" data-emoji="🌟">🌟</div>
+                    <div class="emoji-option" data-emoji="❄️">❄️</div>
+                    <div class="emoji-option" data-emoji="🔥">🔥</div>
+                    <div class="emoji-option" data-emoji="💫">💫</div>
+                </div>
+            </div>
+            <div class="emoji-scroll-arrows">
+                <button class="emoji-scroll-arrow up" onclick="scrollEmojis('up')">↑</button>
+                <button class="emoji-scroll-arrow down" onclick="scrollEmojis('down')">↓</button>
+            </div>
+            <input type="text" id="playerName" placeholder="Your name..." maxlength="20">
+            <button onclick="startGame()">LETS GAMBLE!</button>
+        </div>
+    </div>
+    <div class="leaderboard-overlay" id="leaderboardOverlay">
+        <div class="leaderboard-container">
+            <h2>🏆 High Scores 🏆</h2>
+            <button class="leaderboard-close" onclick="toggleLeaderboard(false)">×</button>
+            <ul class="leaderboard-list" id="leaderboardList">
+                <!-- Leaderboard items will be inserted here -->
+            </ul>
+        </div>
+    </div>
+    <div class="profile-overlay" id="profileOverlay">
+        <div class="profile-container">
+            <h2>Update Profile</h2>
+            <button class="profile-close" onclick="toggleProfile(false)">×</button>
+            <div class="emoji-scroll-container">
+                <div class="emoji-grid">
+                    <!-- The existing emoji options will be cloned here by JavaScript -->
+                </div>
+                <div class="emoji-scroll-arrows">
+                    <button class="emoji-scroll-arrow up" onclick="scrollEmojis('up')">↑</button>
+                    <button class="emoji-scroll-arrow down" onclick="scrollEmojis('down')">↓</button>
+                </div>
+            </div>
+            <input type="text" id="updatePlayerName" placeholder="Your name..." maxlength="20">
+            <button onclick="updateProfile()">UPDATE PROFILE</button>
+        </div>
+    </div>
+    <div class="slot-machine">
+        <button class="leaderboard-button" onclick="toggleLeaderboard(true)">🏅</button>
+        <button class="profile-button" onclick="toggleProfile(true)">👤</button>
+        <button class="mute-button">🔊</button>
+        <h1>
+            <span class="logo">🧙‍♂️</span>
+            SCROGGY'S CASINO
+        </h1>
+        <div class="money-display">
+            BALANCE
+            <div class="balance" id="money">500</div>
+            <div>SCROGGY COINS</div>
+        </div>
+        <div class="reels">
+            <div class="reel" id="reel1">💩</div>
+            <div class="reel" id="reel2">🍩</div>
+            <div class="reel" id="reel3">🤑</div>
+        </div>
+        <div class="button-container">
+            <button id="spin-button">
+                SPIN
+                <span class="cost">25 SCROGGY COINS</span>
+            </button>
+            <button id="bet-all-button">
+                BET IT ALL
+                <span class="cost">DOUBLE OR NOTHING + 100% RISK</span>
+            </button>
+        </div>
+        <div class="message" id="message">Let's GO!</div>
+        <div class="jackpot-animation" id="jackpot-animation"></div>
+    </div>
+    <div class="devil-popup" id="devil-popup">
+        <div class="speech-bubble">Alright punk you better pay up or im gonna break yo knees! 🦿</div>
+        😈
+    </div>
+
+    <script>
+        // Move these variables to the top of the script, right after the emoji definitions
+        const emojis = ['💩', '🌮', '🍩', '🤮', '🤑'];
+        const reel1 = document.getElementById('reel1');
+        const reel2 = document.getElementById('reel2');
+        const reel3 = document.getElementById('reel3');
+        const spinButton = document.getElementById('spin-button');
+        const betAllButton = document.getElementById('bet-all-button');
+        const message = document.getElementById('message');
+        const moneyDisplay = document.getElementById('money');
+        const jackpotAnimation = document.getElementById('jackpot-animation');
+
+        // Prize values for each emoji combination
+        const PRIZES = {
+            '💩': 1000000,         // Poop - 1 Million
+            '🌮': 5000,            // Donut - 5K
+            '🥒': 10000,           // Pickle - 10K
+            '🤮': 50000,           // Barf - 50K
+            '🤑': 10000000000000   // Money Face - 10 Trillion
+        };
+
+        // Weighted probabilities (lower number = more rare)
+        const WEIGHTS = {
+            '💩': 100,    // Common
+            '🌮': 100,    // Common
+            '🥒': 80,     // Slightly less common
+            '🤮': 60,     // Rare
+            '🤑': 1       // Extremely rare
+        };
+
+        let money = 500;
+        const SPIN_COST = 25;
+
+        // Audio Context and Sounds
+        let audioContext;
+        
+        // Initialize audio on first user interaction
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Create beep sound
+        function createBeep(frequency, duration) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Play victory tune
+        function playVictoryTune() {
+            if (!audioContext) return;
+            
+            const notes = [
+                { freq: 1800, duration: 0.1 }, // High C - Ding!
+                { freq: 1800, duration: 0.1 }, // High C - Ding!
+                { freq: 1800, duration: 0.1 }, // High C - Ding!
+                { freq: 2000, duration: 0.2 }, // Final higher note
+                { freq: 2400, duration: 0.3 }  // Highest celebratory note
+            ];
+            
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    createBeep(note.freq, note.duration);
+                }, index * 150); // Slightly faster timing between notes
+            });
+        }
+
+        // Play spinning sound
+        function playSpinSound(reel) {
+            const baseFreq = 300 + (reel * 100); // Different frequency for each reel
+            const interval = setInterval(() => {
+                createBeep(baseFreq + Math.random() * 200, 0.05);
+            }, 100);
+            
+            return interval;
+        }
+
+        let playerName = '';
+        let playerEmoji = '';
+        const nameInput = document.getElementById('nameInput');
+        const playerNameInput = document.getElementById('playerName');
+        const startButton = document.querySelector('.name-input-container button');
+
+        // Initialize emoji selection
+        document.querySelectorAll('.emoji-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                playerEmoji = option.dataset.emoji;
+                validateNameInput();
+            });
+        });
+
+        // Validate name input and emoji selection
+        function validateNameInput() {
+            const name = playerNameInput.value.trim();
+            startButton.disabled = !name || !playerEmoji;
+        }
+
+        playerNameInput.addEventListener('input', validateNameInput);
+
+        // Start game function
+        function startGame() {
+            const name = playerNameInput.value.trim();
+            if (name && playerEmoji) {
+                playerName = name;
+                nameInput.style.display = 'none';
+                message.textContent = `Welcome to the casino, ${playerEmoji} ${playerName}! Let's GO! 🎰`;
+                message.classList.add('show');
+                saveGameState(); // Save immediately after setting name
+                loadGameState(); // Load any existing state for this player
+            }
+        }
+
+        // Updated taunting messages with name placeholders
+        const taunts = [
+            "Nice try, {name} you filthy dinglehopper! 🏴‍☠️",
+            "You call that a spin, {name}? My grandma spins better! 👵",
+            "What kind of crap was that, {name}? 💩",
+            "Maybe you should try tax fraud instead, {name}! 📋",
+            "Did your fingers slip {name}, or are you just that bad? 🤪",
+            "Even a blind goblin could spin better than you, {name}! 👺",
+            "Is that the best you got, {name}? Pathetic! 😤",
+            "Back to wizard school with ye, {name}! 🧙‍♂️",
+            "{name}, Scroggy is not impressed! 🙄",
+            "Have you considered a career in potato farming, {name}? 🥔",
+            "That's not how you make money, {name}! 💸",
+            "{name}, your luck is as bad as your fashion sense! 👕",
+            "Keep trying {name}, you'll get there... maybe... probably not! 😅"
+        ];
+
+        function updateMoney() {
+            console.log('Updating money display:', money);
+            const moneyDisplay = document.getElementById('money');
+            const spinButton = document.getElementById('spin-button');
+            const betAllButton = document.getElementById('bet-all-button');
+            
+            moneyDisplay.textContent = money.toLocaleString();
+            const isNegative = money < 0;
+            moneyDisplay.classList.toggle('negative', isNegative);
+            
+            // Update button states
+            spinButton.disabled = money < SPIN_COST;
+            betAllButton.disabled = money <= 0;
+            
+            console.log('Button states updated - Spin:', spinButton.disabled, 'Bet All:', betAllButton.disabled);
+            
+            const devilPopup = document.getElementById('devil-popup');
+            if (isNegative) {
+                devilPopup.querySelector('.speech-bubble').textContent = 
+                    `Alright ${playerName}, you better pay up or im gonna break yo knees! 🦿`;
+                devilPopup.classList.add('show');
+                setTimeout(() => {
+                    devilPopup.classList.remove('show');
+                }, 5000);
+            } else {
+                devilPopup.classList.remove('show');
+            }
+        }
+
+        function createCoin(x, y) {
+            const coin = document.createElement('div');
+            coin.className = 'coin';
+            coin.textContent = '💰';
+            coin.style.left = x + 'px';
+            coin.style.top = y + 'px';
+            
+            // Random direction
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * 200;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            coin.style.setProperty('--tx', `${tx}px`);
+            coin.style.setProperty('--ty', `${ty}px`);
+            coin.style.animation = 'coinFly 1s ease-out forwards';
+            
+            return coin;
+        }
+
+        function celebrateJackpot() {
+            const centerX = jackpotAnimation.offsetWidth / 2;
+            const centerY = jackpotAnimation.offsetHeight / 2;
+            
+            // Create multiple coins
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const coin = createCoin(centerX, centerY);
+                    jackpotAnimation.appendChild(coin);
+                    
+                    // Remove coin after animation
+                    setTimeout(() => coin.remove(), 1000);
+                }, i * 50);
+            }
+        }
+
+        // Play losing sound
+        function playLosingSound() {
+            if (!audioContext) return;
+            
+            const notes = [
+                { freq: 300, duration: 0.1 },
+                { freq: 250, duration: 0.1 },
+                { freq: 200, duration: 0.2 }
+            ];
+            
+            notes.forEach((note, index) => {
+                setTimeout(() => {
+                    createBeep(note.freq, note.duration);
+                }, index * 150);
+            });
+        }
+
+        // Initialize game state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGameState();
+            createStars();
+            updateScrollArrows();
+            
+            // Initialize buttons
+            const spinButton = document.getElementById('spin-button');
+            const betAllButton = document.getElementById('bet-all-button');
+            
+            // Add click event listeners
+            spinButton.addEventListener('click', () => {
+                console.log('Spin button clicked');
+                if (!spinButton.disabled) {
+                    spin();
+                }
+            });
+            
+            betAllButton.addEventListener('click', () => {
+                console.log('Bet All button clicked');
+                if (!betAllButton.disabled) {
+                    betAll();
+                }
+            });
+            
+            // Initialize mute button
+            let muted = false;
+            const muteButton = document.querySelector('.mute-button');
+            muteButton.addEventListener('click', () => {
+                muted = !muted;
+                muteButton.innerHTML = muted ? '🔇' : '🔊';
+                if (audioContext) {
+                    audioContext.destination.gain.value = muted ? 0 : 1;
+                }
+            });
+
+            // Initialize profile emoji grid
+            const profileOverlay = document.getElementById('profileOverlay');
+            const profileEmojiGrid = profileOverlay.querySelector('.emoji-grid');
+            const originalEmojiGrid = document.querySelector('#nameInput .emoji-grid');
+            
+            // Clone emoji grid content
+            profileEmojiGrid.innerHTML = originalEmojiGrid.innerHTML;
+            
+            // Add click handlers to the profile emoji options
+            profileEmojiGrid.querySelectorAll('.emoji-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => 
+                        opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            // Add scroll event listener for profile emoji grid
+            profileEmojiGrid.addEventListener('scroll', updateScrollArrows);
+            
+            // Update initial button states
+            updateMoney();
+        });
+
+        // Prevent scrolling/zooming on mobile
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+        document.addEventListener('gesturestart', e => e.preventDefault());
+
+        // Initialize
+        updateMoney();
+
+        // Simple font loading with fallback
+        function loadCustomFont() {
+            // Start with system fonts
+            document.documentElement.classList.remove('fonts-loaded');
+            
+            // Try to load custom font
+            if ('fonts' in document) {
+                try {
+                    const font = new FontFace('Bungee Spice', 
+                        'url(https://fonts.gstatic.com/s/bungeespice/v11/nwpTtK2nIhxE0q-IwgSpZBqCzw.woff2)',
+                        { 
+                            style: 'normal',
+                            weight: 'normal',
+                            display: 'optional'
+                        }
+                    );
+
+                    font.load().then(() => {
+                        document.fonts.add(font);
+                        document.documentElement.classList.add('fonts-loaded');
+                    }).catch(err => {
+                        console.log('Font loading failed:', err);
+                    });
+                } catch (err) {
+                    console.log('Font loading error:', err);
+                }
+            }
+        }
+
+        // Load custom font
+        loadCustomFont();
+
+        // Retry font loading when page becomes visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                loadCustomFont();
+            }
+        });
+
+        let highScore = 500; // Track player's highest balance
+
+        // Leaderboard functions
+        function toggleLeaderboard(show) {
+            const overlay = document.getElementById('leaderboardOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+            if (show) {
+                updateLeaderboard();
+            }
+        }
+
+        function toggleProfile(show) {
+            const overlay = document.getElementById('profileOverlay');
+            const updateNameInput = document.getElementById('updatePlayerName');
+            
+            if (show) {
+                // Clone emoji grid from name input overlay if it hasn't been done yet
+                const profileEmojiGrid = overlay.querySelector('.emoji-grid');
+                const originalEmojiGrid = document.querySelector('#nameInput .emoji-grid');
+                
+                if (profileEmojiGrid.children.length === 0) {
+                    profileEmojiGrid.innerHTML = originalEmojiGrid.innerHTML;
+                    // Add click handlers to the cloned emoji options
+                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(option => {
+                        option.addEventListener('click', () => {
+                            profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                        });
+                    });
+                }
+                
+                // Set current values
+                updateNameInput.value = playerName;
+                const currentEmojiOption = profileEmojiGrid.querySelector(`[data-emoji="${playerEmoji}"]`);
+                if (currentEmojiOption) {
+                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
+                    currentEmojiOption.classList.add('selected');
+                }
+                
+                // Show overlay
+                overlay.style.display = 'flex';
+                updateScrollArrows();
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function updateProfile() {
+            const newName = document.getElementById('updatePlayerName').value.trim();
+            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
+            
+            if (!newName || !selectedEmoji) {
+                return;
+            }
+            
+            const newEmoji = selectedEmoji.dataset.emoji;
+            
+            // Update player info
+            playerName = newName;
+            playerEmoji = newEmoji;
+            
+            // Update UI
+            document.querySelector('.logo').textContent = playerEmoji;
+            message.textContent = `Profile updated! Welcome back, ${playerEmoji} ${playerName}! 🎰`;
+            message.classList.add('show');
+            
+            // Save changes
+            saveGameState();
+            
+            // Close overlay
+            toggleProfile(false);
+        }
+
+        // Add validation to update profile input
+        document.getElementById('updatePlayerName').addEventListener('input', function() {
+            const updateButton = this.nextElementSibling;
+            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
+            updateButton.disabled = !this.value.trim() || !selectedEmoji;
+        });
+
+        function updateLeaderboard() {
+            console.log('Updating leaderboard...');
+            const defaultData = [
+                { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
+                { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
+                { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
+            ];
+
+            const apiUrl = window.location.hostname === 'localhost' 
+                ? '/api/leaderboard'
+                : 'https://scroggy.netlify.app/api/leaderboard';
+
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('Leaderboard response:', response);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Leaderboard data:', data);
+                    const list = document.getElementById('leaderboardList');
+                    list.innerHTML = '';
+
+                    // Use default data if no data is loaded
+                    const scores = Array.isArray(data) ? data : defaultData;
+                    
+                    // Sort by high score
+                    scores.sort((a, b) => b.highScore - a.highScore);
+
+                    scores.slice(0, 10).forEach((entry, index) => {
+                        const li = document.createElement('li');
+                        li.className = `leaderboard-item rank-${index + 1}`;
+                        
+                        // Add trophy emoji for top 3
+                        let trophy = '';
+                        if (index === 0) trophy = '🥇';
+                        else if (index === 1) trophy = '🥈';
+                        else if (index === 2) trophy = '🥉';
+                        
+                        li.innerHTML = `
+                            <div class="player-info">
+                                <span class="trophy">${trophy}</span>
+                                <span class="player-emoji">${entry.emoji || '🎲'}</span>
+                                <span>${entry.name}</span>
+                            </div>
+                            <span>${entry.highScore.toLocaleString()} 💰</span>
+                        `;
+                        list.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading leaderboard:', error);
+                    // Show default data if there's an error
+                    const list = document.getElementById('leaderboardList');
+                    list.innerHTML = '';
+                    defaultData.forEach((entry, index) => {
+                        const li = document.createElement('li');
+                        li.className = `leaderboard-item rank-${index + 1}`;
+                        let trophy = '';
+                        if (index === 0) trophy = '🥇';
+                        else if (index === 1) trophy = '🥈';
+                        else if (index === 2) trophy = '🥉';
+                        li.innerHTML = `
+                            <div class="player-info">
+                                <span class="trophy">${trophy}</span>
+                                <span class="player-emoji">${entry.emoji}</span>
+                                <span>${entry.name}</span>
+                            </div>
+                            <span>${entry.highScore.toLocaleString()} 💰</span>
+                        `;
+                        list.appendChild(li);
+                    });
+                });
+        }
+
+        function updatePlayerScore() {
+            if (!playerName) {
+                console.log('No player name set, skipping score update');
+                return;
+            }
+
+            if (!playerEmoji || !highScore) {
+                console.log('Missing required data - Emoji:', playerEmoji, 'Score:', highScore);
+                return;
+            }
+
+            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Score:', highScore);
+            
+            const apiUrl = window.location.hostname === 'localhost' 
+                ? '/api/leaderboard'
+                : 'https://scroggy.netlify.app/api/leaderboard';
+
+            // Send score to server
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: playerName,
+                    emoji: playerEmoji,
+                    score: highScore
+                })
+            })
+            .then(response => {
+                console.log('Server response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Score saved:', result);
+                if (result.success) {
+                    console.log('Updating leaderboard display');
+                    updateLeaderboard();
+                    saveGameState(); // Save state after successful server update
+                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${highScore.toLocaleString()} coins!`;
+                    message.classList.add('show');
+                } else {
+                    console.error('Failed to save score:', result.error);
+                    message.textContent = `⚠️ Failed to save high score. Please try again later.`;
+                    message.classList.add('show');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving score:', error);
+                message.textContent = `⚠️ Error saving high score: ${error.message}`;
+                message.classList.add('show');
+            });
+        }
+
+        function scrollEmojis(direction) {
+            const grid = document.querySelector('.emoji-grid');
+            const scrollAmount = 100; // Adjust this value to control scroll distance
+            
+            if (direction === 'up') {
+                grid.scrollBy({
+                    top: -scrollAmount,
+                    behavior: 'smooth'
+                });
+            } else {
+                grid.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+            
+            // Update arrow states
+            updateScrollArrows();
+        }
+
+        function updateScrollArrows() {
+            const grid = document.querySelector('.emoji-grid');
+            const upArrow = document.querySelector('.emoji-scroll-arrow.up');
+            const downArrow = document.querySelector('.emoji-scroll-arrow.down');
+            
+            // Disable up arrow if at top
+            upArrow.disabled = grid.scrollTop <= 0;
+            
+            // Disable down arrow if at bottom
+            downArrow.disabled = grid.scrollTop + grid.clientHeight >= grid.scrollHeight;
+        }
+
+        // Add scroll event listener to update arrow states
+        document.querySelector('.emoji-grid').addEventListener('scroll', updateScrollArrows);
+
+        // Initial arrow state update
+        document.addEventListener('DOMContentLoaded', updateScrollArrows);
+
+        // Create twinkling stars
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 100;
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Random size
+                const size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random twinkle delay
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize stars when the page loads
+        document.addEventListener('DOMContentLoaded', createStars);
+
+        function spin() {
+            console.log('Spin function called');
+            const spinButton = document.getElementById('spin-button');
+            const betAllButton = document.getElementById('bet-all-button');
+            
+            if (spinButton.disabled) {
+                console.log('Spin button is disabled');
+                return;
+            }
+            
+            initAudio();
+            money -= SPIN_COST;
+            updateMoney();
+            
+            spinButton.disabled = true;
+            betAllButton.disabled = true;
+            message.classList.remove('show');
+            
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            
+            reel1.classList.remove('win');
+            reel2.classList.remove('win');
+            reel3.classList.remove('win');
+
+            setTimeout(() => spinReel(reel1, 1000), 0);
+            setTimeout(() => spinReel(reel2, 1500), 200);
+            setTimeout(() => spinReel(reel3, 2000), 400);
+
+            setTimeout(checkWin, 2500);
+        }
+
+        function getWeightedRandomEmoji() {
+            const totalWeight = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const [emoji, weight] of Object.entries(WEIGHTS)) {
+                if (random < weight) return emoji;
+                random -= weight;
+            }
+            return emojis[0];
+        }
+
+        function spinReel(reel, duration) {
+            reel.classList.add('spinning');
+            
+            const soundInterval = playSpinSound(Array.from(reel.parentNode.children).indexOf(reel));
+            
+            const intervalId = setInterval(() => {
+                reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            }, 100);
+
+            setTimeout(() => {
+                clearInterval(intervalId);
+                clearInterval(soundInterval);
+                createBeep(200, 0.2);
+                reel.classList.remove('spinning');
+                reel.classList.add('stopping');
+                const finalEmoji = getWeightedRandomEmoji();
+                reel.textContent = finalEmoji;
+                
+                setTimeout(() => {
+                    reel.classList.remove('stopping');
+                }, 500);
+            }, duration);
+        }
+
+        function checkWin() {
+            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
+                const winningEmoji = reel1.textContent;
+                const prize = PRIZES[winningEmoji];
+                
+                reel1.classList.add('win');
+                reel2.classList.add('win');
+                reel3.classList.add('win');
+                
+                const formattedPrize = prize.toLocaleString();
+                message.textContent = `${winningEmoji} JACKPOT! ${playerName} WINS +${formattedPrize} SCROGGY COINS! 🎉`;
+                message.classList.add('show');
+                money += prize;
+                
+                if (winningEmoji === '🤑') {
+                    message.style.fontSize = 'larger';
+                    message.style.color = '#50ff50';
+                    celebrateJackpot();
+                    celebrateJackpot();
+                } else {
+                    message.style.fontSize = '';
+                    message.style.color = '';
+                    celebrateJackpot();
+                }
+                
+                playVictoryTune();
+            } else {
+                const taunt = taunts[Math.floor(Math.random() * taunts.length)].replace('{name}', playerName);
+                message.textContent = taunt;
+                message.classList.add('show');
+                message.style.fontSize = '';
+                message.style.color = '';
+                playLosingSound();
+            }
+            
+            updateMoney();
+            spinButton.disabled = false;
+            betAllButton.disabled = false;
+            
+            if (money > highScore) {
+                highScore = money;
+                updatePlayerScore();
+            }
+            saveGameState();
+        }
+
+        function betAll() {
+            console.log('Bet All function called');
+            const betAllButton = document.getElementById('bet-all-button');
+            const spinButton = document.getElementById('spin-button');
+            
+            if (betAllButton.disabled || money <= 0) {
+                console.log('Bet All button is disabled or no money');
+                return;
+            }
+            
+            initAudio();
+            const betAmount = money; // Betting entire balance
+            money = 0; // Zero out money immediately
+            updateMoney();
+            
+            betAllButton.disabled = true;
+            spinButton.disabled = true;
+            message.classList.remove('show');
+            
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            
+            reel1.classList.remove('win');
+            reel2.classList.remove('win');
+            reel3.classList.remove('win');
+
+            // Dramatic pause before spinning
+            message.textContent = `${playerName} BETS ${betAmount.toLocaleString()} COINS! 😱`;
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+                setTimeout(() => spinReel(reel1, 1500), 0);
+                setTimeout(() => spinReel(reel2, 2000), 300);
+                setTimeout(() => spinReel(reel3, 2500), 600);
+                setTimeout(() => checkBetAllWin(betAmount), 3000);
+            }, 1500);
+        }
+
+        function checkBetAllWin(betAmount) {
+            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
+                // Winner! Double the original bet
+                const winAmount = betAmount * 2;
+                money += winAmount;
+                
+                reel1.classList.add('win');
+                reel2.classList.add('win');
+                reel3.classList.add('win');
+                
+                message.textContent = `🎰 INCREDIBLE! ${playerName} WINS ${winAmount.toLocaleString()} COINS! 🎰`;
+                message.classList.add('show');
+                celebrateJackpot();
+                playVictoryTune();
+            } else {
+                // Loser! Lose additional 100% of original bet
+                money -= betAmount;
+                const totalLoss = betAmount * 2;
+                
+                message.textContent = `💀 DEVASTATING! ${playerName} LOSES ${totalLoss.toLocaleString()} COINS! 💀`;
+                message.classList.add('show');
+                playLosingSound();
+            }
+            
+            updateMoney();
+            betAllButton.disabled = false;
+            spinButton.disabled = false;
+            
+            if (money > highScore) {
+                highScore = money;
+                updatePlayerScore();
+            }
+            saveGameState();
+        }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Save game state
+        function saveGameState() {
+            const gameState = {
+                money: money,
+                playerName: playerName,
+                playerEmoji: playerEmoji,
+                highScore: highScore,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('scroggysCasino_gameState', JSON.stringify(gameState));
+            console.log('Game state saved:', gameState);
+        }
+
+        // Load game state
+        function loadGameState() {
+            try {
+                const savedState = localStorage.getItem('scroggysCasino_gameState');
+                if (savedState) {
+                    const gameState = JSON.parse(savedState);
+                    console.log('Loading saved game state:', gameState);
+                    
+                    // Restore player name and emoji
+                    if (gameState.playerName && gameState.playerEmoji) {
+                        playerName = gameState.playerName;
+                        playerEmoji = gameState.playerEmoji;
+                        // Hide name input immediately if we have saved data
+                        nameInput.style.display = 'none';
+                        message.textContent = `Welcome back, ${playerEmoji} ${playerName}! 🎰`;
+                        message.classList.add('show');
+                    }
+                    
+                    // Restore money and high score
+                    money = gameState.money || 500;
+                    highScore = gameState.highScore || 500;
+                    updateMoney();
+                    
+                    console.log('Game state restored - Name:', playerName, 'Emoji:', playerEmoji, 'Money:', money, 'High Score:', highScore);
+                } else {
+                    console.log('No saved game state found, showing name input');
+                    nameInput.style.display = 'flex';
+                    money = 500;
+                    highScore = 500;
+                    updateMoney();
+                }
+            } catch (error) {
+                console.error('Error loading game state:', error);
+                nameInput.style.display = 'flex';
+                money = 500;
+                highScore = 500;
+                updateMoney();
+            }
+        }
+    </script>
+</body>
+</html>
