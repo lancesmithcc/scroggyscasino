@@ -53,11 +53,10 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        // Get the KV store instance
+        // Initialize store options without token for public access
         const store = getStore({
             name: "leaderboard",
-            siteID: context.site.id,
-            token: context.clientContext?.identity?.token
+            siteID: context.site.id
         });
 
         console.log('Store initialized with siteID:', context.site.id);
@@ -86,13 +85,14 @@ exports.handler = async function(event, context) {
         if (event.httpMethod === 'POST') {
             try {
                 const { name, emoji, score } = JSON.parse(event.body);
-                console.log('Received score update:', { name, emoji, score });
-                
-                if (!name || !score) {
+                const numericScore = Number(score);
+                console.log('Received score update:', { name, emoji, numericScore });
+
+                if (!name || isNaN(numericScore)) {
                     return {
                         statusCode: 400,
                         headers: CORS_HEADERS,
-                        body: JSON.stringify({ error: 'Missing name or score' })
+                        body: JSON.stringify({ error: 'Missing name or valid score' })
                     };
                 }
 
@@ -104,13 +104,13 @@ exports.handler = async function(event, context) {
                 
                 if (playerIndex !== -1) {
                     // Update existing score if new score is higher
-                    if (score > scores[playerIndex].highScore) {
-                        scores[playerIndex].highScore = score;
+                    if (numericScore > scores[playerIndex].highScore) {
+                        scores[playerIndex].highScore = numericScore;
                         scores[playerIndex].emoji = emoji || scores[playerIndex].emoji || '🎲';
                     }
                 } else {
                     // Add new player
-                    scores.push({ name, emoji: emoji || '🎲', highScore: score });
+                    scores.push({ name, emoji: emoji || '🎲', highScore: numericScore });
                 }
                 
                 // Sort by high score and keep top 100
