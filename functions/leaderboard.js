@@ -9,7 +9,7 @@ const DEFAULT_LEADERBOARD = [
 
 // CORS headers for all responses
 const CORS_HEADERS = {
-    'Access-Control-Allow-Origin': 'https://scroggy.netlify.app',
+    'Access-Control-Allow-Origin': '*', // Allow all origins during development
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Content-Type': 'application/json'
