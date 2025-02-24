@@ -874,6 +874,114 @@
             transform: none;
         }
 
+        /* Jackpot history section */
+        .jackpot-history {
+            margin-top: 25px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .jackpot-history h3 {
+            color: gold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .jackpot-history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .jackpot-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            margin: 5px 0;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .jackpot-item:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .jackpot-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .jackpot-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .jackpot-prize {
+            font-weight: bold;
+            color: gold;
+        }
+
+        .jackpot-date {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .jackpot-rarity {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .rarity-common {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .rarity-rare {
+            background: #2196F3;
+            color: white;
+        }
+
+        .rarity-epic {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .rarity-legendary {
+            background: #FF9800;
+            color: white;
+        }
+
+        .bet-all-badge {
+            display: inline-block;
+            background: linear-gradient(145deg, #ff4a3d, #cc0000);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+            vertical-align: middle;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+
+        .no-jackpots {
+            text-align: center;
+            color: #aaa;
+            padding: 15px;
+            font-style: italic;
+        }
+
         /* Landscape mode optimizations */
         @media (max-height: 600px) and (orientation: landscape) {
             body {
@@ -1112,6 +1220,38 @@
             border: 2px solid #cd7f32;
         }
 
+        .current-player {
+            background: rgba(80, 255, 80, 0.2) !important;
+            border: 2px solid #50ff50 !important;
+            transform: scale(1.02);
+            position: relative;
+        }
+
+        .current-player::after {
+            content: 'YOU';
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #50ff50;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .local-mode-notice {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px dashed #ffa500;
+        }
+
         .reset-button {
             position: absolute;
             top: 10px;
@@ -1341,6 +1481,15 @@
             </div>
             <input type="text" id="updatePlayerName" placeholder="Your name..." maxlength="20">
             <button onclick="updateProfile()">UPDATE PROFILE</button>
+            
+            <!-- Jackpot History Section -->
+            <div class="jackpot-history">
+                <h3>🏆 Jackpot History 🏆</h3>
+                <div id="jackpotHistoryList" class="jackpot-history-list">
+                    <!-- Jackpot history will be inserted here -->
+                    <div class="no-jackpots">No jackpots won yet. Keep spinning!</div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="slot-machine">
@@ -1416,10 +1565,20 @@
             '🤑': 1       // Extremely rare
         };
 
+        // Rarity labels for jackpots
+        const RARITY = {
+            '💩': 'Common',
+            '🌮': 'Common',
+            '🥒': 'Uncommon',
+            '🤮': 'Rare',
+            '🤑': 'Legendary'
+        };
+
         let money = 500;
         let legitimateMoney = 500; // Track legitimate earnings separately
         const SPIN_COST = 25;
         let spinCounter = 0;
+        let jackpotHistory = []; // Track jackpot wins history
 
         // Audio Context and Sounds
         let audioContext;
@@ -1681,361 +1840,63 @@
             updateMoney();
         });
 
-        // Prevent scrolling/zooming on mobile
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-        document.addEventListener('gesturestart', e => e.preventDefault());
-
-        // Initialize
-        updateMoney();
-
-        // Simple font loading with fallback
-        function loadCustomFont() {
-            // Start with system fonts
-            document.documentElement.classList.remove('fonts-loaded');
-            
-            // Try to load custom font
-            if ('fonts' in document) {
-                try {
-                    const font = new FontFace('Nunito', 
-                        'url(https://fonts.gstatic.com/s/nunito/v17/XRXW3I6Li01BKofA-se4I2YhKjg.woff2)',
-                        { 
-                            style: 'normal',
-                            weight: '900',
-                            display: 'optional'
-                        }
-                    );
-
-                    font.load().then(() => {
-                        document.fonts.add(font);
-                        document.documentElement.classList.add('fonts-loaded');
-                    }).catch(err => {
-                        console.log('Font loading failed:', err);
-                    });
-                } catch (err) {
-                    console.log('Font loading error:', err);
-                }
-            }
-        }
-
-        // Load custom font
-        loadCustomFont();
-
-        // Retry font loading when page becomes visible
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                loadCustomFont();
-            }
-        });
-
-        let highScore = 500; // Track player's highest balance
-
-        // Leaderboard functions
-        function toggleLeaderboard(show) {
-            const overlay = document.getElementById('leaderboardOverlay');
-            overlay.style.display = show ? 'flex' : 'none';
-            if (show) {
-                updateLeaderboard();
-            }
-        }
-
-        function toggleProfile(show) {
-            const overlay = document.getElementById('profileOverlay');
-            const updateNameInput = document.getElementById('updatePlayerName');
-            
-            if (show) {
-                // Clone emoji grid from name input overlay if it hasn't been done yet
-                const profileEmojiGrid = overlay.querySelector('.emoji-grid');
-                const originalEmojiGrid = document.querySelector('#nameInput .emoji-grid');
-                
-                if (profileEmojiGrid.children.length === 0) {
-                    profileEmojiGrid.innerHTML = originalEmojiGrid.innerHTML;
-                    // Add click handlers to the cloned emoji options
-                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(option => {
-                        option.addEventListener('click', () => {
-                            profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
-                            option.classList.add('selected');
-                        });
-                    });
-                }
-                
-                // Set current values
-                updateNameInput.value = playerName;
-                const currentEmojiOption = profileEmojiGrid.querySelector(`[data-emoji="${playerEmoji}"]`);
-                if (currentEmojiOption) {
-                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
-                    currentEmojiOption.classList.add('selected');
-                }
-                
-                // Show overlay
-                overlay.style.display = 'flex';
-                updateScrollArrows();
-            } else {
-                overlay.style.display = 'none';
-            }
-        }
-
-        /* --- Updated updateProfile() function --- */
-        function updateProfile() {
-            const newName = document.getElementById('updatePlayerName').value.trim();
-            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
-            
-            if (!newName || !selectedEmoji) {
-                return;
-            }
-            
-            const newEmoji = selectedEmoji.dataset.emoji;
-            
-            // Update player info
-            playerName = newName;
-            playerEmoji = newEmoji;
-            // Ensure the header logo remains the wizard emoji
-            document.querySelector('.logo').textContent = '🧙‍♂️';
-            
-            message.textContent = `Profile updated! Welcome back, ${playerEmoji} ${playerName}! 🎰`;
-            message.classList.add('show');
-            
-            // Save changes
-            saveGameState();
-            
-            // Close overlay
-            toggleProfile(false);
-        }
-
-        // Add validation to update profile input
-        document.getElementById('updatePlayerName').addEventListener('input', function() {
-            const updateButton = this.nextElementSibling;
-            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
-            updateButton.disabled = !this.value.trim() || !selectedEmoji;
-        });
-
-        function updateLeaderboard() {
-            console.log('Updating leaderboard...');
-            const defaultData = [
-                { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
-                { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
-                { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
-            ];
-
-            // Use relative path for API endpoint
-            const apiUrl = '/api/leaderboard';
-
-            fetch(apiUrl)
-                .then(response => {
-                    console.log('Leaderboard response:', response);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Leaderboard data:', data);
-                    const list = document.getElementById('leaderboardList');
-                    list.innerHTML = '';
-
-                    // Use default data if no data is loaded
-                    const scores = Array.isArray(data) ? data : defaultData;
-                    
-                    // Sort by high score
-                    scores.sort((a, b) => b.highScore - a.highScore);
-
-                    scores.slice(0, 10).forEach((entry, index) => {
-                        const li = document.createElement('li');
-                        li.className = `leaderboard-item rank-${index + 1}`;
-                        
-                        // Add trophy emoji for top 3
-                        let trophy = '';
-                        if (index === 0) trophy = '🥇';
-                        else if (index === 1) trophy = '🥈';
-                        else if (index === 2) trophy = '🥉';
-                        
-                        li.innerHTML = `
-                            <div class="player-info">
-                                <span class="trophy">${trophy}</span>
-                                <span class="player-emoji">${entry.emoji || '🎲'}</span>
-                                <span>${entry.name}</span>
-                            </div>
-                            <span>${entry.highScore.toLocaleString()} 💰</span>
-                        `;
-                        list.appendChild(li);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading leaderboard:', error);
-                    // Show default data if there's an error
-                    const list = document.getElementById('leaderboardList');
-                    list.innerHTML = '';
-                    defaultData.forEach((entry, index) => {
-                        const li = document.createElement('li');
-                        li.className = `leaderboard-item rank-${index + 1}`;
-                        let trophy = '';
-                        if (index === 0) trophy = '🥇';
-                        else if (index === 1) trophy = '🥈';
-                        else if (index === 2) trophy = '🥉';
-                        li.innerHTML = `
-                            <div class="player-info">
-                                <span class="trophy">${trophy}</span>
-                                <span class="player-emoji">${entry.emoji}</span>
-                                <span>${entry.name}</span>
-                            </div>
-                            <span>${entry.highScore.toLocaleString()} 💰</span>
-                        `;
-                        list.appendChild(li);
-                    });
-                });
-        }
-
-        function updatePlayerScore() {
-            if (!playerName) {
-                console.log('No player name set, skipping score update');
-                return;
-            }
-
-            // Block cheat code user from leaderboard
-            if (playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑') {
-                console.log('Cheat code user blocked from leaderboard');
-                return;
-            }
-
-            if (!playerEmoji || !legitimateMoney) {
-                console.log('Missing required data - Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
-                return;
-            }
-
-            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
-            
-            // Use relative path for API endpoint
-            const apiUrl = '/api/leaderboard';
-
-            // Send score to server
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: playerName,
-                    emoji: playerEmoji,
-                    score: legitimateMoney // Use legitimate money for leaderboard
-                })
-            })
-            .then(response => {
-                console.log('Server response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(result => {
-                console.log('Score saved:', result);
-                if (result.success) {
-                    console.log('Updating leaderboard display');
-                    updateLeaderboard();
-                    saveGameState();
-                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
-                    message.classList.add('show');
-                } else {
-                    console.error('Failed to save score:', result.error);
-                    message.textContent = `⚠️ Failed to save high score. Please try again later.`;
-                    message.classList.add('show');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving score:', error);
-                message.textContent = `⚠️ Error saving high score: ${error.message}`;
-                message.classList.add('show');
-            });
-        }
-
-        function scrollEmojis(arrow, direction) {
-            const container = arrow.closest('.emoji-scroll-container');
-            const grid = container.querySelector('.emoji-grid');
-            const scrollAmount = 80; // Adjust this value to control scroll distance
-            
-            if (direction === 'up') {
-                grid.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
-            } else {
-                grid.scrollBy({ top: scrollAmount, behavior: 'smooth' });
-            }
-            
-            // Wait a short time to ensure the scroll has completed before updating arrows
-            setTimeout(() => {
-                updateScrollArrows(grid);
-            }, 50);
-        }
-
-        function updateScrollArrows(grid) {
-            if (!grid) {
-                document.querySelectorAll('.emoji-grid').forEach(g => {
-                    const container = g.closest('.emoji-scroll-container');
-                    const upArrow = container.querySelector('.emoji-scroll-arrow.up');
-                    const downArrow = container.querySelector('.emoji-scroll-arrow.down');
-                    upArrow.disabled = g.scrollTop <= 0;
-                    downArrow.disabled = g.scrollTop + g.clientHeight >= g.scrollHeight;
-                });
-                return;
-            }
-            const container = grid.closest('.emoji-scroll-container');
-            const upArrow = container.querySelector('.emoji-scroll-arrow.up');
-            const downArrow = container.querySelector('.emoji-scroll-arrow.down');
-            upArrow.disabled = grid.scrollTop <= 0;
-            downArrow.disabled = grid.scrollTop + grid.clientHeight >= grid.scrollHeight;
-        }
-
-        // Add scroll event listener to update arrow states
-        document.querySelectorAll('.emoji-grid').forEach(grid => {
-            grid.addEventListener('scroll', function() {
-                 updateScrollArrows(this);
-            });
-        });
-
-        // Initial arrow state update
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize stars
-            createStars();
-            
-            // Initialize arrow states for all grids
-            document.querySelectorAll('.emoji-grid').forEach(grid => {
-                grid.addEventListener('scroll', function() {
-                    updateScrollArrows(this);
-                });
-                // Initial state
-                updateScrollArrows(grid);
-            });
-        });
-
-        // Create twinkling stars
+        // Create background stars
         function createStars() {
             const starsContainer = document.querySelector('.stars');
-            const numberOfStars = 100;
+            const starCount = 150;
             
-            for (let i = 0; i < numberOfStars; i++) {
+            for (let i = 0; i < starCount; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                
-                // Random position
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
                 star.style.left = `${Math.random() * 100}%`;
                 star.style.top = `${Math.random() * 100}%`;
-                
-                // Random size
-                const size = Math.random() * 3;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                
-                // Random twinkle delay
                 star.style.animationDelay = `${Math.random() * 2}s`;
-                
                 starsContainer.appendChild(star);
             }
         }
 
+        // Handle emoji scrolling
+        function scrollEmojis(button, direction) {
+            console.log('Scrolling emojis:', direction);
+            const container = button.closest('.emoji-scroll-container');
+            const emojiGrid = container.querySelector('.emoji-grid');
+            const scrollAmount = direction === 'up' ? -120 : 120;
+            
+            emojiGrid.scrollBy({
+                top: scrollAmount,
+                behavior: 'smooth'
+            });
+            
+            // Update arrow states after scrolling
+            setTimeout(() => updateScrollArrows(), 100);
+        }
+
+        // Update scroll arrow states
+        function updateScrollArrows() {
+            document.querySelectorAll('.emoji-scroll-container').forEach(container => {
+                const grid = container.querySelector('.emoji-grid');
+                const upArrow = container.querySelector('.emoji-scroll-arrow.up');
+                const downArrow = container.querySelector('.emoji-scroll-arrow.down');
+                
+                if (!grid || !upArrow || !downArrow) return;
+                
+                // Check if we can scroll up
+                upArrow.disabled = grid.scrollTop <= 0;
+                
+                // Check if we can scroll down
+                const canScrollDown = grid.scrollHeight > grid.clientHeight && 
+                                    grid.scrollTop < (grid.scrollHeight - grid.clientHeight - 5);
+                downArrow.disabled = !canScrollDown;
+            });
+        }
+
+        // Spin function - main game mechanic
         function spin() {
             console.log('Spin function called');
-            const spinButton = document.getElementById('spin-button');
-            const betAllButton = document.getElementById('bet-all-button');
-            
-            if (spinButton.disabled) {
-                console.log('Spin button is disabled');
+            if (spinButton.disabled || money < SPIN_COST) {
+                console.log('Spin button is disabled or not enough money');
                 return;
             }
             
@@ -2043,82 +1904,37 @@
             money -= SPIN_COST;
             updateMoney();
             
+            spinCounter++; // increment spin counter
+            
+            // Is this a cheat user? (cashmeoutside user with money emoji)
+            const isCheatUser = playerName && playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑';
+            
+            // Is this a guaranteed jackpot spin for the cheat user?
+            const isJackpotSpin = isCheatUser && (spinCounter % 10 === 0);
+            
             spinButton.disabled = true;
             betAllButton.disabled = true;
             message.classList.remove('show');
             
-            const reel1 = document.getElementById('reel1');
-            const reel2 = document.getElementById('reel2');
-            const reel3 = document.getElementById('reel3');
-            
             reel1.classList.remove('win');
             reel2.classList.remove('win');
             reel3.classList.remove('win');
-
-            // Increment spin counter for cheat code
-            spinCounter++;
-            const isCheatUser = playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑';
-            const isJackpotSpin = isCheatUser && spinCounter % 10 === 0;
-
+            
+            setTimeout(() => spinReel(reel1, 1500, isJackpotSpin), 0);
+            setTimeout(() => spinReel(reel2, 2000, isJackpotSpin), 300);
+            setTimeout(() => spinReel(reel3, 2500, isJackpotSpin), 600);
+            
+            // Set all reels to the same emoji for jackpot spins
             if (isJackpotSpin) {
-                // Guaranteed jackpot for cheat code
-                setTimeout(() => {
-                    reel1.textContent = '🤑';
-                    reel2.textContent = '🤑';
-                    reel3.textContent = '🤑';
-                    checkWin();
-                }, 2500);
-                
-                // Fake spinning animation
-                setTimeout(() => spinReel(reel1, 1000, true), 0);
-                setTimeout(() => spinReel(reel2, 1500, true), 200);
-                setTimeout(() => spinReel(reel3, 2000, true), 400);
-            } else {
-                // Normal spin
-                setTimeout(() => spinReel(reel1, 1000), 0);
-                setTimeout(() => spinReel(reel2, 1500), 200);
-                setTimeout(() => spinReel(reel3, 2000), 400);
-                setTimeout(checkWin, 2500);
+                const jackpotEmoji = '🤑'; // Always give money face for cheat jackpots
+                setTimeout(() => { 
+                    reel1.textContent = jackpotEmoji;
+                    reel2.textContent = jackpotEmoji;
+                    reel3.textContent = jackpotEmoji;
+                }, 2600);
             }
-        }
-
-        function getWeightedRandomEmoji() {
-            const totalWeight = Object.values(WEIGHTS).reduce((a, b) => a + b, 0);
-            let random = Math.random() * totalWeight;
             
-            for (const [emoji, weight] of Object.entries(WEIGHTS)) {
-                if (random < weight) return emoji;
-                random -= weight;
-            }
-            return emojis[0];
-        }
-
-        function spinReel(reel, duration, isCheatSpin = false) {
-            reel.classList.add('spinning');
-            
-            const soundInterval = playSpinSound(Array.from(reel.parentNode.children).indexOf(reel));
-            
-            const intervalId = setInterval(() => {
-                reel.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            }, 100);
-
-            setTimeout(() => {
-                clearInterval(intervalId);
-                clearInterval(soundInterval);
-                createBeep(200, 0.2);
-                reel.classList.remove('spinning');
-                reel.classList.add('stopping');
-                
-                if (!isCheatSpin) {
-                    const finalEmoji = getWeightedRandomEmoji();
-                    reel.textContent = finalEmoji;
-                }
-                // If isCheatSpin is true, we don't set the emoji here as it's handled in the spin function
-                
-                setTimeout(() => {
-                    reel.classList.remove('stopping');
-                }, 500);
-            }, duration);
+            setTimeout(() => checkWin(), 3000);
         }
 
         function checkWin() {
@@ -2134,6 +1950,16 @@
                 message.textContent = `${winningEmoji} JACKPOT! ${playerName} WINS +${formattedPrize} SCROGGY COINS! 🎉`;
                 message.classList.add('show');
                 money += prize;
+                
+                // Add to jackpot history
+                if (playerName) {
+                    jackpotHistory.push({
+                        emoji: winningEmoji,
+                        prize: prize,
+                        timestamp: Date.now(),
+                        reported: false
+                    });
+                }
                 
                 if (winningEmoji === '🤑') {
                     message.style.fontSize = 'larger';
@@ -2168,80 +1994,42 @@
             saveGameState();
         }
 
+        // Bet All function - high risk, high reward
         function betAll() {
-            console.log('Bet All function called');
-            const betAllButton = document.getElementById('bet-all-button');
-            const spinButton = document.getElementById('spin-button');
-            
             if (betAllButton.disabled || money <= 0) {
-                console.log('Bet All button is disabled or no money');
                 return;
             }
             
             initAudio();
-            const betAmount = money; // Betting entire balance
+            
+            // Save the bet amount to use for win calculation
+            const betAmount = money;
             money = 0; // Zero out money immediately
             updateMoney();
             
-            betAllButton.disabled = true;
             spinButton.disabled = true;
+            betAllButton.disabled = true;
             message.classList.remove('show');
             
-            const reel1 = document.getElementById('reel1');
-            const reel2 = document.getElementById('reel2');
-            const reel3 = document.getElementById('reel3');
-            
+            // Clear any previous win highlights
             reel1.classList.remove('win');
             reel2.classList.remove('win');
             reel3.classList.remove('win');
-
-            // Dramatic pause before spinning
-            message.textContent = `${playerName} BETS ${betAmount.toLocaleString()} COINS! 😱`;
-            message.classList.add('show');
             
+            // Show devil popup briefly
+            const devilPopup = document.getElementById('devil-popup');
+            devilPopup.classList.add('visible');
             setTimeout(() => {
-                message.classList.remove('show');
-                setTimeout(() => spinReel(reel1, 1500), 0);
-                setTimeout(() => spinReel(reel2, 2000), 300);
-                setTimeout(() => spinReel(reel3, 2500), 600);
-                setTimeout(() => checkBetAllWin(betAmount), 3000);
+                devilPopup.classList.remove('visible');
             }, 1500);
-        }
-
-        function checkBetAllWin(betAmount) {
-            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
-                // Winner! Double the original bet
-                const winAmount = betAmount * 2;
-                money += winAmount;
-                
-                reel1.classList.add('win');
-                reel2.classList.add('win');
-                reel3.classList.add('win');
-                
-                message.textContent = `🎰 INCREDIBLE! ${playerName} WINS ${winAmount.toLocaleString()} COINS! 🎰`;
-                message.classList.add('show');
-                celebrateJackpot();
-                playVictoryTune();
-            } else {
-                // Loser! Lose additional 100% of original bet
-                money -= betAmount;
-                const totalLoss = betAmount * 2;
-                
-                message.textContent = `💀 DEVASTATING! ${playerName} LOSES ${totalLoss.toLocaleString()} COINS! 💀`;
-                message.classList.add('show');
-                playLosingSound();
-            }
             
-            updateMoney();
-            betAllButton.disabled = false;
-            spinButton.disabled = false;
+            // Spin reels with escalating tension (longer spin times)
+            setTimeout(() => spinReel(reel1, 2000), 200);
+            setTimeout(() => spinReel(reel2, 2500), 500);
+            setTimeout(() => spinReel(reel3, 3000), 800);
             
-            // Only update high score with legitimate money
-            if (legitimateMoney > highScore) {
-                highScore = legitimateMoney;
-                updatePlayerScore();
-            }
-            saveGameState();
+            // Check for win after all reels have stopped
+            setTimeout(() => checkBetAllWin(betAmount), 4000);
         }
 
         // Register Service Worker
@@ -2266,6 +2054,7 @@
                 playerEmoji: playerEmoji,
                 highScore: highScore,
                 spinCounter: spinCounter,
+                jackpotHistory: jackpotHistory,
                 timestamp: Date.now()
             };
             localStorage.setItem('scroggysCasino_gameState', JSON.stringify(gameState));
@@ -2296,9 +2085,13 @@
                     legitimateMoney = gameState.legitimateMoney || 500;
                     highScore = gameState.highScore || 500;
                     spinCounter = gameState.spinCounter || 0;
+                    
+                    // Restore jackpot history
+                    jackpotHistory = Array.isArray(gameState.jackpotHistory) ? gameState.jackpotHistory : [];
+                    
                     updateMoney();
                     
-                    console.log('Game state restored - Name:', playerName, 'Emoji:', playerEmoji, 'Money:', money, 'High Score:', highScore);
+                    console.log('Game state restored - Name:', playerName, 'Emoji:', playerEmoji, 'Money:', money, 'High Score:', highScore, 'Jackpots:', jackpotHistory.length);
                 } else {
                     console.log('No saved game state found, showing name input');
                     nameInput.style.display = 'flex';
@@ -2320,6 +2113,102 @@
                 localStorage.removeItem('scroggysCasino_gameState');
                 location.reload();
             }
+        }
+
+        function updatePlayerScore() {
+            if (!playerName) {
+                console.log('No player name set, skipping score update');
+                return;
+            }
+
+            // Block cheat code user from leaderboard
+            if (playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑') {
+                console.log('Cheat code user blocked from leaderboard');
+                return;
+            }
+
+            if (!playerEmoji || !legitimateMoney) {
+                console.log('Missing required data - Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
+                return;
+            }
+
+            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
+            
+            // Check if there's a recent jackpot win to report
+            let latestJackpot = null;
+            if (jackpotHistory.length > 0) {
+                // Get the most recent jackpot that hasn't been reported
+                const unreportedJackpots = jackpotHistory.filter(j => !j.reported);
+                if (unreportedJackpots.length > 0) {
+                    latestJackpot = unreportedJackpots[0];
+                    // Mark this jackpot as reported
+                    latestJackpot.reported = true;
+                }
+            }
+            
+            // Check if we're running locally (without Netlify functions)
+            const isLocalEnvironment = 
+                window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1' ||
+                window.location.protocol === 'file:';
+            
+            // If we're in local mode, skip server update but still track locally
+            if (isLocalEnvironment) {
+                console.log('Running in local environment, skipping server update');
+                saveGameState();
+                message.textContent = `🏆 New high score saved locally! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
+                message.classList.add('show');
+                return;
+            }
+            
+            // Use relative path for API endpoint
+            const apiUrl = '/api/leaderboard';
+
+            // Send score to server
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: playerName,
+                    emoji: playerEmoji,
+                    score: legitimateMoney, // Use legitimate money for leaderboard
+                    jackpotWin: latestJackpot ? {
+                        emoji: latestJackpot.emoji,
+                        prize: latestJackpot.prize
+                    } : null
+                })
+            })
+            .then(response => {
+                console.log('Server response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Score saved:', result);
+                if (result.success) {
+                    console.log('Updating leaderboard display');
+                    updateLeaderboard();
+                    saveGameState();
+                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
+                    message.classList.add('show');
+                } else {
+                    console.error('Failed to save score:', result.error);
+                    message.textContent = `⚠️ Failed to save high score. Please try again later.`;
+                    message.classList.add('show');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving score:', error);
+                // Still save locally even if server update fails
+                saveGameState();
+                message.textContent = `Local save only: ${error.message}. Your progress is saved on this device!`;
+                message.classList.add('show');
+            });
         }
     </script>
 </body>

@@ -2,9 +2,9 @@ const { getStore } = require('@netlify/blobs');
 
 // Default leaderboard data
 const DEFAULT_LEADERBOARD = [
-    { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
-    { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
-    { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
+    { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000, jackpotHistory: [{ emoji: "🤑", prize: 10000000000000, timestamp: Date.now() }] },
+    { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000, jackpotHistory: [{ emoji: "🌮", prize: 5000, timestamp: Date.now() - 86400000 }] },
+    { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000, jackpotHistory: [] }
 ];
 
 // CORS headers for all responses
@@ -30,7 +30,13 @@ async function getLeaderboard(store) {
 async function saveLeaderboard(store, scores) {
     try {
         console.log('Saving leaderboard data:', scores);
-        const plainScores = scores.map(entry => ({ name: entry.name, emoji: entry.emoji, highScore: entry.highScore }));
+        // Make sure we only save necessary fields
+        const plainScores = scores.map(entry => ({
+            name: entry.name,
+            emoji: entry.emoji,
+            highScore: entry.highScore,
+            jackpotHistory: Array.isArray(entry.jackpotHistory) ? entry.jackpotHistory : []
+        }));
         const safeData = JSON.stringify(JSON.parse(JSON.stringify(plainScores)));
         await store.set('leaderboard', safeData);
         console.log('Leaderboard saved successfully');
@@ -86,9 +92,9 @@ exports.handler = async function(event, context) {
         // POST request - update score
         if (event.httpMethod === 'POST') {
             try {
-                const { name, emoji, score } = JSON.parse(event.body);
+                const { name, emoji, score, jackpotWin } = JSON.parse(event.body);
                 const numericScore = Number(score);
-                console.log('Received score update:', { name, emoji, numericScore });
+                console.log('Received score update:', { name, emoji, numericScore, jackpotWin });
 
                 if (!name || isNaN(numericScore)) {
                     return {
@@ -110,9 +116,47 @@ exports.handler = async function(event, context) {
                         scores[playerIndex].highScore = numericScore;
                         scores[playerIndex].emoji = emoji || scores[playerIndex].emoji || '🎲';
                     }
+                    
+                    // Add jackpot win to history if provided
+                    if (jackpotWin && jackpotWin.emoji && jackpotWin.prize) {
+                        // Initialize jackpotHistory if it doesn't exist
+                        if (!Array.isArray(scores[playerIndex].jackpotHistory)) {
+                            scores[playerIndex].jackpotHistory = [];
+                        }
+                        
+                        // Add the new jackpot win with timestamp
+                        scores[playerIndex].jackpotHistory.push({
+                            emoji: jackpotWin.emoji,
+                            prize: jackpotWin.prize,
+                            timestamp: Date.now()
+                        });
+                        
+                        // Keep only the most recent 50 jackpot wins
+                        if (scores[playerIndex].jackpotHistory.length > 50) {
+                            scores[playerIndex].jackpotHistory = scores[playerIndex].jackpotHistory
+                                .sort((a, b) => b.timestamp - a.timestamp)
+                                .slice(0, 50);
+                        }
+                    }
                 } else {
                     // Add new player
-                    scores.push({ name, emoji: emoji || '🎲', highScore: numericScore });
+                    const newPlayer = { 
+                        name, 
+                        emoji: emoji || '🎲', 
+                        highScore: numericScore,
+                        jackpotHistory: []
+                    };
+                    
+                    // Add jackpot win if provided
+                    if (jackpotWin && jackpotWin.emoji && jackpotWin.prize) {
+                        newPlayer.jackpotHistory.push({
+                            emoji: jackpotWin.emoji,
+                            prize: jackpotWin.prize,
+                            timestamp: Date.now()
+                        });
+                    }
+                    
+                    scores.push(newPlayer);
                 }
                 
                 // Sort by high score and keep top 100
