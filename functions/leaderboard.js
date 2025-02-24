@@ -20,7 +20,7 @@ async function getLeaderboard(store) {
         console.log('Fetching leaderboard data from store');
         const data = await store.get('leaderboard');
         console.log('Raw leaderboard data:', data);
-        return data ? JSON.parse(data) : DEFAULT_LEADERBOARD;
+        return data ? JSON.parse(data) : JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
     } catch (error) {
         console.error('Error reading leaderboard:', error);
         return DEFAULT_LEADERBOARD;
@@ -31,7 +31,8 @@ async function saveLeaderboard(store, scores) {
     try {
         console.log('Saving leaderboard data:', scores);
         const plainScores = scores.map(entry => ({ name: entry.name, emoji: entry.emoji, highScore: entry.highScore }));
-        await store.set('leaderboard', JSON.stringify(plainScores));
+        const safeData = JSON.stringify(JSON.parse(JSON.stringify(plainScores)));
+        await store.set('leaderboard', safeData);
         console.log('Leaderboard saved successfully');
         return true;
     } catch (error) {

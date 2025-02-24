@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Scroggy's Casino</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sigmar+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#50ff50">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,10 +15,10 @@
     <style>
         /* Font loading optimization */
         @font-face {
-            font-family: 'Sigmar One';
+            font-family: 'Nunito';
             font-display: optional;
-            src: local('Sigmar One'), url(https://fonts.gstatic.com/s/sigmarone/v11/wq_F3-6Wk4ZpxAzd_DEvw2Jx.woff2) format('woff2');
-            font-weight: normal;
+            src: local('Nunito Black'), url(https://fonts.gstatic.com/s/nunito/v17/XRXW3I6Li01BKofA-se4I2YhKjg.woff2) format('woff2');
+            font-weight: 900;
             font-style: normal;
         }
 
@@ -64,7 +64,7 @@
                 45deg,
                 rgba(139, 69, 19, 0.3) 0%,
                 rgba(34, 139, 34, 0.3) 25%,
-                rgba(139, 69, 19, 0.3) 50%,
+                rgba(177, 86, 21, 0.3) 50%,
                 rgba(34, 139, 34, 0.3) 75%,
                 rgba(139, 69, 19, 0.3) 100%
             );
@@ -98,7 +98,7 @@
             --button-width: clamp(180px, 50vw, 200px);
             --spin-text-size: clamp(24px, 5vw, 32px);
             --balance-size: clamp(32px, 6vw, 42px);
-            --font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+            --font-family: 'Nunito', sans-serif;
         }
 
         /* Desktop size adjustments */
@@ -241,7 +241,7 @@
 
         body {
             background-color: #1a1a1a;
-            font-family: 'Sigmar One', 'Comic Sans MS', cursive;
+            font-family: 'Nunito', sans-serif;
             min-height: 100vh;
             min-height: -webkit-fill-available; /* iOS viewport fix */
             display: flex;
@@ -260,12 +260,11 @@
             width: min(95vw, 400px);
             margin: auto;
             padding: var(--machine-padding);
-            border: clamp(4px, 1.5vw, 8px) solid gold;
+            border: clamp(4px, 1.5vw, 8px) solid rgb(250, 242, 5);
             border-radius: clamp(15px, 4vw, 20px);
-            background: linear-gradient(45deg, #2c2c2c, #1a1a1a);
+            background: linear-gradient(45deg, #000000, #172d30);
             text-align: center;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
-                        inset 0 0 20px rgba(255, 215, 0, 0.2);
+            opacity:0.7;
             position: relative;
             overflow: hidden;
         }
@@ -273,19 +272,19 @@
         h1 {
             font-size: var(--title-size);
             margin-bottom: clamp(20px, 4vw, 30px);
-            color: #50ff50;
-            text-shadow: 0 0 15px rgba(80, 255, 80, 0.5),
-                         0 0 30px rgba(80, 255, 80, 0.3);
+            color: #f7a965;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: clamp(5px, 2vw, 10px);
             line-height: 1.2;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
         }
 
         .logo {
             font-size: var(--logo-size);
-            filter: drop-shadow(0 0 10px rgba(80, 255, 80, 0.5));
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         }
 
         .reels {
@@ -293,10 +292,11 @@
             justify-content: center;
             margin-bottom: clamp(20px, 4vw, 30px);
             padding: clamp(15px, 3vw, 20px);
-            background: #000;
+            background: #e9eb64;
             border-radius: clamp(10px, 3vw, 15px);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+            box-shadow: inset 0 0 50px rgba(156, 120, 14, 0.8);
             perspective: 1000px;
+            border:solid 11px #fff200;
         }
 
         .reel {
@@ -308,9 +308,9 @@
             font-size: calc(var(--reel-size) * 0.5);
             border: 3px solid gold;
             border-radius: clamp(10px, 3vw, 15px);
-            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            background: linear-gradient(145deg, #e1ec53, #685212);
             margin: 0 clamp(5px, 2vw, 10px);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 15px #685212;
             transition: transform 0.3s ease;
             transform-style: preserve-3d;
             position: relative;
@@ -376,15 +376,18 @@
             font-size: clamp(20px, 4vw, 28px);
             color: gold;
             margin-bottom: clamp(15px, 3vw, 20px);
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            
             display: flex;
             flex-direction: column;
             gap: clamp(3px, 1vw, 5px);
+            font-size:11px
         }
 
         .balance {
             font-size: var(--balance-size);
             color: gold;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
         }
 
         .balance.negative {
@@ -405,7 +408,8 @@
             width: var(--button-width);
             padding: clamp(10px, 2vw, 15px);
             font-size: var(--spin-text-size);
-            font-family: var(--font-family);
+            font-family: 'Nunito', sans-serif;
+            font-weight:900;
             border: none;
             border-radius: 50px;
             cursor: pointer;
@@ -456,7 +460,7 @@
             right: -10px;
             bottom: -10px;
             border-radius: 25px;
-            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4, #ffd700);
+            background: linear-gradient(45deg, #000000, #0a1023, #113c39, #1e1c15);
             z-index: -1;
             filter: blur(20px);
             opacity: 0.5;
@@ -514,8 +518,8 @@
 
         .speech-bubble {
             position: absolute;
-            background: #ff3333;
-            color: white;
+            background: #ffffff;
+            color: #000000;
             padding: 15px;
             border-radius: 20px;
             font-size: 16px;
@@ -539,7 +543,7 @@
             right: 20px;
             border-width: 10px 10px 0;
             border-style: solid;
-            border-color: #ff3333 transparent transparent;
+            border-color: #ffffff transparent transparent;
         }
 
         .devil-popup.show .speech-bubble {
@@ -698,9 +702,10 @@
             border-radius: 25px;
             font-size: 18px;
             cursor: pointer;
-            font-family: var(--font-family);
+            font-family: 'Nunito', sans-serif;
             transition: all 0.3s ease;
             margin-top: 20px;
+            font-weight: 900;
         }
 
         .name-input-container button:disabled {
@@ -811,9 +816,10 @@
             border-radius: 25px;
             font-size: 18px;
             cursor: pointer;
-            font-family: var(--font-family);
+            font-family: 'Nunito', sans-serif;
             transition: all 0.3s ease;
             margin-top: 20px;
+            font-weight: 900;
         }
 
         .profile-container button:not(.profile-close):hover {
@@ -906,7 +912,7 @@
 
         /* Font loading detection */
         .fonts-loaded {
-            --font-family: 'Sigmar One', "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+            --font-family: 'Nunito', sans-serif;
         }
 
         .fonts-loaded body {
@@ -914,15 +920,15 @@
         }
 
         #spin-button {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #2c2c2c;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(145deg, #f7df52, #f8bf55);
+            color: #000000;
+            
         }
 
         #spin-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(255, 215, 0, 0.4);
-            background: linear-gradient(145deg, #ffa500, #ffd700);
+            
+            background: linear-gradient(145deg, #f0e650, #f4e174);
         }
 
         #spin-button:disabled {
@@ -932,7 +938,7 @@
         }
 
         #bet-all-button {
-            background: linear-gradient(145deg, #ff3333, #cc0000);
+            background: linear-gradient(145deg, #ff4a3d, #cc0000);
             color: white;
             box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
         }
@@ -940,7 +946,7 @@
         #bet-all-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(255, 0, 0, 0.4);
-            background: linear-gradient(145deg, #ff4444, #dd0000);
+            background: linear-gradient(145deg, #f97070, #f07979);
         }
 
         #bet-all-button:disabled {
@@ -1245,10 +1251,10 @@
         <button class="reset-button" onclick="resetGame()">🔄</button>
         <h1>
             <span class="logo">🧙‍♂️</span>
-            SCROGGY'S CASINO
+            $CROGGY'S CASINO
         </h1>
         <div class="money-display">
-            BALANCE
+            
             <div class="balance" id="money">500</div>
             <div>SCROGGY COINS</div>
         </div>
@@ -1585,11 +1591,11 @@
             // Try to load custom font
             if ('fonts' in document) {
                 try {
-                    const font = new FontFace('Sigmar One', 
-                        'url(https://fonts.gstatic.com/s/sigmarone/v11/wq_F3-6Wk4ZpxAzd_DEvw2Jx.woff2)',
+                    const font = new FontFace('Nunito', 
+                        'url(https://fonts.gstatic.com/s/nunito/v17/XRXW3I6Li01BKofA-se4I2YhKjg.woff2)',
                         { 
                             style: 'normal',
-                            weight: 'normal',
+                            weight: '900',
                             display: 'optional'
                         }
                     );
