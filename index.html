@@ -1123,7 +1123,24 @@
         }
         .logo {
           display: inline-block;
-          animation: breathe 4s infinite ease-in-out;
+          animation: breathe-rotate 12s infinite ease-in-out;
+        }
+
+        @keyframes breathe-rotate {
+          0% { transform: scale(1) rotate(0deg); }
+          40% { transform: scale(1.1) rotate(0deg); }
+          80% { transform: scale(1) rotate(0deg); }
+          90% { transform: scale(1) rotate(0deg); }
+          95% { transform: scale(1) rotate(360deg); }
+          100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .logo-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -1291,7 +1308,11 @@
         <button class="mute-button">🔊</button>
         <button class="reset-button" onclick="resetGame()">🔄</button>
         <h1>
-            <span class="logo">🧙‍♂️</span>
+            <div class="logo-wrapper">
+                <span class="sparkle">✨</span>
+                <span class="logo">🧙‍♂️</span>
+                <span class="sparkle">✨</span>
+            </div>
             <span class="title-text">
               <span>$</span><span>C</span><span>R</span><span>O</span><span>G</span><span>G</span><span>Y</span><span>'</span><span>S</span><span>&nbsp;</span><span>C</span><span>A</span><span>S</span><span>I</span><span>N</span><span>O</span>
             </span>
@@ -1712,6 +1733,7 @@
             }
         }
 
+        /* --- Updated updateProfile() function --- */
         function updateProfile() {
             const newName = document.getElementById('updatePlayerName').value.trim();
             const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
@@ -1725,9 +1747,9 @@
             // Update player info
             playerName = newName;
             playerEmoji = newEmoji;
+            // Ensure the header logo remains the wizard emoji
+            document.querySelector('.logo').textContent = '🧙‍♂️';
             
-            // Update UI
-            document.querySelector('.logo').textContent = playerEmoji;
             message.textContent = `Profile updated! Welcome back, ${playerEmoji} ${playerName}! 🎰`;
             message.classList.add('show');
             
@@ -2205,7 +2227,7 @@
                     if (gameState.playerName && gameState.playerEmoji) {
                         playerName = gameState.playerName;
                         playerEmoji = gameState.playerEmoji;
-                        document.querySelector('.logo').textContent = playerEmoji;
+                        document.querySelector('.logo').textContent = '🧙‍♂️';
                         // Hide name input immediately if we have saved data
                         nameInput.style.display = 'none';
                         message.textContent = `Welcome back, ${playerEmoji} ${playerName}! 🎰`;
