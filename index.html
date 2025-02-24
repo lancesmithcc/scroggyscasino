@@ -1994,6 +1994,72 @@
             saveGameState();
         }
 
+        // Function to handle reel spinning - THIS WAS MISSING
+        function spinReel(reel, duration, isJackpotSpin) {
+            console.log('Spinning reel:', reel.id, 'for', duration, 'ms');
+            let spinSound;
+            
+            // Start spinning animation
+            reel.classList.add('spinning');
+            
+            // Play spinning sound
+            spinSound = playSpinSound(Array.from(document.querySelectorAll('.reel')).indexOf(reel));
+            
+            // Set a random emoji during spinning
+            const spinInterval = setInterval(() => {
+                if (isJackpotSpin) {
+                    reel.textContent = '🤑'; // Force money emoji for jackpot
+                } else {
+                    // Get a random emoji weighted by rarity
+                    const randomEmoji = getWeightedRandomEmoji();
+                    reel.textContent = randomEmoji;
+                }
+            }, 100);
+            
+            // Stop spinning after duration
+            setTimeout(() => {
+                clearInterval(spinInterval);
+                clearInterval(spinSound);
+                
+                reel.classList.remove('spinning');
+                reel.classList.add('stopping');
+                
+                // If not a jackpot spin, set final emoji
+                if (!isJackpotSpin) {
+                    reel.textContent = getWeightedRandomEmoji();
+                }
+                
+                // Remove stopping class after animation completes
+                setTimeout(() => {
+                    reel.classList.remove('stopping');
+                }, 500);
+            }, duration);
+        }
+
+        // Helper function to get a random emoji based on weighted probabilities
+        function getWeightedRandomEmoji() {
+            // Calculate total weight
+            let totalWeight = 0;
+            for (const emoji in WEIGHTS) {
+                totalWeight += WEIGHTS[emoji];
+            }
+            
+            // Get a random number between 0 and totalWeight
+            const random = Math.random() * totalWeight;
+            
+            // Find the emoji that corresponds to this random number
+            let runningTotal = 0;
+            for (const emoji in WEIGHTS) {
+                runningTotal += WEIGHTS[emoji];
+                if (random <= runningTotal) {
+                    return emoji;
+                }
+            }
+            
+            // Fallback
+            return '💩';
+        }
+
         // Bet All function - high risk, high reward
         function betAll() {
             if (betAllButton.disabled || money <= 0) {
@@ -2030,6 +2096,80 @@
             
             // Check for win after all reels have stopped
             setTimeout(() => checkBetAllWin(betAmount), 4000);
+        }
+
+        // Function to check if Bet All resulted in a win - THIS WAS MISSING
+        function checkBetAllWin(betAmount) {
+            // Win condition: all three reels match
+            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
+                const winningEmoji = reel1.textContent;
+                
+                // Double the win amount for bet all + apply emoji multiplier
+                const multiplier = 2; // Double or nothing base
+                const emojiMultiplier = winningEmoji === '🤑' ? 100 : 
+                                       winningEmoji === '🤮' ? 10 : 
+                                       winningEmoji === '🥒' ? 5 : 
+                                       winningEmoji === '🌮' ? 3 : 2;
+                
+                const winAmount = betAmount * multiplier * emojiMultiplier;
+                
+                reel1.classList.add('win');
+                reel2.classList.add('win');
+                reel3.classList.add('win');
+                
+                // Add special badge to jackpot history for bet all wins
+                if (playerName) {
+                    jackpotHistory.push({
+                        emoji: winningEmoji,
+                        prize: winAmount,
+                        timestamp: Date.now(),
+                        reported: false,
+                        betAll: true
+                    });
+                }
+                
+                message.textContent = `🤯 BET ALL WIN! ${winningEmoji} JACKPOT! ${playerName} WINS +${winAmount.toLocaleString()} SCROGGY COINS! (${emojiMultiplier}x MULTIPLIER)`;
+                message.classList.add('show');
+                message.style.fontSize = 'larger';
+                message.style.color = '#50ff50';
+                
+                money += winAmount;
+                
+                // Extra celebration for bet all wins
+                celebrateJackpot();
+                setTimeout(() => celebrateJackpot(), 500);
+                setTimeout(() => celebrateJackpot(), 1000);
+                
+                playVictoryTune();
+            } else {
+                // Lose everything (already set money to 0)
+                message.textContent = `💀 BET ALL LOST! ${playerName} LOST EVERYTHING! The devil laughs at you!`;
+                message.classList.add('show');
+                message.style.fontSize = '';
+                message.style.color = '#ff5555';
+                
+                // Show devil laughing
+                const devilPopup = document.getElementById('devil-popup');
+                devilPopup.querySelector('.speech-bubble').textContent = `HAHAHA! Thanks for the coins, ${playerName}! Want to try again?`;
+                devilPopup.classList.add('show');
+                setTimeout(() => {
+                    devilPopup.classList.remove('show');
+                }, 5000);
+                
+                playLosingSound();
+            }
+            
+            updateMoney();
+            spinButton.disabled = false;
+            betAllButton.disabled = false;
+            
+            // Only update high score with legitimate money
+            if (legitimateMoney > highScore) {
+                highScore = legitimateMoney;
+                updatePlayerScore();
+            }
+            
+            saveGameState();
         }
 
         // Register Service Worker
@@ -2209,6 +2349,243 @@
                 message.textContent = `Local save only: ${error.message}. Your progress is saved on this device!`;
                 message.classList.add('show');
             });
+        }
+
+        // Function to toggle leaderboard visibility - THIS WAS MISSING
+        function toggleLeaderboard(show) {
+            console.log('Toggling leaderboard:', show);
+            const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+            if (!leaderboardOverlay) {
+                console.error('Leaderboard overlay element not found');
+                return;
+            }
+            
+            leaderboardOverlay.style.display = show ? 'flex' : 'none';
+            
+            if (show) {
+                updateLeaderboard(); // Update leaderboard data when shown
+            }
+        }
+
+        // Function to toggle profile visibility - THIS WAS MISSING
+        function toggleProfile(show) {
+            console.log('Toggling profile:', show);
+            const profileOverlay = document.getElementById('profileOverlay');
+            if (!profileOverlay) {
+                console.error('Profile overlay element not found');
+                return;
+            }
+            
+            profileOverlay.style.display = show ? 'flex' : 'none';
+            
+            if (show) {
+                // Update profile form with current values
+                const nameInput = document.getElementById('updatePlayerName');
+                if (nameInput) {
+                    nameInput.value = playerName || '';
+                }
+                
+                // Highlight current emoji
+                const emojiOptions = profileOverlay.querySelectorAll('.emoji-option');
+                emojiOptions.forEach(option => {
+                    option.classList.toggle('selected', option.dataset.emoji === playerEmoji);
+                });
+                
+                // Update jackpot history display
+                updateJackpotHistory();
+            }
+        }
+
+        // Function to update jackpot history display - THIS WAS MISSING
+        function updateJackpotHistory() {
+            const jackpotHistoryList = document.getElementById('jackpotHistoryList');
+            if (!jackpotHistoryList) return;
+            
+            if (jackpotHistory.length === 0) {
+                jackpotHistoryList.innerHTML = '<div class="no-jackpots">No jackpots won yet. Keep spinning!</div>';
+                return;
+            }
+            
+            // Sort jackpots by timestamp (most recent first)
+            const sortedJackpots = [...jackpotHistory].sort((a, b) => b.timestamp - a.timestamp);
+            
+            // Create HTML for each jackpot
+            let html = '';
+            sortedJackpots.forEach(jackpot => {
+                const date = new Date(jackpot.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                const rarity = RARITY[jackpot.emoji] || 'Common';
+                const rarityClass = `rarity-${rarity.toLowerCase()}`;
+                
+                html += `
+                    <div class="jackpot-item">
+                        <span class="jackpot-emoji">${jackpot.emoji}</span>
+                        <div class="jackpot-details">
+                            <span class="jackpot-prize">+${jackpot.prize.toLocaleString()}</span>
+                            <span class="jackpot-date">${formattedDate}</span>
+                        </div>
+                        <span class="jackpot-rarity ${rarityClass}">${rarity}</span>
+                    </div>
+                `;
+            });
+            
+            jackpotHistoryList.innerHTML = html;
+        }
+
+        // Function to update profile - THIS WAS MISSING
+        function updateProfile() {
+            const nameInput = document.getElementById('updatePlayerName');
+            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
+            
+            if (nameInput && nameInput.value.trim() && selectedEmoji) {
+                const newName = nameInput.value.trim();
+                const newEmoji = selectedEmoji.dataset.emoji;
+                
+                // Update player info
+                playerName = newName;
+                playerEmoji = newEmoji;
+                
+                // Update logo
+                document.querySelector('.logo').textContent = playerEmoji;
+                
+                // Save changes
+                saveGameState();
+                
+                // Show confirmation message
+                message.textContent = `Profile updated! ${playerEmoji} ${playerName}`;
+                message.classList.add('show');
+                
+                // Close profile overlay
+                toggleProfile(false);
+            }
+        }
+
+        // Function to update leaderboard - THIS WAS MISSING
+        function updateLeaderboard() {
+            console.log('Updating leaderboard');
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (!leaderboardList) {
+                console.error('Leaderboard list element not found');
+                return;
+            }
+            
+            // Show loading message
+            leaderboardList.innerHTML = '<li>Loading leaderboard...</li>';
+            
+            // Check if we're running locally
+            const isLocalEnvironment = 
+                window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1' ||
+                window.location.protocol === 'file:';
+            
+            if (isLocalEnvironment) {
+                console.log('Running in local environment, showing local leaderboard');
+                // Create local leaderboard with default data
+                const defaultData = [
+                    { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
+                    { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
+                    { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
+                ];
+                
+                // Add current player if they have a name
+                if (playerName && legitimateMoney > 0) {
+                    defaultData.push({
+                        name: playerName,
+                        emoji: playerEmoji,
+                        highScore: legitimateMoney
+                    });
+                }
+                
+                // Sort by high score and display
+                const topScores = defaultData
+                    .sort((a, b) => b.highScore - a.highScore)
+                    .slice(0, 20);
+                
+                displayLeaderboard(topScores);
+                
+                // Add notice about local mode
+                const existingNotice = leaderboardList.parentNode.querySelector('.local-mode-notice');
+                if (!existingNotice) {
+                    const notice = document.createElement('div');
+                    notice.className = 'local-mode-notice';
+                    notice.textContent = 'Playing in local mode. Deploy to Netlify for online leaderboard!';
+                    leaderboardList.parentNode.appendChild(notice);
+                }
+                
+                return;
+            }
+            
+            // Fetch leaderboard data from server
+            fetch('/api/leaderboard')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch leaderboard');
+                    }
+                    return response.json();
+                })
+                .then(scores => {
+                    displayLeaderboard(scores);
+                })
+                .catch(error => {
+                    console.error('Error fetching leaderboard:', error);
+                    leaderboardList.innerHTML = `<li>Error loading leaderboard: ${error.message}</li>`;
+                    
+                    // Fall back to local data on error
+                    const defaultData = [
+                        { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
+                        { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
+                        { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
+                    ];
+                    
+                    if (playerName && legitimateMoney > 0) {
+                        defaultData.push({
+                            name: playerName,
+                            emoji: playerEmoji,
+                            highScore: legitimateMoney
+                        });
+                    }
+                    
+                    const topScores = defaultData
+                        .sort((a, b) => b.highScore - a.highScore)
+                        .slice(0, 20);
+                    
+                    displayLeaderboard(topScores);
+                    
+                    // Add error notice
+                    const existingNotice = leaderboardList.parentNode.querySelector('.local-mode-notice');
+                    if (!existingNotice) {
+                        const notice = document.createElement('div');
+                        notice.className = 'local-mode-notice';
+                        notice.textContent = 'Could not connect to leaderboard server. Showing local data.';
+                        leaderboardList.parentNode.appendChild(notice);
+                    }
+                });
+        }
+
+        // Helper function to display leaderboard data - THIS WAS MISSING
+        function displayLeaderboard(scores) {
+            const leaderboardList = document.getElementById('leaderboardList');
+            if (!leaderboardList) return;
+            
+            let html = '';
+            scores.forEach((score, index) => {
+                const isCurrentPlayer = playerName && score.name === playerName;
+                const rank = index + 1;
+                const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                
+                html += `
+                    <li class="leaderboard-item rank-${rank} ${isCurrentPlayer ? 'current-player' : ''}">
+                        <div class="player-info">
+                            ${trophy ? `<span class="trophy">${trophy}</span>` : ''}
+                            <span class="player-emoji">${score.emoji || '🎲'}</span>
+                            ${score.name}
+                        </div>
+                        <div class="player-score">${score.highScore.toLocaleString()}</div>
+                    </li>
+                `;
+            });
+            
+            leaderboardList.innerHTML = html;
         }
     </script>
 </body>
