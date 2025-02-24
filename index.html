@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Scroggy's Casino</title>
+    <title>✨ Scroggy's Casino ✨</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#50ff50">
@@ -928,7 +928,8 @@
         #spin-button:hover {
             transform: translateY(-2px);
             
-            background: linear-gradient(145deg, #f0e650, #f4e174);
+            background: linear-gradient(145deg, #16e9f0, #07cbd2);
+            transform: rotate(5deg)
         }
 
         #spin-button:disabled {
@@ -947,6 +948,7 @@
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(255, 0, 0, 0.4);
             background: linear-gradient(145deg, #f97070, #f07979);
+            transform: rotate(5deg)
         }
 
         #bet-all-button:disabled {
@@ -1083,6 +1085,45 @@
 
         .reset-button:hover {
             transform: rotate(180deg);
+        }
+
+        /* Title and Logo Animations */
+        @keyframes fun-scale {
+          0% { transform: scale(1); }
+          50% { transform: scale(1); }
+          75% { transform: scale(1.3); }
+          100% { transform: scale(1); }
+        }
+
+        .title-text span {
+          display: inline-block;
+          animation: fun-scale 6s infinite ease-in-out;
+        }
+
+        .title-text span:nth-child(1) { animation-delay: 0s; }
+        .title-text span:nth-child(2) { animation-delay: 0.1s; }
+        .title-text span:nth-child(3) { animation-delay: 0.2s; }
+        .title-text span:nth-child(4) { animation-delay: 0.3s; }
+        .title-text span:nth-child(5) { animation-delay: 0.4s; }
+        .title-text span:nth-child(6) { animation-delay: 0.5s; }
+        .title-text span:nth-child(7) { animation-delay: 0.6s; }
+        .title-text span:nth-child(8) { animation-delay: 0.7s; }
+        .title-text span:nth-child(9) { animation-delay: 0.8s; }
+        .title-text span:nth-child(10) { animation-delay: 0.9s; }
+        .title-text span:nth-child(11) { animation-delay: 1s; }
+        .title-text span:nth-child(12) { animation-delay: 1.1s; }
+        .title-text span:nth-child(13) { animation-delay: 1.2s; }
+        .title-text span:nth-child(14) { animation-delay: 1.3s; }
+        .title-text span:nth-child(15) { animation-delay: 1.4s; }
+        .title-text span:nth-child(16) { animation-delay: 1.5s; }
+
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        .logo {
+          display: inline-block;
+          animation: breathe 4s infinite ease-in-out;
         }
     </style>
 </head>
@@ -1251,11 +1292,13 @@
         <button class="reset-button" onclick="resetGame()">🔄</button>
         <h1>
             <span class="logo">🧙‍♂️</span>
-            $CROGGY'S CASINO
+            <span class="title-text">
+              <span>$</span><span>C</span><span>R</span><span>O</span><span>G</span><span>G</span><span>Y</span><span>'</span><span>S</span><span>&nbsp;</span><span>C</span><span>A</span><span>S</span><span>I</span><span>N</span><span>O</span>
+            </span>
         </h1>
         <div class="money-display">
             
-            <div class="balance" id="money">500</div>
+            <div class="balance" id="money">✨ 500 ✨</div>
             <div>SCROGGY COINS</div>
         </div>
         <div class="reels">
