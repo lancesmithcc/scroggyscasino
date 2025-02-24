@@ -1537,7 +1537,7 @@
 
     <script>
         // Move these variables to the top of the script, right after the emoji definitions
-        const emojis = ['💩', '🌮', '🍩', '🤮', '🤑'];
+        const emojis = ['💩', '🌮', '🍩', '🤮', '🤑', '🥒'];
         const reel1 = document.getElementById('reel1');
         const reel2 = document.getElementById('reel2');
         const reel3 = document.getElementById('reel3');
@@ -1549,26 +1549,29 @@
 
         // Prize values for each emoji combination
         const PRIZES = {
-            '💩': 1000000,         // Poop - 1 Million
-            '🌮': 5000,            // Donut - 5K
-            '🥒': 10000,           // Pickle - 10K
-            '🤮': 50000,           // Barf - 50K
-            '🤑': 10000000000000   // Money Face - 10 Trillion
+            '💩': 100,              // Poop - 100
+            '🌮': 500,              // Taco - 500
+            '🍩': 1000,             // Donut - 1k
+            '🤮': 5000,             // Barf - 5k
+            '🤑': 100000,           // Money Face - 100k
+            '🥒': 2500              // Pickle - 2.5k
         };
 
-        // Weighted probabilities (lower number = more rare)
+        // Weighted probabilities (higher number = more common)
         const WEIGHTS = {
             '💩': 100,    // Common
-            '🌮': 100,    // Common
-            '🥒': 80,     // Slightly less common
-            '🤮': 60,     // Rare
-            '🤑': 1       // Extremely rare
+            '🌮': 80,     // Common
+            '🍩': 80,     // Common
+            '🥒': 60,     // Less common
+            '🤮': 30,     // Rare
+            '🤑': 5       // Very rare
         };
 
         // Rarity labels for jackpots
         const RARITY = {
             '💩': 'Common',
             '🌮': 'Common',
+            '🍩': 'Common',
             '🥒': 'Uncommon',
             '🤮': 'Rare',
             '🤑': 'Legendary'
@@ -1920,27 +1923,61 @@
             reel2.classList.remove('win');
             reel3.classList.remove('win');
             
-            setTimeout(() => spinReel(reel1, 1500, isJackpotSpin), 0);
-            setTimeout(() => spinReel(reel2, 2000, isJackpotSpin), 300);
-            setTimeout(() => spinReel(reel3, 2500, isJackpotSpin), 600);
+            // Stagger the reel spins
+            const reel1Duration = 1500;
+            const reel2Duration = 2000;
+            const reel3Duration = 2500;
+            
+            setTimeout(() => spinReel(reel1, reel1Duration, isJackpotSpin), 0);
+            setTimeout(() => spinReel(reel2, reel2Duration, isJackpotSpin), 300);
+            setTimeout(() => spinReel(reel3, reel3Duration, isJackpotSpin), 600);
             
             // Set all reels to the same emoji for jackpot spins
             if (isJackpotSpin) {
                 const jackpotEmoji = '🤑'; // Always give money face for cheat jackpots
                 setTimeout(() => { 
-                    reel1.textContent = jackpotEmoji;
-                    reel2.textContent = jackpotEmoji;
-                    reel3.textContent = jackpotEmoji;
+                    reel1.innerHTML = jackpotEmoji;
+                    reel2.innerHTML = jackpotEmoji;
+                    reel3.innerHTML = jackpotEmoji;
+                    console.log('FORCED JACKPOT SPIN - Setting all reels to:', jackpotEmoji);
                 }, 2600);
             }
             
-            setTimeout(() => checkWin(), 3000);
+            // Make sure we check for win after ALL reels have definitely stopped
+            // Add extra buffer time to ensure all animations are complete
+            const checkWinDelay = Math.max(reel3Duration + 1000, 3500);
+            console.log(`Will check for win after ${checkWinDelay}ms`);
+            
+            setTimeout(() => {
+                console.log('All reels should be stopped now, checking for win...');
+                checkWin();
+            }, checkWinDelay);
         }
 
         function checkWin() {
-            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
-                const winningEmoji = reel1.textContent;
-                const prize = PRIZES[winningEmoji];
+            console.log('=========== CHECKING FOR WIN ===========');
+            // Get the actual text content directly from the DOM elements
+            const emoji1 = reel1.textContent.trim();
+            const emoji2 = reel2.textContent.trim();
+            const emoji3 = reel3.textContent.trim();
+            
+            console.log('REEL 1 CONTENT:', emoji1, '(Length:', emoji1.length, 'Code:', emoji1.codePointAt(0), ')');
+            console.log('REEL 2 CONTENT:', emoji2, '(Length:', emoji2.length, 'Code:', emoji2.codePointAt(0), ')');
+            console.log('REEL 3 CONTENT:', emoji3, '(Length:', emoji3.length, 'Code:', emoji3.codePointAt(0), ')');
+            
+            // Check if all emojis match by comparing their code points
+            const allMatch = 
+                emoji1.codePointAt(0) === emoji2.codePointAt(0) && 
+                emoji2.codePointAt(0) === emoji3.codePointAt(0);
+            
+            console.log('ALL REELS MATCH?', allMatch);
+            
+            if (allMatch) {
+                const winningEmoji = emoji1;
+                console.log('JACKPOT! Winning emoji:', winningEmoji);
+                
+                // Make sure prize exists for this emoji
+                const prize = PRIZES[winningEmoji] || 1000; // Default prize if not defined
                 
                 reel1.classList.add('win');
                 reel2.classList.add('win');
@@ -1974,6 +2011,7 @@
                 
                 playVictoryTune();
             } else {
+                console.log('NO JACKPOT - Reels do not match');
                 const taunt = taunts[Math.floor(Math.random() * taunts.length)].replace('{name}', playerName);
                 message.textContent = taunt;
                 message.classList.add('show');
@@ -2008,11 +2046,10 @@
             // Set a random emoji during spinning
             const spinInterval = setInterval(() => {
                 if (isJackpotSpin) {
-                    reel.textContent = '🤑'; // Force money emoji for jackpot
+                    reel.innerHTML = '🤑'; // Force money emoji for jackpot
                 } else {
                     // Get a random emoji weighted by rarity
-                    const randomEmoji = getWeightedRandomEmoji();
-                    reel.textContent = randomEmoji;
+                    reel.innerHTML = getWeightedRandomEmoji();
                 }
             }, 100);
             
@@ -2024,9 +2061,25 @@
                 reel.classList.remove('spinning');
                 reel.classList.add('stopping');
                 
-                // If not a jackpot spin, set final emoji
+                // Forcefully ensure the final emoji is set correctly
                 if (!isJackpotSpin) {
-                    reel.textContent = getWeightedRandomEmoji();
+                    // Make sure we set a definitive final value 
+                    const finalEmoji = getWeightedRandomEmoji();
+                    console.log(`FINAL EMOJI for ${reel.id}:`, finalEmoji);
+                    
+                    // Force DOM update by using direct assignment
+                    reel.innerHTML = finalEmoji;
+                    
+                    // Double-check the value was set
+                    console.log(`Verifying ${reel.id} final value:`, reel.textContent);
+                } else {
+                    console.log(`JACKPOT EMOJI for ${reel.id}: 🤑`);
+                    
+                    // Force DOM update by using direct assignment
+                    reel.innerHTML = '🤑';
+                    
+                    // Double-check the value was set
+                    console.log(`Verifying ${reel.id} jackpot value:`, reel.textContent);
                 }
                 
                 // Remove stopping class after animation completes
@@ -2056,8 +2109,9 @@
                 }
             }
             
-            // Fallback
-            return '💩';
+            // Fallback - ensure we always return a valid emoji
+            console.log('Fallback emoji selection');
+            return emojis[Math.floor(Math.random() * emojis.length)];
         }
 
         // Bet All function - high risk, high reward
@@ -2094,15 +2148,36 @@
             setTimeout(() => spinReel(reel2, 2500), 500);
             setTimeout(() => spinReel(reel3, 3000), 800);
             
-            // Check for win after all reels have stopped
-            setTimeout(() => checkBetAllWin(betAmount), 4000);
+            // Check for win after all reels have stopped - make sure we wait long enough
+            setTimeout(() => {
+                console.log('All reels should be stopped now, checking for Bet All win...');
+                checkBetAllWin(betAmount);
+            }, 4000);
         }
 
         // Function to check if Bet All resulted in a win - THIS WAS MISSING
         function checkBetAllWin(betAmount) {
-            // Win condition: all three reels match
-            if (reel1.textContent === reel2.textContent && reel2.textContent === reel3.textContent) {
-                const winningEmoji = reel1.textContent;
+            console.log('=========== CHECKING BET ALL WIN ===========');
+            
+            // Get the actual text content directly from the DOM elements
+            const emoji1 = reel1.textContent.trim();
+            const emoji2 = reel2.textContent.trim();
+            const emoji3 = reel3.textContent.trim();
+            
+            console.log('REEL 1 CONTENT:', emoji1, '(Length:', emoji1.length, 'Code:', emoji1.codePointAt(0), ')');
+            console.log('REEL 2 CONTENT:', emoji2, '(Length:', emoji2.length, 'Code:', emoji2.codePointAt(0), ')');
+            console.log('REEL 3 CONTENT:', emoji3, '(Length:', emoji3.length, 'Code:', emoji3.codePointAt(0), ')');
+            
+            // Check if all emojis match by comparing their code points
+            const allMatch = 
+                emoji1.codePointAt(0) === emoji2.codePointAt(0) && 
+                emoji2.codePointAt(0) === emoji3.codePointAt(0);
+            
+            console.log('ALL REELS MATCH?', allMatch);
+            
+            if (allMatch) {
+                console.log('BET ALL WIN! All reels match.');
+                const winningEmoji = emoji1;
                 
                 // Double the win amount for bet all + apply emoji multiplier
                 const multiplier = 2; // Double or nothing base
@@ -2142,6 +2217,7 @@
                 
                 playVictoryTune();
             } else {
+                console.log('BET ALL LOSS! Reels do not match.');
                 // Lose everything (already set money to 0)
                 message.textContent = `💀 BET ALL LOST! ${playerName} LOST EVERYTHING! The devil laughs at you!`;
                 message.classList.add('show');
@@ -2301,8 +2377,9 @@
                 return;
             }
             
-            // Use relative path for API endpoint
-            const apiUrl = '/api/leaderboard';
+            // Use Netlify function endpoint path
+            const apiUrl = '/.netlify/functions/leaderboard';
+            console.log('Sending score to Netlify function at:', apiUrl);
 
             // Send score to server
             fetch(apiUrl, {
@@ -2515,15 +2592,19 @@
                 return;
             }
             
-            // Fetch leaderboard data from server
-            fetch('/api/leaderboard')
+            // Fetch leaderboard data from server using Netlify function endpoint
+            const apiUrl = '/.netlify/functions/leaderboard';
+            console.log('Fetching leaderboard from Netlify function at:', apiUrl);
+            
+            fetch(apiUrl)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to fetch leaderboard');
+                        throw new Error(`Failed to fetch leaderboard: ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(scores => {
+                    console.log('Leaderboard data received:', scores);
                     displayLeaderboard(scores);
                 })
                 .catch(error => {
@@ -2586,6 +2667,17 @@
             });
             
             leaderboardList.innerHTML = html;
+        }
+
+        // Add a debug function to help diagnose emoji issues
+        function debugEmoji(emoji) {
+            if (!emoji) return 'undefined';
+            return {
+                value: emoji,
+                length: emoji.length,
+                codePoint: emoji.codePointAt(0),
+                hexCode: emoji.codePointAt(0).toString(16)
+            };
         }
     </script>
 </body>
