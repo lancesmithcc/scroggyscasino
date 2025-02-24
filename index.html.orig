@@ -668,6 +668,22 @@
         }
 
         /* Fix the scrollEmojis function to ensure it works properly */
+        function scrollEmojis(arrow, direction) {
+            const container = arrow.closest('.emoji-scroll-container');
+            const grid = container.querySelector('.emoji-grid');
+            const scrollAmount = 80; // Adjust this value to control scroll distance
+            
+            if (direction === 'up') {
+                grid.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+            } else {
+                grid.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+            }
+            
+            // Wait a short time to ensure the scroll has completed before updating arrows
+            setTimeout(() => {
+                updateScrollArrows(grid);
+            }, 50);
+        }
 
         .emoji-scroll-arrows {
             display: flex;
@@ -1308,10 +1324,10 @@
                     <div class="emoji-option" data-emoji="🔥">🔥</div>
                     <div class="emoji-option" data-emoji="💫">💫</div>
                 </div>
-                <div class="emoji-scroll-arrows">
-                    <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
-                    <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
-                </div>
+            </div>
+            <div class="emoji-scroll-arrows">
+                <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
+                <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
             </div>
             <input type="text" id="playerName" placeholder="Your name..." maxlength="20">
             <button onclick="startGame()">LETS GAMBLE!</button>

@@ -584,7 +584,7 @@
             text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
         }
 
-        /* Update the emoji grid to exactly 3 columns */
+        /* Update the emoji grid to use exactly 3 columns */
         .emoji-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -621,53 +621,24 @@
             background: #ffd700;
         }
 
-        /* Update the emoji-scroll-container to better handle mobile */
+        /* Fix the emoji-scroll-container layout in the profile overlay to match the name input overlay */
+        .profile-container .emoji-scroll-container {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 420px;
+        }
+
+        /* Update the emoji-scroll-container layout to ensure proper positioning */
         .emoji-scroll-container {
             position: relative;
             margin: 20px auto;
-            max-width: 300px;
-            display: flex;
-            align-items: flex-start;
+            max-width: 420px;
+            display: grid;
+            grid-template-columns: 1fr auto;
             gap: 10px;
         }
-
-        /* Make the emoji buttons larger and more clickable */
-        .emoji-grid button {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        /* Update the scroll arrows to be more visible and functional */
-        .emoji-scroll-arrow {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid gold;
-            background: rgba(0, 0, 0, 0.4);
-            color: gold;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .emoji-scroll-arrow:hover:not(:disabled) {
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .emoji-scroll-arrow:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        /* Fix the scrollEmojis function to ensure it works properly */
 
         .emoji-scroll-arrows {
             display: flex;
@@ -1183,6 +1154,53 @@
             justify-content: center;
             gap: 0.5rem;
         }
+
+        /* Add back the scrollbar styling after the emoji-grid definition */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 0;
+            max-width: none;
+            width: 100%;
+            max-height: 240px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: gold rgba(255, 215, 0, 0.1);
+            scroll-behavior: smooth;
+        }
+
+        .emoji-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-track {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-thumb {
+            background: gold;
+            border-radius: 4px;
+        }
+
+        .emoji-grid::-webkit-scrollbar-thumb:hover {
+            background: #ffd700;
+        }
+
+        /* Fix the emoji-scroll-container layout in the profile overlay to match the name input overlay */
+        .profile-container .emoji-scroll-container {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 420px;
+        }
+
     </style>
 </head>
 <body>
@@ -1308,10 +1326,10 @@
                     <div class="emoji-option" data-emoji="🔥">🔥</div>
                     <div class="emoji-option" data-emoji="💫">💫</div>
                 </div>
-                <div class="emoji-scroll-arrows">
-                    <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
-                    <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
-                </div>
+            </div>
+            <div class="emoji-scroll-arrows">
+                <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
+                <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
             </div>
             <input type="text" id="playerName" placeholder="Your name..." maxlength="20">
             <button onclick="startGame()">LETS GAMBLE!</button>
@@ -1622,34 +1640,6 @@
         }
 
         // Initialize game state on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadGameState();
-            createStars();
-            updateScrollArrows();
-            
-            // Initialize buttons
-            const spinButton = document.getElementById('spin-button');
-            const betAllButton = document.getElementById('bet-all-button');
-            
-            // Add click event listeners
-            spinButton.addEventListener('click', () => {
-                console.log('Spin button clicked');
-                if (!spinButton.disabled) {
-                    spin();
-                }
-            });
-            
-            betAllButton.addEventListener('click', () => {
-                console.log('Bet All button clicked');
-                if (!betAllButton.disabled) {
-                    betAll();
-                }
-            });
-            
-            // Initialize mute button
-            let muted = false;
-            const muteButton = document.querySelector('.mute-button');
-            muteButton.addEventListener('click', () => {
                 muted = !muted;
                 muteButton.innerHTML = muted ? '🔇' : '🔊';
                 if (audioContext) {
@@ -1758,6 +1748,20 @@
                     });
                 }
                 
+                // Ensure the scroll functionality works for the profile emoji grid
+                const profileContainer = overlay.querySelector('.emoji-scroll-container');
+                const upArrow = profileContainer.querySelector('.emoji-scroll-arrow.up');
+                const downArrow = profileContainer.querySelector('.emoji-scroll-arrow.down');
+                
+                // Make sure the arrows are visible and enabled
+                upArrow.disabled = profileEmojiGrid.scrollTop < 10;
+                downArrow.disabled = (profileEmojiGrid.scrollTop + profileEmojiGrid.clientHeight + 10) >= profileEmojiGrid.scrollHeight;
+                
+                // Add scroll event listener to the profile emoji grid
+                profileEmojiGrid.addEventListener('scroll', function() {
+                    updateArrowStates(this);
+                });
+                
                 // Set current values
                 updateNameInput.value = playerName;
                 const currentEmojiOption = profileEmojiGrid.querySelector(`[data-emoji="${playerEmoji}"]`);
@@ -1768,7 +1772,11 @@
                 
                 // Show overlay
                 overlay.style.display = 'flex';
-                updateScrollArrows();
+                
+                // Force a scroll event to update arrow states
+                setTimeout(() => {
+                    updateArrowStates(profileEmojiGrid);
+                }, 100);
             } else {
                 overlay.style.display = 'none';
             }
@@ -1947,61 +1955,68 @@
             });
         }
 
+        /* Simplify the scrollEmojis function to be more reliable */
         function scrollEmojis(arrow, direction) {
+            // Find the closest container and its emoji grid
             const container = arrow.closest('.emoji-scroll-container');
             const grid = container.querySelector('.emoji-grid');
-            const scrollAmount = 80; // Adjust this value to control scroll distance
             
+            // Set scroll amount based on row height (approximately)
+            const scrollAmount = 80;
+            
+            console.log('Scrolling', direction, 'Container:', container.parentElement.className, 'Grid found:', !!grid);
+            
+            // Scroll up or down
             if (direction === 'up') {
-                grid.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+                grid.scrollBy({
+                    top: -scrollAmount,
+                    behavior: 'smooth'
+                });
             } else {
-                grid.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+                grid.scrollBy({
+                    top: scrollAmount,
+                    behavior: 'smooth'
+                });
             }
             
-            // Wait a short time to ensure the scroll has completed before updating arrows
+            // Update arrow states after scrolling
             setTimeout(() => {
-                updateScrollArrows(grid);
-            }, 50);
+                updateArrowStates(grid);
+                console.log('Arrow states updated after scrolling', direction);
+            }, 100);
         }
 
-        function updateScrollArrows(grid) {
-            if (!grid) {
-                document.querySelectorAll('.emoji-grid').forEach(g => {
-                    const container = g.closest('.emoji-scroll-container');
-                    const upArrow = container.querySelector('.emoji-scroll-arrow.up');
-                    const downArrow = container.querySelector('.emoji-scroll-arrow.down');
-                    upArrow.disabled = g.scrollTop <= 0;
-                    downArrow.disabled = g.scrollTop + g.clientHeight >= g.scrollHeight;
-                });
-                return;
-            }
+        /* Replace updateScrollArrows with a simpler function */
+        function updateArrowStates(grid) {
             const container = grid.closest('.emoji-scroll-container');
             const upArrow = container.querySelector('.emoji-scroll-arrow.up');
             const downArrow = container.querySelector('.emoji-scroll-arrow.down');
-            upArrow.disabled = grid.scrollTop <= 0;
-            downArrow.disabled = grid.scrollTop + grid.clientHeight >= grid.scrollHeight;
+            
+            // Disable up arrow if at or near top
+            upArrow.disabled = grid.scrollTop < 10;
+            
+            // Disable down arrow if at or near bottom
+            downArrow.disabled = (grid.scrollTop + grid.clientHeight + 10) >= grid.scrollHeight;
         }
 
-        // Add scroll event listener to update arrow states
-        document.querySelectorAll('.emoji-grid').forEach(grid => {
-            grid.addEventListener('scroll', function() {
-                 updateScrollArrows(this);
-            });
-        });
-
-        // Initial arrow state update
+        /* Update the DOMContentLoaded event handler */
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize stars
             createStars();
             
-            // Initialize arrow states for all grids
+            // Add scroll event listeners to all emoji grids
             document.querySelectorAll('.emoji-grid').forEach(grid => {
                 grid.addEventListener('scroll', function() {
-                    updateScrollArrows(this);
+                    updateArrowStates(this);
                 });
-                // Initial state
-                updateScrollArrows(grid);
+                
+                // Initialize arrow states
+                updateArrowStates(grid);
             });
+            
+            // Initialize other event listeners
+            loadGameState();
+            updateScrollArrows = updateArrowStates; // For backward compatibility
         });
 
         // Create twinkling stars
