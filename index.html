@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Scroggy's Casino ✨</title>
+    <title>✨ ScroggyGames.com ✨</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#50ff50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Scroggy's">
-    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
-    <link rel="icon" type="image/png" href="icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-title" content="ScroggyGames">
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
     <style>
         /* Font loading optimization */
         @font-face {
@@ -91,143 +91,9 @@
         }
 
         :root {
-            --machine-padding: clamp(15px, 4vw, 30px);
-            --reel-size: clamp(80px, 20vw, 100px);
             --title-size: clamp(32px, 6vw, 48px);
             --logo-size: clamp(48px, 8vw, 64px);
-            --button-width: clamp(180px, 50vw, 200px);
-            --spin-text-size: clamp(24px, 5vw, 32px);
-            --balance-size: clamp(32px, 6vw, 42px);
             --font-family: 'Nunito', sans-serif;
-        }
-
-        /* Desktop size adjustments */
-        @media (min-width: 1024px) {
-            :root {
-                --machine-padding: 25px;
-                --reel-size: 130px;
-                --title-size: 32px;
-                --logo-size: 48px;
-                --button-width: 280px;
-                --spin-text-size: 22px;
-                --balance-size: 28px;
-            }
-
-            .slot-machine {
-                width: min(90vw, 700px) !important;
-                min-height: min-content;
-                max-height: none;
-                margin: 20px auto;
-                display: flex;
-                flex-direction: column;
-                padding: var(--machine-padding);
-            }
-
-            h1 {
-                margin-bottom: 15px;
-            }
-
-            .reels {
-                margin-bottom: 20px;
-                padding: 20px;
-            }
-
-            .reel {
-                margin: 0 12px;
-            }
-
-            .money-display {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-
-            .button-container {
-                flex-direction: row !important;
-                gap: 15px;
-                justify-content: center;
-                width: 100%;
-                margin-bottom: 12px;
-            }
-
-            #spin-button, #bet-all-button {
-                width: 280px;
-                padding: 10px;
-            }
-
-            #spin-button .cost, #bet-all-button .cost {
-                font-size: 11px;
-                margin-top: 3px;
-            }
-
-            .message {
-                font-size: 18px;
-                margin-top: 12px;
-                max-width: 600px;
-                margin-left: auto;
-                margin-right: auto;
-                line-height: 1.2;
-                min-height: 44px;
-                height: auto;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 10px;
-            }
-
-            /* Adjust coin animations for desktop */
-            .coin {
-                width: 20px;
-                height: 20px;
-                font-size: 14px;
-            }
-
-            body {
-                min-height: 100vh;
-                height: auto;
-                padding: 20px 10px;
-                align-items: flex-start;
-            }
-        }
-
-        /* Additional optimization for shorter screens */
-        @media (min-width: 1024px) and (max-height: 800px) {
-            :root {
-                --machine-padding: 20px;
-                --reel-size: 120px;
-                --title-size: 42px;
-                --logo-size: 64px;
-                --button-width: 260px;
-                --spin-text-size: 28px;
-                --balance-size: 36px;
-            }
-
-            .reels {
-                margin-bottom: 20px;
-                padding: 20px;
-            }
-
-            .money-display {
-                margin-bottom: 15px;
-            }
-
-            .button-container {
-                gap: 15px;
-            }
-
-            #spin-button, #bet-all-button {
-                width: 260px;
-                padding: 12px;
-            }
-
-            #spin-button .cost, #bet-all-button .cost {
-                font-size: 12px;
-            }
-
-            .message {
-                margin-top: 15px;
-            }
         }
 
         * {
@@ -249,6 +115,7 @@
             justify-content: center;
             padding: 10px;
             color: gold; /* Ensure text is visible while font loads */
+            flex-direction: column;
         }
 
         /* iOS height fix */
@@ -256,15 +123,15 @@
             height: -webkit-fill-available;
         }
 
-        .slot-machine {
-            width: min(95vw, 400px);
+        .main-container {
+            width: min(95vw, 800px);
             margin: auto;
-            padding: var(--machine-padding);
+            padding: clamp(15px, 4vw, 30px);
             border: clamp(4px, 1.5vw, 8px) solid rgb(250, 242, 5);
             border-radius: clamp(15px, 4vw, 20px);
             background: linear-gradient(45deg, #000000, #172d30);
             text-align: center;
-            opacity:0.7;
+            opacity: 0.9;
             position: relative;
             overflow: hidden;
         }
@@ -287,991 +154,60 @@
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         }
 
-        .reels {
-            display: flex;
-            justify-content: center;
-            margin-bottom: clamp(20px, 4vw, 30px);
-            padding: clamp(15px, 3vw, 20px);
-            background: #e9eb64;
-            border-radius: clamp(10px, 3vw, 15px);
-            box-shadow: inset 0 0 50px rgba(156, 120, 14, 0.8);
-            perspective: 1000px;
-            border:solid 11px #fff200;
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
 
-        .reel {
-            width: var(--reel-size);
-            height: var(--reel-size);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: calc(var(--reel-size) * 0.5);
-            border: 3px solid gold;
-            border-radius: clamp(10px, 3vw, 15px);
-            background: linear-gradient(145deg, #e1ec53, #685212);
-            margin: 0 clamp(5px, 2vw, 10px);
-            box-shadow: 0 0 15px #685212;
-            transition: transform 0.3s ease;
-            transform-style: preserve-3d;
-            position: relative;
-        }
-
-        .reel.spinning {
-            animation: spin 0.2s linear infinite;
-        }
-
-        .reel.stopping {
-            animation: stopSpin 0.5s ease-out forwards;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotateX(0deg);
-            }
-            100% {
-                transform: rotateX(360deg);
-            }
-        }
-
-        @keyframes stopSpin {
-            0% {
-                transform: rotateX(360deg);
-            }
-            90% {
-                transform: rotateX(10deg);
-            }
-            95% {
-                transform: rotateX(-5deg);
-            }
-            100% {
-                transform: rotateX(0deg);
-            }
-        }
-
-        .reel::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 20%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            border-radius: clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px) 0 0;
-        }
-
-        .reel::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 20%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            bottom: 0;
-            left: 0;
-            pointer-events: none;
-            border-radius: 0 0 clamp(10px, 3vw, 15px) clamp(10px, 3vw, 15px);
-        }
-
-        .money-display {
-            font-size: clamp(20px, 4vw, 28px);
-            color: gold;
-            margin-bottom: clamp(15px, 3vw, 20px);
-            
+        .game-card {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid gold;
             display: flex;
             flex-direction: column;
-            gap: clamp(3px, 1vw, 5px);
-            font-size:11px
-        }
-
-        .balance {
-            font-size: var(--balance-size);
-            color: gold;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 900;
-        }
-
-        .balance.negative {
-            color: #ff6b6b;
-        }
-
-        /* Add button container */
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
             align-items: center;
-            justify-content: center;
+            text-decoration: none;
+            color: white;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .game-icon {
+            font-size: 48px;
             margin-bottom: 15px;
         }
 
-        #spin-button, #bet-all-button {
-            width: var(--button-width);
-            padding: clamp(10px, 2vw, 15px);
-            font-size: var(--spin-text-size);
-            font-family: 'Nunito', sans-serif;
-            font-weight:900;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            line-height: 1;
-            margin: 0;
-        }
-
-        .message {
-            font-size: clamp(20px, 4vw, 28px);
-            font-weight: bold;
-            color: gold;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s, transform 1s;
-            margin-top: clamp(15px, 3vw, 20px);
-            line-height: 1.2;
-            padding: 0 10px;
-        }
-
-        .message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .reel.win {
-            animation: pulse 0.5s infinite;
-            border-color: #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .slot-machine::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            border-radius: 25px;
-            background: linear-gradient(45deg, #000000, #0a1023, #113c39, #1e1c15);
-            z-index: -1;
-            filter: blur(20px);
-            opacity: 0.5;
-        }
-
-        .coin {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: gold;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #2c2c2c;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            pointer-events: none;
-        }
-
-        @keyframes coinFly {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--tx), var(--ty)) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .jackpot-animation {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* Devil popup styles */
-        .devil-popup {
-            position: fixed;
-            bottom: -150px;
-            right: 20px;
-            font-size: 64px;
-            transition: bottom 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49), opacity 0.5s ease;
-            z-index: 2000;
-            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
-            opacity: 0;
-        }
-
-        .devil-popup.show {
-            bottom: 20px;
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-            opacity: 1;
-        }
-
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
-        .collector-emoji {
-            font-size: 80px;
-            display: block;
-            animation: bounce 1s infinite alternate;
-        }
-
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-15px); }
-        }
-
-        /* Name input overlay */
-        .name-input-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-
-        .name-input-container {
-            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
-            padding: 30px;
-            border-radius: 20px;
-            border: 3px solid gold;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-            max-width: 90%;
-            width: 400px;
-            position: relative;
-        }
-
-        .name-input-container h2 {
-            color: #50ff50;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
-        }
-
-        /* Update the emoji grid to exactly 3 columns */
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin: 0;
-            max-width: none;
-            width: 100%;
-            max-height: 240px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            scrollbar-width: thin;
-            scrollbar-color: gold rgba(255, 215, 0, 0.1);
-            scroll-behavior: smooth;
-        }
-
-        .emoji-grid::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .emoji-grid::-webkit-scrollbar-track {
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 4px;
-        }
-
-        .emoji-grid::-webkit-scrollbar-thumb {
-            background: gold;
-            border-radius: 4px;
-        }
-
-        .emoji-grid::-webkit-scrollbar-thumb:hover {
-            background: #ffd700;
-        }
-
-        /* Update the emoji-scroll-container to better handle mobile */
-        .emoji-scroll-container {
-            position: relative;
-            margin: 20px auto;
-            max-width: 300px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        /* Make the emoji buttons larger and more clickable */
-        .emoji-grid button {
-            width: 40px;
-            height: 40px;
-            font-size: 24px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        /* Update the scroll arrows to be more visible and functional */
-        .emoji-scroll-arrow {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid gold;
-            background: rgba(0, 0, 0, 0.4);
-            color: gold;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .emoji-scroll-arrow:hover:not(:disabled) {
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .emoji-scroll-arrow:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        /* Fix the scrollEmojis function to ensure it works properly */
-
-        .emoji-scroll-arrows {
-            display: flex;
-            flex-direction: column;
-            margin-left: 5px;
-            gap: 5px;
-        }
-
-        .emoji-scroll-arrow {
-            position: static;
-            transform: none;
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            border: none;
-            color: #2c2c2c;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .game-title {
             font-size: 20px;
-            cursor: pointer;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .emoji-option {
-            font-size: 24px; /* Slightly smaller to fit more */
-            padding: 8px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 215, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1;
-        }
-
-        .emoji-option:hover {
-            background: rgba(255, 215, 0, 0.2);
-            transform: scale(1.1);
-        }
-
-        .emoji-option.selected {
-            border-color: gold;
-            background: rgba(255, 215, 0, 0.3);
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-
-        .name-input-container input {
-            background: #333;
-            border: 2px solid gold;
-            padding: 10px 15px;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 10px;
-            font-family: var(--font-family);
-        }
-
-        .name-input-container button {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #2c2c2c;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 18px;
-            cursor: pointer;
-            font-family: 'Nunito', sans-serif;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            font-weight: 900;
-        }
-
-        .name-input-container button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Leaderboard styles */
-        .leaderboard-button, .profile-button, .mute-button {
-            position: absolute;
-            background: none;
-            border: none;
-            color: gold;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1000;
-            padding: 5px;
-            transition: transform 0.3s ease;
-        }
-
-        .leaderboard-button {
-            top: 10px;
-            left: 10px;
-        }
-
-        .profile-button {
-            top: 10px;
-            right: 45px;
-        }
-
-        .mute-button {
-            top: 10px;
-            right: 10px;
-        }
-
-        .leaderboard-button:hover, .profile-button:hover, .mute-button:hover {
-            transform: scale(1.2);
-        }
-
-        /* Profile overlay styles */
-        .profile-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-
-        .profile-container {
-            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
-            padding: 30px;
-            border-radius: 20px;
-            border: 3px solid gold;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-            max-width: 90%;
-            width: 400px;
-            position: relative;
-        }
-
-        .profile-container h2 {
-            color: #50ff50;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
-        }
-
-        .profile-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .profile-close:hover {
-            color: gold;
-        }
-
-        #updatePlayerName {
-            background: #333;
-            border: 2px solid gold;
-            padding: 10px 15px;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            width: 100%;
-            max-width: 300px;
-            margin-bottom: 10px;
-            font-family: var(--font-family);
-        }
-
-        .profile-container button:not(.profile-close) {
-            background: linear-gradient(145deg, #ffd700, #ffa500);
-            color: #2c2c2c;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-size: 18px;
-            cursor: pointer;
-            font-family: 'Nunito', sans-serif;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            font-weight: 900;
-        }
-
-        .profile-container button:not(.profile-close):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-        }
-
-        .profile-container button:not(.profile-close):disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Jackpot history section */
-        .jackpot-history {
-            margin-top: 25px;
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: left;
-        }
-
-        .jackpot-history h3 {
-            color: gold;
-            margin-bottom: 10px;
-            text-align: center;
-            font-size: 18px;
-        }
-
-        .jackpot-history-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .jackpot-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            margin: 5px 0;
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .jackpot-item:hover {
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .jackpot-emoji {
-            font-size: 24px;
-            margin-right: 10px;
-        }
-
-        .jackpot-details {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .jackpot-prize {
             font-weight: bold;
+            margin-bottom: 10px;
             color: gold;
         }
 
-        .jackpot-date {
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        .jackpot-rarity {
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
-
-        .rarity-common {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .rarity-rare {
-            background: #2196F3;
-            color: white;
-        }
-
-        .rarity-epic {
-            background: #9C27B0;
-            color: white;
-        }
-
-        .rarity-legendary {
-            background: #FF9800;
-            color: white;
-        }
-
-        .bet-all-badge {
-            display: inline-block;
-            background: linear-gradient(145deg, #ff4a3d, #cc0000);
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 5px;
-            font-weight: bold;
-            vertical-align: middle;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            animation: pulse 1.5s infinite;
-        }
-
-        .no-jackpots {
-            text-align: center;
-            color: #aaa;
-            padding: 15px;
-            font-style: italic;
-        }
-
-        /* Landscape mode optimizations */
-        @media (max-height: 600px) and (orientation: landscape) {
-            body {
-                align-items: flex-start;
-                padding: 10px;
-            }
-
-            .slot-machine {
-                margin: 0 auto;
-                padding: calc(var(--machine-padding) * 0.7);
-            }
-
-            h1 {
-                margin-bottom: calc(clamp(20px, 4vw, 30px) * 0.7);
-            }
-
-            .money-display {
-                margin-bottom: calc(clamp(15px, 3vw, 20px) * 0.7);
-            }
-
-            .reels {
-                margin-bottom: calc(clamp(20px, 4vw, 30px) * 0.7);
-            }
-        }
-
-        /* Small screen optimizations */
-        @media (max-width: 350px) {
-            .slot-machine {
-                padding: calc(var(--machine-padding) * 0.8);
-            }
-
-            h1 {
-                font-size: calc(var(--title-size) * 0.9);
-            }
-
-            .reel {
-                margin: 0 calc(clamp(5px, 2vw, 10px) * 0.7);
-            }
-        }
-
-        /* Add text stroke for better visibility */
-        h1, .money-display, .message, #spin-button {
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        /* iOS specific text rendering */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                letter-spacing: 1px;
-            }
-            
-            h1, .money-display, .message, #spin-button, .balance {
-                font-weight: 800;
-                text-shadow: 
-                    0 0 15px rgba(0, 0, 0, 0.7),
-                    0 0 5px rgba(0, 0, 0, 0.9);
-            }
-
-            h1 {
-                color: #50ff50;
-                text-shadow: 
-                    0 0 20px rgba(80, 255, 80, 0.8),
-                    0 0 10px rgba(0, 0, 0, 0.8);
-            }
-
-            .balance {
-                text-shadow: 
-                    0 0 20px rgba(255, 215, 0, 0.8),
-                    0 0 10px rgba(0, 0, 0, 0.8);
-            }
-
-            #spin-button {
-                font-weight: 800;
-                text-shadow: none;
-            }
-        }
-
-        /* Font loading detection */
-        .fonts-loaded {
-            --font-family: 'Nunito', sans-serif;
-        }
-
-        .fonts-loaded body {
-            opacity: 1;
-        }
-
-        #spin-button {
-            background: linear-gradient(145deg, #f7df52, #f8bf55);
-            color: #000000;
-            
-        }
-
-        #spin-button:hover {
-            transform: translateY(-2px);
-            
-            background: linear-gradient(145deg, #16e9f0, #07cbd2);
-            transform: rotate(5deg)
-        }
-
-        #spin-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #bet-all-button {
-            background: linear-gradient(145deg, #ff4a3d, #cc0000);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
-        }
-
-        #bet-all-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(255, 0, 0, 0.4);
-            background: linear-gradient(145deg, #f97070, #f07979);
-            transform: rotate(5deg)
-        }
-
-        #bet-all-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #spin-button .cost, #bet-all-button .cost {
-            font-size: clamp(12px, 2.5vw, 14px);
-            margin-top: 5px;
-            opacity: 0.8;
-        }
-
-        @media (min-width: 1024px) {
-            #spin-button .cost, #bet-all-button .cost {
-                font-size: 16px;
-            }
-        }
-
-        /* Leaderboard styles */
-        .leaderboard-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-
-        .leaderboard-container {
-            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
-            padding: 30px;
-            border-radius: 20px;
-            border: 3px solid gold;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-            max-width: 90%;
-            width: 400px;
-            position: relative;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .leaderboard-container h2 {
-            color: #50ff50;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(80, 255, 80, 0.5);
-        }
-
-        .leaderboard-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .leaderboard-close:hover {
-            color: gold;
-        }
-
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            margin: 5px 0;
-            background: rgba(255, 215, 0, 0.1);
-            border-radius: 10px;
-            transition: transform 0.3s ease;
-        }
-
-        .leaderboard-item:hover {
-            transform: translateX(5px);
-            background: rgba(255, 215, 0, 0.2);
-        }
-
-        .leaderboard-item .player-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .leaderboard-item .trophy {
-            font-size: 20px;
-        }
-
-        .leaderboard-item .player-emoji {
-            font-size: 24px;
-        }
-
-        .rank-1 {
-            background: rgba(255, 215, 0, 0.2);
-            border: 2px solid gold;
-        }
-
-        .rank-2 {
-            background: rgba(192, 192, 192, 0.2);
-            border: 2px solid silver;
-        }
-
-        .rank-3 {
-            background: rgba(205, 127, 50, 0.2);
-            border: 2px solid #cd7f32;
-        }
-
-        .current-player {
-            background: rgba(80, 255, 80, 0.2) !important;
-            border: 2px solid #50ff50 !important;
-            transform: scale(1.02);
-            position: relative;
-        }
-
-        .current-player::after {
-            content: 'YOU';
-            position: absolute;
-            right: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #50ff50;
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .local-mode-notice {
-            background: rgba(255, 165, 0, 0.2);
-            color: #ffa500;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 15px;
+        .game-description {
             font-size: 14px;
-            text-align: center;
-            border: 1px dashed #ffa500;
+            color: #cccccc;
         }
 
-        /* Updated reset button styling */
-        .reset-button {
-            position: static; /* Remove absolute positioning */
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #333333;
-            border-radius: 5px;
-            font-size: 11px;
-            padding: 4px 8px;
-            margin-top: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: var(--font-family);
-            opacity: 0.6;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            width: auto;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .reset-button:hover {
-            opacity: 1;
-            transform: scale(1.05);
-            background: #333333;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-        }
-        
-        .reset-button-container {
-            margin-top: 5px;
-            text-align: center;
-            width: 100%;
+        .coming-soon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            transform: rotate(15deg);
         }
 
         /* Title and Logo Animations */
@@ -1308,6 +244,7 @@
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.1); }
         }
+        
         .logo {
           display: inline-block;
           animation: breathe-rotate 12s infinite ease-in-out;
@@ -1330,50 +267,18 @@
             gap: 0.5rem;
         }
 
-        @keyframes flash-border {
-            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
-            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+        footer {
+            margin-top: 40px;
+            color: #888;
+            font-size: 14px;
+            text-align: center;
         }
 
-        .devil-popup .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            right: 20px;
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #ffffff transparent transparent;
-        }
-
-        .devil-popup.show .speech-bubble {
-            opacity: 1;
-            transform: translateY(0);
-            animation: flash-border 2s infinite;
-        }
-
-        .devil-popup .speech-bubble {
-            position: absolute;
-            background: #ffffff;
-            color: #000000;
-            padding: 15px;
-            border-radius: 20px;
-            font-size: 18px;
-            width: max-content;
-            max-width: 280px;
-            bottom: 100%;
-            right: 0;
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s, transform 0.5s;
-            font-family: var(--font-family);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            text-shadow: none;
-            font-weight: bold;
-            line-height: 1.3;
-            z-index: 2001;
-            pointer-events: none; /* Ensure it doesn't block interactions */
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -1382,172 +287,8 @@
         <div class="aurora"></div>
     </div>
     <div class="stars"></div>
-    <div class="name-input-overlay" id="nameInput">
-        <div class="name-input-container">
-            <h2>Choose Your Avatar, Gambler! 🎲</h2>
-            <div class="emoji-scroll-container">
-                <div class="emoji-grid">
-                    <!-- Fantasy/Magic -->
-                    <div class="emoji-option" data-emoji="🧙‍♂️">🧙‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧙‍♀️">🧙‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧝‍♂️">🧝‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧝‍♀️">🧝‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧚‍♂️">🧚‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧚‍♀️">🧚‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧞‍♂️">🧞‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧞‍♀️">🧞‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧜‍♂️">🧜‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧜‍♀️">🧜‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧛‍♂️">🧛‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧛‍♀️">🧛‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧟‍♂️">🧟‍♂️</div>
-                    <div class="emoji-option" data-emoji="🧟‍♀️">🧟‍♀️</div>
-                    <div class="emoji-option" data-emoji="🧌">🧌</div>
-
-                    <!-- Gambling/Games -->
-                    <div class="emoji-option" data-emoji="🎲">🎲</div>
-                    <div class="emoji-option" data-emoji="🎰">🎰</div>
-                    <div class="emoji-option" data-emoji="🎯">🎯</div>
-                    <div class="emoji-option" data-emoji="🎪">🎪</div>
-                    <div class="emoji-option" data-emoji="🎮">🎮</div>
-                    <div class="emoji-option" data-emoji="🎨">🎨</div>
-                    <div class="emoji-option" data-emoji="🎭">🎭</div>
-                    <div class="emoji-option" data-emoji="🎪">🎪</div>
-                    <div class="emoji-option" data-emoji="🃏">🃏</div>
-                    <div class="emoji-option" data-emoji="🎴">🎴</div>
-
-                    <!-- Money/Wealth -->
-                    <div class="emoji-option" data-emoji="🤑">🤑</div>
-                    <div class="emoji-option" data-emoji="💰">💰</div>
-                    <div class="emoji-option" data-emoji="💎">💎</div>
-                    <div class="emoji-option" data-emoji="👑">👑</div>
-                    <div class="emoji-option" data-emoji="💍">💍</div>
-                    <div class="emoji-option" data-emoji="💸">💸</div>
-                    <div class="emoji-option" data-emoji="💵">💵</div>
-                    <div class="emoji-option" data-emoji="💶">💶</div>
-                    <div class="emoji-option" data-emoji="💷">💷</div>
-                    <div class="emoji-option" data-emoji="💴">💴</div>
-
-                    <!-- Faces/Expressions -->
-                    <div class="emoji-option" data-emoji="😎">😎</div>
-                    <div class="emoji-option" data-emoji="🤪">🤪</div>
-                    <div class="emoji-option" data-emoji="😈">😈</div>
-                    <div class="emoji-option" data-emoji="🤡">🤡</div>
-                    <div class="emoji-option" data-emoji="👻">👻</div>
-                    <div class="emoji-option" data-emoji="🤓">🤓</div>
-                    <div class="emoji-option" data-emoji="🥸">🥸</div>
-                    <div class="emoji-option" data-emoji="😇">😇</div>
-                    <div class="emoji-option" data-emoji="🥳">🥳</div>
-                    <div class="emoji-option" data-emoji="😤">😤</div>
-
-                    <!-- Animals -->
-                    <div class="emoji-option" data-emoji="🦊">🦊</div>
-                    <div class="emoji-option" data-emoji="🐉">🐉</div>
-                    <div class="emoji-option" data-emoji="🦄">🦄</div>
-                    <div class="emoji-option" data-emoji="🦁">🦁</div>
-                    <div class="emoji-option" data-emoji="🐯">🐯</div>
-                    <div class="emoji-option" data-emoji="🦅">🦅</div>
-                    <div class="emoji-option" data-emoji="🦉">🦉</div>
-                    <div class="emoji-option" data-emoji="🐺">🐺</div>
-                    <div class="emoji-option" data-emoji="🦇">🦇</div>
-                    <div class="emoji-option" data-emoji="🦋">🦋</div>
-
-                    <!-- Heroes/Characters -->
-                    <div class="emoji-option" data-emoji="🦸‍♂️">🦸‍♂️</div>
-                    <div class="emoji-option" data-emoji="🦸‍♀️">🦸‍♀️</div>
-                    <div class="emoji-option" data-emoji="🦹‍♂️">🦹‍♂️</div>
-                    <div class="emoji-option" data-emoji="🦹‍♀️">🦹‍♀️</div>
-                    <div class="emoji-option" data-emoji="🥷">🥷</div>
-                    <div class="emoji-option" data-emoji="👨‍🎤">👨‍🎤</div>
-                    <div class="emoji-option" data-emoji="👩‍🎤">👩‍🎤</div>
-                    <div class="emoji-option" data-emoji="👨‍🚀">👨‍🚀</div>
-                    <div class="emoji-option" data-emoji="👩‍🚀">👩‍🚀</div>
-                    <div class="emoji-option" data-emoji="🕴">🕴</div>
-
-                    <!-- Objects/Symbols -->
-                    <div class="emoji-option" data-emoji="⭐">⭐</div>
-                    <div class="emoji-option" data-emoji="🌟">🌟</div>
-                    <div class="emoji-option" data-emoji="✨">✨</div>
-                    <div class="emoji-option" data-emoji="🔮">🔮</div>
-                    <div class="emoji-option" data-emoji="⚡">⚡</div>
-                    <div class="emoji-option" data-emoji="🎵">🎵</div>
-                    <div class="emoji-option" data-emoji="🎸">🎸</div>
-                    <div class="emoji-option" data-emoji="🏆">🏆</div>
-                    <div class="emoji-option" data-emoji="🎭">🎭</div>
-                    <div class="emoji-option" data-emoji="🎪">🎪</div>
-
-                    <!-- Food/Drinks -->
-                    <div class="emoji-option" data-emoji="🍕">🍕</div>
-                    <div class="emoji-option" data-emoji="🌮">🌮</div>
-                    <div class="emoji-option" data-emoji="🍔">🍔</div>
-                    <div class="emoji-option" data-emoji="🍦">🍦</div>
-                    <div class="emoji-option" data-emoji="🍺">🍺</div>
-                    <div class="emoji-option" data-emoji="🍷">🍷</div>
-                    <div class="emoji-option" data-emoji="🍹">🍹</div>
-                    <div class="emoji-option" data-emoji="🧃">🧃</div>
-                    <div class="emoji-option" data-emoji="🍪">🍪</div>
-                    <div class="emoji-option" data-emoji="🍩">🍩</div>
-
-                    <!-- Nature/Weather -->
-                    <div class="emoji-option" data-emoji="🌈">🌈</div>
-                    <div class="emoji-option" data-emoji="🌙">🌙</div>
-                    <div class="emoji-option" data-emoji="☀️">☀️</div>
-                    <div class="emoji-option" data-emoji="🌺">🌺</div>
-                    <div class="emoji-option" data-emoji="🌸">🌸</div>
-                    <div class="emoji-option" data-emoji="🍀">🍀</div>
-                    <div class="emoji-option" data-emoji="🌟">🌟</div>
-                    <div class="emoji-option" data-emoji="❄️">❄️</div>
-                    <div class="emoji-option" data-emoji="🔥">🔥</div>
-                    <div class="emoji-option" data-emoji="💫">💫</div>
-                </div>
-                <div class="emoji-scroll-arrows">
-                    <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
-                    <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
-                </div>
-            </div>
-            <input type="text" id="playerName" placeholder="Your name..." maxlength="20">
-            <button onclick="startGame()">LETS GAMBLE!</button>
-        </div>
-    </div>
-    <div class="leaderboard-overlay" id="leaderboardOverlay">
-        <div class="leaderboard-container">
-            <h2>🏆 High Scores 🏆</h2>
-            <button class="leaderboard-close" onclick="toggleLeaderboard(false)">×</button>
-            <ul class="leaderboard-list" id="leaderboardList">
-                <!-- Leaderboard items will be inserted here -->
-            </ul>
-        </div>
-    </div>
-    <div class="profile-overlay" id="profileOverlay">
-        <div class="profile-container">
-            <h2>Update Profile</h2>
-            <button class="profile-close" onclick="toggleProfile(false)">×</button>
-            <div class="emoji-scroll-container">
-                <div class="emoji-grid">
-                    <!-- The existing emoji options will be cloned here by JavaScript -->
-                </div>
-                <div class="emoji-scroll-arrows">
-                    <button class="emoji-scroll-arrow up" onclick="scrollEmojis(this, 'up')">↑</button>
-                    <button class="emoji-scroll-arrow down" onclick="scrollEmojis(this, 'down')">↓</button>
-                </div>
-            </div>
-            <input type="text" id="updatePlayerName" placeholder="Your name..." maxlength="20">
-            <button onclick="updateProfile()">UPDATE PROFILE</button>
-            
-            <!-- Jackpot History Section -->
-            <div class="jackpot-history">
-                <h3>🏆 Jackpot History 🏆</h3>
-                <div id="jackpotHistoryList" class="jackpot-history-list">
-                    <!-- Jackpot history will be inserted here -->
-                    <div class="no-jackpots">No jackpots won yet. Keep spinning!</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="slot-machine">
-        <button class="leaderboard-button" onclick="toggleLeaderboard(true)">🏅</button>
-        <button class="profile-button" onclick="toggleProfile(true)">👤</button>
-        <button class="mute-button">🔊</button>
+    
+    <div class="main-container">
         <h1>
             <div class="logo-wrapper">
                 <span class="sparkle">✨</span>
@@ -1555,39 +296,38 @@
                 <span class="sparkle">✨</span>
             </div>
             <span class="title-text">
-              <span>$</span><span>C</span><span>R</span><span>O</span><span>G</span><span>G</span><span>Y</span><span>'</span><span>S</span><span>&nbsp;</span><span>C</span><span>A</span><span>S</span><span>I</span><span>N</span><span>O</span>
+              <span>S</span><span>C</span><span>R</span><span>O</span><span>G</span><span>G</span><span>Y</span><span>G</span><span>A</span><span>M</span><span>E</span><span>S</span><span>.</span><span>C</span><span>O</span><span>M</span>
             </span>
         </h1>
-        <div class="money-display">
+        
+        <p>Welcome to Scroggy's magical collection of web games!</p>
+        
+        <div class="games-grid">
+            <a href="/casino/" class="game-card">
+                <div class="game-icon">🎰</div>
+                <div class="game-title">Scroggy's Casino</div>
+                <div class="game-description">Gambling Scroggy Style</div>
+            </a>
             
-            <div class="balance" id="money">✨ 500 ✨</div>
-            <div>SCROGGY COINS</div>
+            <div class="game-card">
+                <div class="game-icon">🃏</div>
+                <div class="game-title">Movie Poster Mashup</div>
+                <div class="game-description">Mashup a movie poster bruv.</div>
+                <div class="coming-soon">Coming Soon</div>
+            </div>
+            
+            <div class="game-card">
+                <div class="game-icon">🐍</div>
+                <div class="game-title">Multi-Snake</div>
+                <div class="game-description">Fight your friends in this multiplayer snake game.</div>
+                <div class="coming-soon">Coming Soon</div>
+            </div>
         </div>
-        <div class="reels">
-            <div class="reel" id="reel1">💩</div>
-            <div class="reel" id="reel2">🍩</div>
-            <div class="reel" id="reel3">🤑</div>
-        </div>
-        <div class="button-container">
-            <button id="spin-button" onclick="spin()">
-                SPIN
-                <span class="cost">25 SCROGGY COINS</span>
-            </button>
-            <button id="bet-all-button" onclick="betAll()">
-                BET IT ALL
-                <span class="cost">DOUBLE OR NOTHING + 100% RISK</span>
-            </button>
-        </div>
-        <div class="message" id="message">Let's GO!</div>
-        <div class="reset-button-container">
-            <button class="reset-button" onclick="resetGame()">📉 Declare Bankruptcy</button>
-        </div>
-        <div class="jackpot-animation" id="jackpot-animation"></div>
     </div>
-    <div class="devil-popup" id="devil-popup">
-        <div class="speech-bubble">Alright punk you better pay up or im gonna break yo knees! 🦿</div>
-        <span class="collector-emoji">😈</span>
-    </div>
+    
+    <footer>
+        &copy; 2023 ScroggyGames.com - All rights reserved
+    </footer>
 
     <script>
         // Move these variables to the top of the script, right after the emoji definitions
@@ -1622,10 +362,10 @@
 
         // Prize values for each emoji combination
         const PRIZES = {
-            '💩': 100,              // Poop - 100
-            '🌮': 500,              // Taco - 500
+            '💩': 10000,              // Poop - 100
+            '🌮': 5000,              // Taco - 500
             '🍩': 1000,             // Donut - 1k
-            '🤮': 5000,             // Barf - 5k
+            '🤮': 500000,             // Barf - 5k
             '🤑': 1000000000,           // Money Face - 100 Trillion
             '🥒': 2500              // Pickle - 2.5k
         };
@@ -2781,6 +1521,11 @@
                 hexCode: emoji.codePointAt(0).toString(16)
             };
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+        });
     </script>
 </body>
 </html>

@@ -3,9 +3,20 @@
   publish = "."
   functions = "functions"
 
+# Additional functions directories
+[functions]
+  directory = "functions"
+  included_files = ["casino/functions/**"]
+
 # Redirect API requests to Netlify Functions
 [[redirects]]
   from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Redirect casino-specific function requests
+[[redirects]]
+  from = "/.netlify/functions/casino/*"
   to = "/.netlify/functions/:splat"
   status = 200
 

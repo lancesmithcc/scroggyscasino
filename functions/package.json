@@ -1,0 +1,9 @@
+{
+  "name": "scroggygames-functions",
+  "version": "1.0.0",
+  "description": "Netlify functions for ScroggyGames.com",
+  "main": "leaderboard.js",
+  "dependencies": {
+    "@netlify/blobs": "^3.0.0"
+  }
+} 

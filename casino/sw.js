@@ -1,10 +1,8 @@
-const CACHE_NAME = 'scroggygames-v1';
+const CACHE_NAME = 'scroggy-casino-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
     '/casino/',
     '/casino/index.html',
-    '/manifest.json',
+    '/casino/manifest.json',
     '/icons/icon-72x72.png',
     '/icons/icon-96x96.png',
     '/icons/icon-128x128.png',
