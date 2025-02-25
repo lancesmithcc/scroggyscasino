@@ -114,6 +114,7 @@
             margin: 0 auto;
         }
         
+        /* Control button - make larger on mobile for easier tapping */
         .control-button {
             width: 40px;
             height: 40px;
@@ -127,6 +128,14 @@
             position: absolute;
             box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
             transition: transform 0.05s, background-color 0.05s;
+            cursor: pointer; /* Add pointer cursor for buttons */
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+        
+        /* Add active state for touch */
+        .control-button.active {
+            transform: scale(0.95) translateY(2px) !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
         
         /* Position for d-pad buttons */
@@ -1096,6 +1105,9 @@
 
             // Reset victory animation
             victoryAnimation.progress = 0;
+            
+            // Make sure mobile controls still work after reset
+            setupMobileControls();
         }
 
         // Handle keyboard input
@@ -1256,30 +1268,56 @@
                 // Add class to body to trigger CSS rules
                 document.body.classList.add('has-touch-support');
                 
-                // No need to set data attributes as they're now in the HTML
-                
-                // Explicitly show the controls (belt and suspenders approach)
+                // Explicitly show the controls
                 document.querySelector('.mobile-controls').style.display = 'flex';
                 
+                // Get all control buttons
                 const controls = document.querySelectorAll('.control-button');
                 
+                // Remove any existing event listeners (in case of multiple setups)
                 controls.forEach(button => {
-                    // Use touchstart to ensure it works on mobile devices
-                    button.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        const direction = button.getAttribute('data-direction');
-                        handleMobileControl(direction);
-                        
-                        // Add visual feedback
-                        button.style.transform = 'scale(0.95)';
+                    button.replaceWith(button.cloneNode(true));
+                });
+                
+                // Get fresh references after cloning
+                const freshControls = document.querySelectorAll('.control-button');
+                
+                // Add more reliable event handlers for mobile
+                freshControls.forEach(button => {
+                    console.log(`Setting up button: ${button.id} with direction: ${button.getAttribute('data-direction')}`);
+                    
+                    // Add both touch and mouse events for better compatibility
+                    ['touchstart', 'mousedown'].forEach(eventType => {
+                        button.addEventListener(eventType, (e) => {
+                            e.preventDefault();
+                            const direction = button.getAttribute('data-direction');
+                            console.log(`Button pressed: ${button.id}, Direction: ${direction}`);
+                            
+                            // Add active class for visual feedback
+                            button.classList.add('active');
+                            
+                            // Call the control function
+                            handleMobileControl(direction);
+                        });
                     });
                     
-                    button.addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        // Reset visual feedback
-                        button.style.transform = 'scale(1)';
+                    // Add both touch and mouse events for release
+                    ['touchend', 'touchcancel', 'mouseup', 'mouseleave'].forEach(eventType => {
+                        button.addEventListener(eventType, (e) => {
+                            e.preventDefault();
+                            button.classList.remove('active');
+                        });
                     });
                 });
+                
+                // Add a direct touch handler to document body to ensure touch events work
+                document.body.addEventListener('touchmove', (e) => {
+                    // Don't prevent default on body to allow scrolling
+                    if (e.target.classList.contains('control-button')) {
+                        // Only prevent default if touching a control button
+                        e.preventDefault();
+                    }
+                }, { passive: false });
             } else {
                 console.log("Desktop device detected - hiding controls");
                 // Ensure controls are hidden on desktop
@@ -1328,26 +1366,36 @@
 
         // Re-adding the handleMobileControl function that was removed
         function handleMobileControl(direction) {
+            console.log(`Handling direction: ${direction}`);
+            
             // Handle player 1 controls
             if (direction === 'up1') {
                 player1.direction = { x: 0, y: -1 };
+                console.log("Red player: UP");
             } else if (direction === 'down1') {
                 player1.direction = { x: 0, y: 1 };
+                console.log("Red player: DOWN");
             } else if (direction === 'left1') {
                 player1.direction = { x: -1, y: 0 };
+                console.log("Red player: LEFT");
             } else if (direction === 'right1') {
                 player1.direction = { x: 1, y: 0 };
+                console.log("Red player: RIGHT");
             }
             
             // Handle player 2 controls
             if (direction === 'up2') {
                 player2.direction = { x: 0, y: -1 };
+                console.log("Blue player: UP");
             } else if (direction === 'down2') {
                 player2.direction = { x: 0, y: 1 };
+                console.log("Blue player: DOWN");
             } else if (direction === 'left2') {
                 player2.direction = { x: -1, y: 0 };
+                console.log("Blue player: LEFT");
             } else if (direction === 'right2') {
                 player2.direction = { x: 1, y: 0 };
+                console.log("Blue player: RIGHT");
             }
         }
         
