@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MULTISNAKE COMING SOON...</title>
+        <style>
+            body {
+                background-color: #000;
+                color: #00ff00;
+                font-family: 'Courier New', monospace;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            .container {
+                text-align: center;
+                position: relative;
+                z-index: 2;
+                padding: 20px;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .ascii-art {
+                white-space: pre;
+                font-size: 10px;
+                line-height: 1;
+                margin-bottom: 20px;
+                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+                animation: glow 1.5s ease-in-out infinite alternate;
+                display: block;
+                overflow-x: auto;
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+                animation: glow 1.5s ease-in-out infinite alternate;
+                margin: 0.5em 0;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+                margin-top: 10px;
+                opacity: 0.8;
+                text-shadow: 0 0 3px #00ff00;
+                padding: 0 10px;
+            }
+            
+            @keyframes glow {
+                from {
+                    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+                }
+                to {
+                    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+                }
+            }
+            
+            .snake-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+            }
+            
+            .loading-bar {
+                width: 80%;
+                max-width: 300px;
+                height: 20px;
+                background-color: #111;
+                border: 1px solid #00ff00;
+                margin: 30px auto 0;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .loading-progress {
+                height: 100%;
+                width: 0%;
+                background-color: #00ff00;
+                box-shadow: 0 0 10px #00ff00;
+                animation: loading 8s infinite;
+            }
+            
+            @keyframes loading {
+                0% { width: 0%; }
+                50% { width: 70%; }
+                75% { width: 85%; }
+                90% { width: 95%; }
+                100% { width: 98%; }
+            }
+            
+            .score {
+                font-size: 1.2rem;
+                margin-top: 10px;
+                color: #00ff00;
+                text-shadow: 0 0 3px #00ff00;
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 768px) {
+                .ascii-art {
+                    font-size: 5px;
+                }
+                
+                h1 {
+                    font-size: 1.8rem;
+                }
+                
+                .subtitle {
+                    font-size: 1rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .ascii-art {
+                    font-size: 3px;
+                }
+                
+                h1 {
+                    font-size: 1.5rem;
+                }
+                
+                .subtitle {
+                    font-size: 0.9rem;
+                }
+                
+                .loading-bar {
+                    height: 15px;
+                }
+            }
+            
+            /* For very small screens, hide the ASCII art and show a simpler version */
+            @media (max-width: 320px) {
+                .ascii-art {
+                    display: none;
+                }
+                
+                .mobile-title {
+                    display: block;
+                    font-size: 1.2rem;
+                    margin-bottom: 15px;
+                    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+                    animation: glow 1.5s ease-in-out infinite alternate;
+                }
+            }
+            
+            .mobile-title {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <pre class="ascii-art" id="ascii-art">
+ ███▄ ▄███▓ █    ██  ██▓  ████████▓ ██▓  ██████  ███▄    █  ▄▄▄       ██ ▄█▀▓█████ 
+▓██▒▀█▀ ██▒ ██  ▓██▒▓██▒ ▓  ██▒ ▓▒▓██▒▒██    ▒  ██ ▀█   █ ▒████▄     ██▄█▒ ▓█   ▀ 
+▓██    ▓██░▓██  ▒██░▒██░    ██░ ▒░▒██▒░ ▓██▄   ▓██  ▀█ ██▒▒██  ▀█▄  ▓███▄░ ▒███   
+▒██    ▒██ ▓▓█  ░██░▒██░  ▒ ██▓ ░ ░██░  ▒   ██▒▓██▒  ▐▌██▒░██▄▄▄▄██ ▓██ █▄ ▒▓█  ▄ 
+▒██▒   ░██▒▒▒█████▓ ░██░  ▒██▒ ░ ░██░▒██████▒▒▒██░   ▓██░ ▓█   ▓██▒▒██▒ █▄░▒████▒
+░ ▒░   ░  ░░▒▓▒ ▒ ▒ ░▓    ▒ ░░   ░▓  ▒ ▒▓▒ ▒ ░░ ▒░   ▒ ▒  ▒▒   ▓▒█░▒ ▒▒ ▓▒░░ ▒░ ░
+░  ░      ░░░▒░ ░ ░  ▒ ░    ░     ▒ ░░ ░▒  ░ ░░ ░░   ░ ▒░  ▒   ▒▒ ░░ ░▒ ▒░ ░ ░  ░
+░      ░    ░░░ ░ ░  ▒ ░  ░       ▒ ░░  ░  ░     ░   ░ ░   ░   ▒   ░ ░░ ░    ░   
+       ░      ░      ░            ░        ░           ░       ░  ░░  ░      ░  ░
+            </pre>
+            <div class="mobile-title">MULTISNAKE</div>
+            <h1>COMING SOON</h1>
+            
+             <div class="score">Score: <span id="score">0 | <a href="../">GO BACK</a></span></div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+        <canvas class="snake-bg" id="snake-canvas"></canvas>
+
+        <script>
+            // Snake game animation
+            const canvas = document.getElementById('snake-canvas');
+            const ctx = canvas.getContext('2d');
+            let score = 0;
+            const scoreDisplay = document.getElementById('score');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                // Adjust grid size based on screen dimensions
+                gridSize = Math.min(Math.floor(window.innerWidth / 40), Math.floor(window.innerHeight / 40));
+                gridSize = Math.max(8, gridSize); // Ensure minimum grid size
+                
+                // Reset snakes positions when resizing
+                initSnakes();
+            }
+            
+            // Grid size for the snake game (adjusted for responsiveness)
+            let gridSize = Math.min(Math.floor(window.innerWidth / 40), Math.floor(window.innerHeight / 40));
+            gridSize = Math.max(8, gridSize); // Ensure minimum grid size
+            
+            // Snake class
+            class Snake {
+                constructor(color) {
+                    this.color = color || '#00ff00';
+                    this.reset();
+                }
+                
+                reset() {
+                    // Random initial position
+                    const x = Math.floor(Math.random() * (canvas.width / gridSize));
+                    const y = Math.floor(Math.random() * (canvas.height / gridSize));
+                    
+                    // Random initial direction
+                    const directions = ['up', 'down', 'left', 'right'];
+                    this.direction = directions[Math.floor(Math.random() * directions.length)];
+                    
+                    // Initial body (3 segments)
+                    this.body = [];
+                    for (let i = 0; i < 5; i++) {
+                        this.body.push({
+                            x: x,
+                            y: y + i
+                        });
+                    }
+                    
+                    // Speed (cells per second)
+                    this.speed = 5 + Math.random() * 5;
+                    this.lastUpdateTime = 0;
+                    this.updateInterval = 1000 / this.speed;
+                    
+                    // Random color intensity
+                    const intensity = 0.7 + Math.random() * 0.3;
+                    this.currentColor = `rgba(0, ${Math.floor(255 * intensity)}, 0, ${0.7 + Math.random() * 0.3})`;
+                }
+                
+                update(currentTime) {
+                    // Update only at specific intervals based on speed
+                    if (!this.lastUpdateTime || currentTime - this.lastUpdateTime > this.updateInterval) {
+                        this.lastUpdateTime = currentTime;
+                        
+                        // Get current head position
+                        const head = {...this.body[0]};
+                        
+                        // Randomly change direction sometimes
+                        if (Math.random() < 0.02) {
+                            const directions = ['up', 'down', 'left', 'right'];
+                            this.direction = directions[Math.floor(Math.random() * directions.length)];
+                        }
+                        
+                        // Move the head in the current direction
+                        switch (this.direction) {
+                            case 'up':
+                                head.y--;
+                                break;
+                            case 'down':
+                                head.y++;
+                                break;
+                            case 'left':
+                                head.x--;
+                                break;
+                            case 'right':
+                                head.x++;
+                                break;
+                        }
+                        
+                        // Check for wall collision
+                        if (head.x < 0 || head.x >= canvas.width / gridSize || 
+                            head.y < 0 || head.y >= canvas.height / gridSize) {
+                            // Reset snake if it hits a wall
+                            this.reset();
+                            // Increment the score
+                            score += 10;
+                            scoreDisplay.textContent = score;
+                            return;
+                        }
+                        
+                        // Move the snake (add new head, remove tail)
+                        this.body.unshift(head);
+                        this.body.pop();
+                    }
+                }
+                
+                draw() {
+                    for (let i = 0; i < this.body.length; i++) {
+                        // Calculate size (head is bigger)
+                        const size = i === 0 ? gridSize : gridSize - 1;
+                        
+                        // Calculate color (head is brighter)
+                        let alpha = i === 0 ? 1 : Math.max(0.3, 1 - i / (this.body.length));
+                        const segmentColor = `rgba(0, 255, 0, ${alpha})`;
+                        
+                        // Draw segment with glow effect
+                        ctx.shadowColor = '#00ff00';
+                        ctx.shadowBlur = i === 0 ? 10 : 5;
+                        ctx.fillStyle = segmentColor;
+                        ctx.fillRect(
+                            this.body[i].x * gridSize, 
+                            this.body[i].y * gridSize, 
+                            size, 
+                            size
+                        );
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+            
+            // Create multiple snakes
+            const snakes = [];
+            function initSnakes() {
+                snakes.length = 0; // Clear existing snakes
+                
+                const snakeCount = Math.max(3, Math.floor((canvas.width * canvas.height) / (400 * 400))); // Adjust count based on screen size
+                
+                for (let i = 0; i < snakeCount; i++) {
+                    snakes.push(new Snake());
+                }
+            }
+            
+            // Main animation loop
+            function draw(timestamp) {
+                // Fade effect
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Update and draw all snakes
+                snakes.forEach(snake => {
+                    snake.update(timestamp);
+                    snake.draw();
+                });
+                
+                // Request the next frame
+                requestAnimationFrame(draw);
+            }
+            
+            // Initialize
+            resizeCanvas();
+            initSnakes();
+            
+            // Start animation
+            requestAnimationFrame(draw);
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
+            
+            // Mobile optimization
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                // Reduce animation complexity on mobile
+                gridSize = Math.max(10, gridSize); // Larger grid for mobile means fewer calculations
+            }
+            
+            // Check if device is in portrait or landscape and adjust ASCII art
+            function checkOrientation() {
+                const asciiArt = document.getElementById('ascii-art');
+                if (window.innerWidth < window.innerHeight && window.innerWidth < 500) {
+                    // Portrait mode on small screens - make ASCII art smaller
+                    asciiArt.style.fontSize = '4px';
+                } else {
+                    // Landscape or larger screens
+                    if (window.innerWidth <= 768) {
+                        asciiArt.style.fontSize = '5px';
+                    } else {
+                        asciiArt.style.fontSize = '10px';
+                    }
+                }
+            }
+            
+            // Check orientation on load and resize
+            checkOrientation();
+            window.addEventListener('resize', checkOrientation);
+        </script>
+    </body>
+</html>

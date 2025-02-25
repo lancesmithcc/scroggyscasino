@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MOVIE POSTER MASHUP COMING SOON...</title>
+        <style>
+            body {
+                background-color: #000;
+                color: #0f0;
+                font-family: 'Courier New', monospace;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            .container {
+                text-align: center;
+                position: relative;
+                z-index: 2;
+                padding: 20px;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .ascii-art {
+                white-space: pre;
+                font-size: 10px;
+                line-height: 1;
+                margin-bottom: 20px;
+                text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+                animation: glow 1.5s ease-in-out infinite alternate;
+                display: block;
+                overflow-x: auto;
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+                text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+                animation: glow 1.5s ease-in-out infinite alternate;
+                margin: 0.5em 0;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+                margin-top: 10px;
+                opacity: 0.8;
+                text-shadow: 0 0 3px #0f0;
+                padding: 0 10px;
+            }
+            
+            @keyframes glow {
+                from {
+                    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+                }
+                to {
+                    text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0;
+                }
+            }
+            
+            .matrix-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+            }
+            
+            .loading-bar {
+                width: 80%;
+                max-width: 300px;
+                height: 20px;
+                background-color: #111;
+                border: 1px solid #0f0;
+                margin: 30px auto 0;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .loading-progress {
+                height: 100%;
+                width: 0%;
+                background-color: #0f0;
+                box-shadow: 0 0 10px #0f0;
+                animation: loading 8s infinite;
+            }
+            
+            @keyframes loading {
+                0% { width: 0%; }
+                50% { width: 70%; }
+                75% { width: 85%; }
+                90% { width: 95%; }
+                100% { width: 98%; }
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 768px) {
+                .ascii-art {
+                    font-size: 5px;
+                }
+                
+                h1 {
+                    font-size: 1.8rem;
+                }
+                
+                .subtitle {
+                    font-size: 1rem;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .ascii-art {
+                    font-size: 3px;
+                }
+                
+                h1 {
+                    font-size: 1.5rem;
+                }
+                
+                .subtitle {
+                    font-size: 0.9rem;
+                }
+                
+                .loading-bar {
+                    height: 15px;
+                }
+            }
+            
+            /* For very small screens, hide the ASCII art and show a simpler version */
+            @media (max-width: 320px) {
+                .ascii-art {
+                    display: none;
+                }
+                
+                .mobile-title {
+                    display: block;
+                    font-size: 1.2rem;
+                    margin-bottom: 15px;
+                    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
+                    animation: glow 1.5s ease-in-out infinite alternate;
+                }
+            }
+            
+            .mobile-title {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <pre class="ascii-art" id="ascii-art">
+ ███▄ ▄███▓ ▒█████   ██▒   █▓ ██▓▓█████     ██▓███   ▒█████    ██████ ▄▄▄█████▓▓█████  ██▀███  
+▓██▒▀█▀ ██▒▒██▒  ██▒▓██░   █▒▓██▒▓█   ▀    ▓██░  ██▒▒██▒  ██▒▒██    ▒ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒
+▓██    ▓██░▒██░  ██▒ ▓██  █▒░▒██▒▒███      ▓██░ ██▓▒▒██░  ██▒░ ▓██▄   ▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒
+▒██    ▒██ ▒██   ██░  ▒██ █░░░██░▒▓█  ▄    ▒██▄█▓▒ ▒▒██   ██░  ▒   ██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄  
+▒██▒   ░██▒░ ████▓▒░   ▒▀█░  ░██░░▒████▒   ▒██▒ ░  ░░ ████▓▒░▒██████▒▒  ▒██▒ ░ ░▒████▒░██▓ ▒██▒
+░ ▒░   ░  ░░ ▒░▒░▒░    ░ ▐░  ░▓  ░░ ▒░ ░   ▒▓▒░ ░  ░░ ▒░▒░▒░ ▒ ▒▓▒ ▒ ░  ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░
+░  ░      ░  ░ ▒ ▒░    ░ ░░   ▒ ░ ░ ░  ░   ░▒ ░       ░ ▒ ▒░ ░ ░▒  ░ ░    ░     ░ ░  ░  ░▒ ░ ▒░
+░      ░   ░ ░ ░ ▒       ░░   ▒ ░   ░      ░░       ░ ░ ░ ▒  ░  ░  ░    ░         ░     ░░   ░ 
+       ░       ░ ░        ░   ░     ░  ░                ░ ░        ░              ░  ░   ░     
+                         ░                                                                      
+ ███▄ ▄███▓ ▄▄▄        ██████  ██░ ██  █    ██  ██▓███                                         
+▓██▒▀█▀ ██▒▒████▄    ▒██    ▒ ▓██░ ██▒ ██  ▓██▒▓██░  ██▒                                        
+▓██    ▓██░▒██  ▀█▄  ░ ▓██▄   ▒██▀▀██░▓██  ▒██░▓██░ ██▓▒                                        
+▒██    ▒██ ░██▄▄▄▄██   ▒   ██▒░▓█ ░██ ▓▓█  ░██░▒██▄█▓▒ ▒                                        
+▒██▒   ░██▒ ▓█   ▓██▒▒██████▒▒░▓█▒░██▓▒▒█████▓ ▒██▒ ░  ░                                        
+░ ▒░   ░  ░ ▒▒   ▓▒█░▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░▒▓▒ ▒ ▒ ▒▓▒░ ░  ░                                        
+░  ░      ░  ▒   ▒▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░░░▒░ ░ ░ ░▒ ░                                             
+░      ░     ░   ▒   ░  ░  ░   ░  ░░ ░ ░░░ ░ ░ ░░                                               
+       ░         ░  ░      ░   ░  ░  ░   ░                                                      
+            </pre>
+            <div class="mobile-title">MOVIE POSTER MASHUP</div>
+            <h1>COMING SOON</h1>
+            <p class="subtitle"><a href="../">GO BACK</a></p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+        <canvas class="matrix-bg" id="matrix"></canvas>
+
+        <script>
+            // Matrix rain effect
+            const canvas = document.getElementById('matrix');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                // Reset drops
+                const columns = canvas.width / fontSize;
+                drops.length = 0; // Clear the array
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.random() * -100;
+                }
+            }
+            
+            // Characters to display
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*()=+[]{}|;:,.<>/?~';
+            const fontSize = window.innerWidth <= 480 ? 10 : 14; // Smaller font size on mobile
+            const columns = canvas.width / fontSize;
+            
+            // Array to track the y position of each column
+            const drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+            }
+            
+            // Drawing the characters
+            function draw() {
+                // Semi-transparent black to create fade effect
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#0f0'; // Green text
+                ctx.font = fontSize + 'px monospace';
+                
+                // Loop through each drop
+                for (let i = 0; i < drops.length; i++) {
+                    // Random character
+                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                    
+                    // x = i * fontSize, y = drops[i] * fontSize
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    
+                    // Send the drop back to the top randomly after it crosses the screen
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    
+                    // Increment y coordinate
+                    drops[i]++;
+                }
+            }
+            
+            // Animation loop
+            let animationId;
+            function startAnimation() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                
+                function animate() {
+                    draw();
+                    animationId = requestAnimationFrame(animate);
+                }
+                
+                animate();
+            }
+            
+            // Initial setup
+            resizeCanvas();
+            startAnimation();
+            
+            // Handle responsive behavior
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
+            
+            // Check if device is in portrait or landscape and adjust ASCII art
+            function checkOrientation() {
+                const asciiArt = document.getElementById('ascii-art');
+                if (window.innerWidth < window.innerHeight && window.innerWidth < 500) {
+                    // Portrait mode on small screens - make ASCII art smaller
+                    asciiArt.style.fontSize = '4px';
+                } else {
+                    // Landscape or larger screens
+                    if (window.innerWidth <= 768) {
+                        asciiArt.style.fontSize = '5px';
+                    } else {
+                        asciiArt.style.fontSize = '10px';
+                    }
+                }
+            }
+            
+            // Check orientation on load and resize
+            checkOrientation();
+            window.addEventListener('resize', checkOrientation);
+            
+            // Optimize performance by reducing animation frame rate on mobile
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                // Use setInterval with lower frame rate on mobile
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                setInterval(draw, 50); // 20fps instead of 60fps
+            }
+        </script>
+    </body>
+</html>
