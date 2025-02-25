@@ -52,7 +52,7 @@
             width: 100%;
             max-width: 800px;
             margin-top: 20px;
-            align-items: center;
+            justify-content: space-between;
         }
         
         .control-row {
@@ -61,24 +61,146 @@
             margin-bottom: 10px;
         }
         
+        /* Controller containers - NES style */
+        .controller {
+            background-color: rgba(50, 50, 50, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            width: 45%;
+            max-width: 180px;
+        }
+        
+        .controller:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px 10px 0 0;
+        }
+        
+        /* Player-specific controller styles */
+        .red-player.controller {
+            background: linear-gradient(to bottom, #400 0%, #300 100%);
+            border: 2px solid #500;
+        }
+        
+        .blue-player.controller {
+            background: linear-gradient(to bottom, #004 0%, #003 100%);
+            border: 2px solid #005;
+        }
+        
+        /* Controller labels */
+        .controller-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-family: 'Nunito', sans-serif;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            font-size: 14px;
+        }
+        
+        /* D-pad container */
+        .d-pad {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
         .control-button {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border: 2px solid #FFA500;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
-            color: #FFA500;
+            font-size: 20px;
             user-select: none;
             touch-action: manipulation;
+            position: absolute;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.05s, background-color 0.05s;
+        }
+        
+        /* Position for d-pad buttons */
+        .btn-up {
+            top: 0;
+            left: 40px;
+        }
+        
+        .btn-right {
+            top: 40px;
+            right: 0;
+        }
+        
+        .btn-down {
+            bottom: 0;
+            left: 40px;
+        }
+        
+        .btn-left {
+            top: 40px;
+            left: 0;
+        }
+        
+        /* Center button (non-functional, just for appearance) */
+        .btn-center {
+            top: 40px;
+            left: 40px;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: 5px;
+            position: absolute;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Red player center button */
+        .red-player .btn-center {
+            background-color: #400;
+            border: 1px solid #500;
+        }
+        
+        /* Blue player center button */
+        .blue-player .btn-center {
+            background-color: #004;
+            border: 1px solid #005;
+        }
+        
+        /* Red player buttons */
+        .red-player .control-button {
+            background: linear-gradient(to bottom, #c00 0%, #900 100%);
+            border: 2px solid #b00;
+            color: white;
+        }
+        
+        .red-player .control-button:active {
+            background: linear-gradient(to bottom, #f00 0%, #c00 100%);
+            transform: scale(0.95);
+        }
+        
+        /* Blue player buttons */
+        .blue-player .control-button {
+            background: linear-gradient(to bottom, #00c 0%, #009 100%);
+            border: 2px solid #00b;
+            color: white;
+        }
+        
+        .blue-player .control-button:active {
+            background: linear-gradient(to bottom, #00f 0%, #00c 100%);
+            transform: scale(0.95);
         }
         
         /* Only show mobile controls on touch devices, not on desktop regardless of screen size */
         body.has-touch-support .mobile-controls {
-            display: block !important; /* Force display with !important to override any other styles */
+            display: flex !important; /* Changed to flex to arrange controllers side by side */
         }
         
         @keyframes rotateGradient {
@@ -121,23 +243,106 @@
             pointer-events: none;
             z-index: -1;
             animation: starMove 20s linear infinite;
+            will-change: transform; /* Hardware acceleration hint */
+            backface-visibility: hidden; /* Reduce flicker on some mobile devices */
+            -webkit-backface-visibility: hidden;
+        }
+        
+        /* Create a second pseudo-element with different star positions for more depth */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 15% 15%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 35% 60%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 50% 25%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 65% 45%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 80% 75%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 95% 35%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 20% 90%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px),
+                radial-gradient(1.5px 1.5px at 45% 5%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 1.5px);
+            background-size: 350px 350px;
+            pointer-events: none;
+            z-index: -1;
+            animation: starMoveAlt 25s linear infinite;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
         
         @keyframes starMove {
             0% {
-                transform: translateY(0);
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(-50px, -150px) rotate(0.5deg);
             }
             50% {
-                transform: translateY(-300px);
+                transform: translate(25px, -300px) rotate(1deg);
+            }
+            75% {
+                transform: translate(-25px, -150px) rotate(0.5deg);
             }
             100% {
-                transform: translateY(0);
+                transform: translate(0, 0) rotate(0deg);
+            }
+        }
+        
+        @keyframes starMoveAlt {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(50px, -100px) rotate(-0.5deg);
+            }
+            50% {
+                transform: translate(-35px, -250px) rotate(-1deg);
+            }
+            75% {
+                transform: translate(35px, -125px) rotate(-0.5deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(0deg);
             }
         }
         
         @keyframes textPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
+        }
+        
+        /* Small stars that move quickly for more erratic background effect */
+        .star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .small-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: smallStarMove linear infinite;
+        }
+        
+        @keyframes smallStarMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(var(--end-x), var(--end-y));
+            }
         }
         
         .score-container {
@@ -165,8 +370,8 @@
             z-index: 10;
             width: 100%;
         }
-
-        /* Add responsive styles for different orientations */
+        
+        /* Media queries for different orientations */
         @media (orientation: landscape) and (max-width: 900px) {
             body {
                 flex-direction: row;
@@ -179,8 +384,30 @@
             }
             
             body.has-touch-support .mobile-controls {
-                flex: 1;
+                flex-direction: column;
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: auto;
                 margin-top: 0;
+                margin-right: 10px;
+                height: 98vh;
+                justify-content: space-evenly;
+            }
+            
+            .controller {
+                margin: 5px 0;
+                width: 130px;
+            }
+            
+            .d-pad {
+                transform: scale(0.8);
+            }
+            
+            .controller-label {
+                font-size: 12px;
+                margin-bottom: 5px;
             }
             
             .death-message {
@@ -203,27 +430,45 @@
             
             body.has-touch-support .mobile-controls {
                 margin-top: 20px;
+                flex-direction: row;
+                justify-content: space-evenly;
+                width: 100%;
+            }
+            
+            .controller {
+                margin: 0 5px;
             }
         }
     </style>
     </head>
     <body>
+    <div class="star-container"></div>
     <div class="game-container">
         <canvas id="gameCanvas" width="800" height="600"></canvas>
     </div>
     <div id="deathMessage" class="death-message"></div>
     <div class="mobile-controls">
         <div class="control-row">
-            <button class="control-button" id="red-left">←</button>
-            <button class="control-button" id="red-up">↑</button>
-            <button class="control-button" id="red-right">→</button>
-            <button class="control-button" id="red-down">↓</button>
-        </div>
-        <div class="control-row">
-            <button class="control-button" id="blue-left">←</button>
-            <button class="control-button" id="blue-up">↑</button>
-            <button class="control-button" id="blue-right">→</button>
-            <button class="control-button" id="blue-down">↓</button>
+            <div class="controller red-player">
+                <div class="controller-label">Red Player</div>
+                <div class="d-pad">
+                    <button class="control-button btn-up" id="red-up" data-direction="up1">↑</button>
+                    <button class="control-button btn-left" id="red-left" data-direction="left1">←</button>
+                    <button class="control-button btn-down" id="red-down" data-direction="down1">↓</button>
+                    <button class="control-button btn-right" id="red-right" data-direction="right1">→</button>
+                    <div class="btn-center"></div>
+                </div>
+            </div>
+            <div class="controller blue-player">
+                <div class="controller-label">Blue Player</div>
+                <div class="d-pad">
+                    <button class="control-button btn-up" id="blue-up" data-direction="up2">↑</button>
+                    <button class="control-button btn-left" id="blue-left" data-direction="left2">←</button>
+                    <button class="control-button btn-down" id="blue-down" data-direction="down2">↓</button>
+                    <button class="control-button btn-right" id="blue-right" data-direction="right2">→</button>
+                    <div class="btn-center"></div>
+                </div>
+            </div>
         </div>
     </div>
     <script>
@@ -1005,38 +1250,34 @@
             const isMobileBrowser = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             // Show controls if device has touch support OR is a mobile browser
-            if (hasTouchSupport || isMobileBrowser) {
+            if (hasTouchSupport || isMobileBrowser || FORCE_MOBILE_CONTROLS) {
                 console.log("Mobile device detected - showing controls");
                 
                 // Add class to body to trigger CSS rules
                 document.body.classList.add('has-touch-support');
                 
-                // Set up data attributes for controls if not already set
-                document.getElementById('red-up').setAttribute('data-direction', 'up1');
-                document.getElementById('red-down').setAttribute('data-direction', 'down1');
-                document.getElementById('red-left').setAttribute('data-direction', 'left1');
-                document.getElementById('red-right').setAttribute('data-direction', 'right1');
-                
-                document.getElementById('blue-up').setAttribute('data-direction', 'up2');
-                document.getElementById('blue-down').setAttribute('data-direction', 'down2');
-                document.getElementById('blue-left').setAttribute('data-direction', 'left2');
-                document.getElementById('blue-right').setAttribute('data-direction', 'right2');
+                // No need to set data attributes as they're now in the HTML
                 
                 // Explicitly show the controls (belt and suspenders approach)
-                document.querySelector('.mobile-controls').style.display = 'block';
+                document.querySelector('.mobile-controls').style.display = 'flex';
                 
                 const controls = document.querySelectorAll('.control-button');
                 
                 controls.forEach(button => {
-                    // Use both touchstart and mousedown to ensure it works on all devices
+                    // Use touchstart to ensure it works on mobile devices
                     button.addEventListener('touchstart', (e) => {
                         e.preventDefault();
                         const direction = button.getAttribute('data-direction');
                         handleMobileControl(direction);
+                        
+                        // Add visual feedback
+                        button.style.transform = 'scale(0.95)';
                     });
                     
                     button.addEventListener('touchend', (e) => {
                         e.preventDefault();
+                        // Reset visual feedback
+                        button.style.transform = 'scale(1)';
                     });
                 });
             } else {
@@ -1062,38 +1303,22 @@
             const mobileControls = document.querySelector('.mobile-controls');
             
             if (isLandscape) {
-                // In landscape mode, position controls side by side
+                // In landscape mode, position controls to the right
                 mobileControls.style.display = 'flex';
-                mobileControls.style.flexDirection = 'row';
-                mobileControls.style.justifyContent = 'space-around';
+                mobileControls.style.flexDirection = 'column';
                 
-                // Adjust control rows to be vertical
-                document.querySelectorAll('.control-row').forEach(row => {
-                    row.style.flexDirection = 'column';
-                    row.style.margin = '0 10px';
-                });
-                
-                // Make buttons smaller in landscape
-                document.querySelectorAll('.control-button').forEach(button => {
-                    button.style.width = '50px';
-                    button.style.height = '50px';
-                    button.style.margin = '5px 0';
+                // Adjust scaling for landscape mode
+                document.querySelectorAll('.d-pad').forEach(dpad => {
+                    dpad.style.transform = 'scale(0.85)';
                 });
             } else {
-                // In portrait mode, position controls stacked
-                mobileControls.style.display = 'block';
+                // In portrait mode, position controls at the bottom
+                mobileControls.style.display = 'flex';
+                mobileControls.style.flexDirection = 'row';
                 
-                // Reset control rows to horizontal
-                document.querySelectorAll('.control-row').forEach(row => {
-                    row.style.flexDirection = 'row';
-                    row.style.marginBottom = '10px';
-                });
-                
-                // Reset button size in portrait
-                document.querySelectorAll('.control-button').forEach(button => {
-                    button.style.width = '60px';
-                    button.style.height = '60px';
-                    button.style.margin = '0';
+                // Reset scaling for portrait mode
+                document.querySelectorAll('.d-pad').forEach(dpad => {
+                    dpad.style.transform = 'scale(1)';
                 });
             }
             
@@ -1145,7 +1370,146 @@
             
             // Make sure mobile detection happens immediately
             setupMobileControls();
+            
+            // Create dynamic stars for more erratic background movement
+            createDynamicStars();
         });
+        
+        // Function to create dynamic moving stars with random trajectories
+        function createDynamicStars() {
+            const starContainer = document.querySelector('.star-container');
+            const numberOfStars = isMobileDevice() ? 20 : 40; // Fewer stars on mobile for better performance
+            
+            // Clear any existing stars
+            starContainer.innerHTML = '';
+            
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'small-star';
+                
+                // Random starting position
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight;
+                
+                // Random ending position (for trajectory)
+                const endX = (Math.random() - 0.5) * window.innerWidth;
+                const endY = (Math.random() - 0.5) * window.innerHeight * 2; // Bias toward vertical movement
+                
+                // Random duration between 5-15 seconds
+                const duration = 5 + Math.random() * 10;
+                
+                // Random delay
+                const delay = Math.random() * 5;
+                
+                // Random star brightness and size
+                const opacity = 0.5 + Math.random() * 0.5;
+                const size = 1 + Math.random() * 2;
+                
+                // Apply styles
+                star.style.cssText = `
+                    left: ${startX}px;
+                    top: ${startY}px;
+                    opacity: ${opacity};
+                    width: ${size}px;
+                    height: ${size}px;
+                    --end-x: ${endX}px;
+                    --end-y: ${endY}px;
+                    animation-duration: ${duration}s;
+                    animation-delay: ${delay}s;
+                `;
+                
+                starContainer.appendChild(star);
+                
+                // Remove and recreate star when animation completes
+                setTimeout(() => {
+                    if (starContainer.contains(star)) {
+                        starContainer.removeChild(star);
+                        createNewStar(starContainer);
+                    }
+                }, (duration + delay) * 1000);
+            }
+        }
+        
+        function createNewStar(container) {
+            const star = document.createElement('div');
+            star.className = 'small-star';
+            
+            // Start new stars from edges for a flowing effect
+            const edge = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+            let startX, startY;
+            
+            switch (edge) {
+                case 0: // Top
+                    startX = Math.random() * window.innerWidth;
+                    startY = -5;
+                    break;
+                case 1: // Right
+                    startX = window.innerWidth + 5;
+                    startY = Math.random() * window.innerHeight;
+                    break;
+                case 2: // Bottom
+                    startX = Math.random() * window.innerWidth;
+                    startY = window.innerHeight + 5;
+                    break;
+                case 3: // Left
+                    startX = -5;
+                    startY = Math.random() * window.innerHeight;
+                    break;
+            }
+            
+            // Direction is generally towards the opposite side
+            const endX = (edge === 1) ? -10 : (edge === 3) ? window.innerWidth + 10 : (Math.random() - 0.5) * window.innerWidth * 2;
+            const endY = (edge === 0) ? window.innerHeight + 10 : (edge === 2) ? -10 : (Math.random() - 0.5) * window.innerHeight * 2;
+            
+            // Random duration between 5-15 seconds
+            const duration = 5 + Math.random() * 10;
+            
+            // Random star brightness and size
+            const opacity = 0.5 + Math.random() * 0.5;
+            const size = 1 + Math.random() * 2;
+            
+            // Apply styles
+            star.style.cssText = `
+                left: ${startX}px;
+                top: ${startY}px;
+                opacity: ${opacity};
+                width: ${size}px;
+                height: ${size}px;
+                --end-x: ${endX}px;
+                --end-y: ${endY}px;
+                animation-duration: ${duration}s;
+            `;
+            
+            container.appendChild(star);
+            
+            // Remove and recreate star when animation completes
+            setTimeout(() => {
+                if (container.contains(star)) {
+                    container.removeChild(star);
+                    createNewStar(container);
+                }
+            }, duration * 1000);
+        }
+        
+        // Helper function to detect mobile
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                   (window.innerWidth <= 768);
+        }
+        
+        // Recreate stars on window resize to adjust for new dimensions
+        window.addEventListener('resize', debounce(() => {
+            createDynamicStars();
+        }, 250));
+        
+        // Simple debounce function to prevent too many star recreations during resize
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(func, wait);
+            };
+        }
     </script>
     </body>
 </html> 
