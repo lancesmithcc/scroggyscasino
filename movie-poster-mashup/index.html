@@ -1,300 +1,2988 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MOVIE POSTER MASHUP COMING SOON...</title>
-        <style>
-            body {
-                background-color: #000;
-                color: #0f0;
-                font-family: 'Courier New', monospace;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                overflow: hidden;
-                position: relative;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Movie Poster Mashup</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+            padding-bottom: 60px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            border: 4px solid black;
+            position: relative;
+            z-index: 1;
+        }
+        .canvas-container {
+            flex: 0 0 auto;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+            margin-bottom: 20px;
+        }
+        .controls-container {
+            flex: 1 1 auto;
+        }
+        .fullscreen-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .fullscreen-button:hover {
+            background-color: #555;
+        }
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 9995;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            visibility: visible;
+            transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: auto; /* Ensure it captures clicks */
+        }
+        
+        .fullscreen-mode.visible {
+            opacity: 1;
+        }
+        
+        .fullscreen-mode canvas {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            position: absolute;
+        }
+        
+        /* Responsive fullscreen mode */
+        @media (max-width: 768px) {
+            .fullscreen-mode canvas {
+                max-width: 95%;
+                max-height: 95%;
             }
             
+            .exit-fullscreen {
+                top: 10px;
+                right: 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .fullscreen-mode canvas {
+                max-width: 98%;
+                max-height: 98%;
+            }
+            
+            .exit-fullscreen {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+        }
+        
+        @media (orientation: landscape) and (max-height: 500px) {
+            .fullscreen-mode canvas {
+                max-height: 85%;
+            }
+        }
+        
+        .fullscreen-mode.visible canvas {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            transition: top 0.4s cubic-bezier(0.19, 1, 0.22, 1), left 0.4s cubic-bezier(0.19, 1, 0.22, 1), transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        
+        .fullscreen-mode canvas.from-original {
+            opacity: 1;
+            transform: none;
+            transition: top 0.5s cubic-bezier(0.19, 1, 0.22, 1), left 0.5s cubic-bezier(0.19, 1, 0.22, 1), width 0.5s cubic-bezier(0.19, 1, 0.22, 1), height 0.5s cubic-bezier(0.19, 1, 0.22, 1), transform 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 10000;
+        }
+        
+        .fullscreen-mode.visible canvas.from-original {
+            width: 90% !important;
+            height: auto !important;
+            max-height: 90vh !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) scale(1.02) !important;
+            transition: top 0.5s cubic-bezier(0.19, 1, 0.22, 1), left 0.5s cubic-bezier(0.19, 1, 0.22, 1), width 0.5s cubic-bezier(0.19, 1, 0.22, 1), height 0.5s cubic-bezier(0.19, 1, 0.22, 1), transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        
+        .exit-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s, opacity 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0;
+            z-index: 10001;
+        }
+        
+        .fullscreen-mode.visible .exit-fullscreen {
+            opacity: 1;
+            transition-delay: 0.2s;
+        }
+        
+        .exit-fullscreen:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .fullscreen-exit {
+            animation: fullscreen-exit 0.5s ease-in forwards;
+        }
+        
+        /* Confetti styles */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9990; /* Below the poster but above the black background */
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            transform-origin: center;
+            animation: confetti-fall 2s ease-out forwards;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3); /* Add subtle glow for visibility */
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            10% { /* Faster appearance */
+                opacity: 1;
+                transform: scale(1) rotate(45deg);
+            }
+            80% {
+                opacity: 0.9; /* Higher opacity for better visibility */
+                transform: translateX(calc(var(--tx, 50px) * 0.7)) translateY(calc(var(--ty, 100px) * 0.7)) rotate(calc(var(--tr, 90deg) * 0.7)) scale(0.7);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(var(--tx, 50px)) translateY(var(--ty, 100px)) rotate(var(--tr, 90deg)) scale(0.5);
+            }
+        }
+        
+        @keyframes fullscreen-exit {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+        h1 {
+            font-weight: bold;
+            color: white;
+            text-shadow: 
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000,
+                -2px 0 0 #000,
+                2px 0 0 #000,
+                0 -2px 0 #000,
+                0 2px 0 #000,
+                2px 2px 7px rgba(0,0,0,0.7);
+            animation: bobbing-rotating 3s ease-in-out infinite;
+            position: relative;
+            display: inline-block;
+            transform-origin: center;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            margin-bottom: 25px;
+        }
+        @keyframes bobbing-rotating {
+            0% { 
+                top: 10px; 
+                transform: rotate(0deg);
+            }
+            25% {
+                top: 5px;
+                transform: rotate(-2deg);
+            }
+            50% { 
+                top: 0px; 
+                transform: rotate(0deg);
+            }
+            75% {
+                top: 5px;
+                transform: rotate(2deg);
+            }
+            100% { 
+                top: 10px; 
+                transform: rotate(0deg);
+            }
+        }
+        #canvas {
+            border: 2px solid #333;
+            background-color: white;
+            border-radius: 20px;
+            display: block;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: 2px solid black;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .button-container {
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+        }
+        .scribble {
+            display: none;
+        }
+        #combinedTitle {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 15px;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .drawing-tools {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .tool-button {
+            background-color: #4CAF50;
+            padding: 8px 15px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            border: 2px solid black;
+            font-family: inherit;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .tool-button:hover {
+            transform: scale(1.05);
+        }
+        .tool-button:active {
+            transform: scale(0.98);
+        }
+        .tool-button.active {
+            background-color: #2E7D32;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        .text-input {
+            padding: 8px 12px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 14px;
+            width: 150px;
+        }
+        .font-select {
+            padding: 8px 12px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .font-select option {
+            padding: 8px;
+            font-size: 16px;
+        }
+        .font-comic-sans {
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+        }
+        .font-arial {
+            font-family: Arial, sans-serif;
+        }
+        .font-times {
+            font-family: "Times New Roman", Times, serif;
+        }
+        .font-impact {
+            font-family: Impact, Haettenschweiler, sans-serif;
+        }
+        .font-courier {
+            font-family: "Courier New", Courier, monospace;
+        }
+        .font-georgia {
+            font-family: Georgia, serif;
+        }
+        .font-verdana {
+            font-family: Verdana, Geneva, sans-serif;
+        }
+        .font-pacifico {
+            font-family: "Pacifico", cursive;
+        }
+        .canvas-controls {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .canvas-controls span {
+            margin: 0 10px;
+        }
+        input[type="color"] {
+            margin-right: 10px;
+            border: none;
+            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            border-radius: 10px;
+            height: 10px;
+        }
+        .text-tools {
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 900px) {
             .container {
-                text-align: center;
-                position: relative;
-                z-index: 2;
-                padding: 20px;
-                max-width: 100%;
-                box-sizing: border-box;
+                flex-direction: column;
             }
-            
-            .ascii-art {
-                white-space: pre;
-                font-size: 10px;
-                line-height: 1;
-                margin-bottom: 20px;
-                text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-                animation: glow 1.5s ease-in-out infinite alternate;
-                display: block;
-                overflow-x: auto;
-                max-width: 100%;
+            .canvas-container {
+                position: static;
+                order: 1;
+                margin: 0 auto 20px;
+            }
+            .controls-container {
+                order: 2;
+            }
+        }
+        
+        /* Add more comprehensive responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
             }
             
             h1 {
-                font-size: 2.5rem;
-                letter-spacing: 2px;
-                text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-                animation: glow 1.5s ease-in-out infinite alternate;
-                margin: 0.5em 0;
-            }
-            
-            .subtitle {
-                font-size: 1.2rem;
+                font-size: 24px;
                 margin-top: 10px;
-                opacity: 0.8;
-                text-shadow: 0 0 3px #0f0;
-                padding: 0 10px;
+                margin-bottom: 15px;
             }
             
-            @keyframes glow {
-                from {
-                    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-                }
-                to {
-                    text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0;
-                }
+            .container {
+                padding: 15px;
+                border-width: 3px;
             }
             
-            .matrix-bg {
-                position: absolute;
-                top: 0;
-                left: 0;
+            .controls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .button-container {
+                margin: 3px;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 8px 15px;
+            }
+            
+            #combinedTitle {
+                font-size: 20px;
+                margin: 15px 0;
+            }
+            
+            .drawing-tools, .text-tools, .canvas-controls {
+                padding: 10px;
+            }
+            
+            .tool-button {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            .text-input {
+                width: 120px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 10px;
+                border-width: 2px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            #canvas {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            button {
+                font-size: 13px;
+                padding: 7px 12px;
+                margin: 3px;
+            }
+            
+            .fullscreen-button {
+                padding: 8px;
+                font-size: 16px;
+            }
+            
+            .drawing-tools, .text-tools, .canvas-controls {
+                gap: 5px;
+                padding: 8px;
+                margin: 8px 0;
+            }
+            
+            input[type="color"] {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .text-input {
+                width: 100px;
+            }
+            
+            .font-select {
+                max-width: 120px;
+            }
+            
+            /* Make buttons more touch-friendly */
+            .tool-button, button {
+                min-height: 40px;
+                min-width: 40px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .container {
+                padding: 8px;
+            }
+            
+            #combinedTitle {
+                font-size: 16px;
+            }
+            
+            button {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .controls {
+                margin: 10px 0;
+            }
+            
+            .drawing-tools, .text-tools, .canvas-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .drawing-tools > div, .text-tools > div, .canvas-controls > div {
+                margin: 3px 0;
+            }
+            
+            /* Adjust color picker and range inputs for small screens */
+            .drawing-tools {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 5px;
+                align-items: center;
+            }
+            
+            input[type="range"] {
                 width: 100%;
-                height: 100%;
-                z-index: 1;
             }
             
-            .loading-bar {
-                width: 80%;
-                max-width: 300px;
-                height: 20px;
-                background-color: #111;
-                border: 1px solid #0f0;
-                margin: 30px auto 0;
-                position: relative;
-                overflow: hidden;
+            /* Make the font selector and text input full width */
+            .text-tools {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 5px;
             }
             
-            .loading-progress {
-                height: 100%;
-                width: 0%;
-                background-color: #0f0;
-                box-shadow: 0 0 10px #0f0;
-                animation: loading 8s infinite;
+            .text-input, .font-select {
+                width: 100%;
+                max-width: none;
             }
             
-            @keyframes loading {
-                0% { width: 0%; }
-                50% { width: 70%; }
-                75% { width: 85%; }
-                90% { width: 95%; }
-                100% { width: 98%; }
+            /* Improve button layout for small screens */
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
             }
             
-            /* Mobile responsiveness */
-            @media (max-width: 768px) {
-                .ascii-art {
-                    font-size: 5px;
-                }
-                
-                h1 {
-                    font-size: 1.8rem;
-                }
-                
-                .subtitle {
-                    font-size: 1rem;
-                }
+            .button-container {
+                margin: 0;
             }
             
-            @media (max-width: 480px) {
-                .ascii-art {
-                    font-size: 3px;
-                }
-                
-                h1 {
-                    font-size: 1.5rem;
-                }
-                
-                .subtitle {
-                    font-size: 0.9rem;
-                }
-                
-                .loading-bar {
-                    height: 15px;
-                }
+            /* Make buttons more touch-friendly */
+            button, .tool-button {
+                min-height: 44px; /* Minimum touch target size */
+                width: 100%;
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+        
+        /* Fix canvas scaling on small screens */
+        @media (max-width: 450px) {
+            #canvas {
+                width: 100% !important;
+                max-width: 100%;
+                height: auto !important;
+                aspect-ratio: 2/3;
+            }
+        }
+
+        /* Remove all scribble-related CSS */
+        .scribble,
+        body::before,
+        body::after,
+        .container::before,
+        .container::after,
+        .bottom-scribble-left,
+        .bottom-scribble-right {
+            display: none;
+        }
+
+        /* Stickman animations */
+        .stickman-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .stickman {
+            position: absolute;
+            width: 100px;
+            height: 160px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.8;
+            animation: float-animation 30s linear infinite;
+            filter: url('#crayon-filter');
+            transform-origin: center;
+        }
+
+        @keyframes float-animation {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scaleX(0.9) scaleY(1.1);
+            }
+            25% {
+                transform: translateY(75vh) rotate(90deg) scaleX(1.1) scaleY(0.9);
+            }
+            50% {
+                transform: translateY(50vh) rotate(180deg) scaleX(0.9) scaleY(1.1);
+            }
+            75% {
+                transform: translateY(25vh) rotate(270deg) scaleX(1.1) scaleY(0.9);
+            }
+            100% {
+                transform: translateY(-150px) rotate(360deg) scaleX(0.9) scaleY(1.1);
+            }
+        }
+
+        /* Stickman variations with bigger heads */
+        .stickman-sunglasses {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'%3E%3C!-- Body --%3E%3Cpath d='M50,50 C50,55 48,70 50,80 C52,90 50,100 50,110' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M30,80 C40,75 45,85 50,80 C55,85 60,75 70,80' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C45,120 40,130 30,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C55,120 60,130 70,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3C!-- Big Head --%3E%3Cellipse cx='50' cy='30' rx='20' ry='22' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 2;'/%3E%3C!-- Improved Sunglasses --%3E%3Cpath d='M25,32 L75,32' stroke='black' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M25,32 C25,26 28,22 35,22 C42,22 45,28 45,34 C45,40 42,44 35,44 C28,44 25,38 25,32 Z' fill='%23333' stroke='black' stroke-width='2'/%3E%3Cpath d='M75,32 C75,26 72,22 65,22 C58,22 55,28 55,34 C55,40 58,44 65,44 C72,44 75,38 75,32 Z' fill='%23333' stroke='black' stroke-width='2'/%3E%3Cpath d='M45,34 L55,34' stroke='black' stroke-width='2'/%3E%3Cpath d='M35,34 C35,34 37,36 39,34' stroke='white' stroke-width='1' fill='none'/%3E%3Cpath d='M65,34 C65,34 63,36 61,34' stroke='white' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+        }
+
+        .stickman-crown {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'%3E%3C!-- Body --%3E%3Cpath d='M50,50 C50,55 48,70 50,80 C52,90 50,100 50,110' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M30,80 C40,75 45,85 50,80 C55,85 60,75 70,80' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C45,120 40,130 30,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C55,120 60,130 70,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3C!-- Big Head --%3E%3Cellipse cx='50' cy='30' rx='20' ry='22' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 2;'/%3E%3C!-- Crown --%3E%3Cpath d='M30,10 C35,20 40,15 50,10 C60,15 65,20 70,10 C65,20 60,25 50,25 C40,25 35,20 30,10 Z' fill='gold' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='40' cy='15' r='3' fill='red' stroke='black' stroke-width='1'/%3E%3Ccircle cx='50' cy='13' r='3' fill='blue' stroke='black' stroke-width='1'/%3E%3Ccircle cx='60' cy='15' r='3' fill='green' stroke='black' stroke-width='1'/%3E%3C/svg%3E");
+        }
+
+        .stickman-tophat {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'%3E%3C!-- Body --%3E%3Cpath d='M50,50 C50,55 48,70 50,80 C52,90 50,100 50,110' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M30,80 C40,75 45,85 50,80 C55,85 60,75 70,80' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C45,120 40,130 30,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C55,120 60,130 70,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3C!-- Big Head --%3E%3Cellipse cx='50' cy='30' rx='20' ry='22' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 2;'/%3E%3C!-- Classic Top Hat --%3E%3Cpath d='M25,12 C25,12 30,8 50,8 C70,8 75,12 75,12 C75,12 73,16 50,16 C27,16 25,12 25,12 Z' fill='%23333' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M35,12 L35,-8 C35,-8 40,-10 50,-10 C60,-10 65,-8 65,-8 L65,12' fill='%23333' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M35,2 L65,2' stroke='red' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        .stickman-headphones {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'%3E%3C!-- Body --%3E%3Cpath d='M50,50 C50,55 48,70 50,80 C52,90 50,100 50,110' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M30,80 C40,75 45,85 50,80 C55,85 60,75 70,80' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C45,120 40,130 30,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3Cpath d='M50,110 C55,120 60,130 70,140' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 0;'/%3E%3C!-- Big Head --%3E%3Cellipse cx='50' cy='30' rx='20' ry='22' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' style='stroke-dasharray: 1 2;'/%3E%3C!-- Headphones --%3E%3Cpath d='M25,15 C20,5 35,0 50,0 C65,0 80,5 75,15' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M20,25 C15,25 15,40 20,40 C25,40 25,25 20,25 Z' fill='%234488FF' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M80,25 C75,25 75,40 80,40 C85,40 85,25 80,25 Z' fill='%234488FF' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        /* Button flip animation */
+        @keyframes button-flip {
+            0% {
+                transform: perspective(400px) rotateY(0) scale(1);
+            }
+            100% {
+                transform: perspective(400px) rotateY(180deg) scale(1);
+            }
+        }
+        
+        .flipping {
+            animation: button-flip 0.4s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+            transform-style: preserve-3d;
+            backface-visibility: visible;
+            transform-origin: center;
+            pointer-events: none; /* Prevent clicking during animation */
+        }
+        
+        /* Button shake animation */
+        @keyframes button-shake {
+            0% { transform: translateX(0); }
+            10% { transform: translateX(-5px) rotate(-2deg); }
+            20% { transform: translateX(5px) rotate(2deg); }
+            30% { transform: translateX(-5px) rotate(-2deg); }
+            40% { transform: translateX(5px) rotate(2deg); }
+            50% { transform: translateX(-5px) rotate(-1deg); }
+            60% { transform: translateX(5px) rotate(1deg); }
+            70% { transform: translateX(-3px) rotate(-0.5deg); }
+            80% { transform: translateX(3px) rotate(0.5deg); }
+            90% { transform: translateX(-1px) rotate(0deg); }
+            100% { transform: translateX(0); }
+        }
+        
+        .shaking {
+            animation: button-shake 1s ease;
+            transform-origin: center;
+        }
+        
+        /* Title animation */
+        .title-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            pointer-events: none;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .title-overlay.visible {
+            opacity: 1;
+        }
+        
+        .big-title {
+            position: absolute;
+            font-size: 60px;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            opacity: 0;
+            font-family: "Comic Sans MS", "Comic Sans", cursive;
+            text-shadow: 
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                2px 2px 0 #000,
+                0 0 15px rgba(255, 255, 255, 0.7);
+            max-width: 80%;
+            transform-origin: center;
+            transition: none;
+        }
+        
+        /* Responsive title overlay */
+        @media (max-width: 768px) {
+            .big-title {
+                font-size: 40px;
+                padding: 15px;
+                max-width: 90%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .big-title {
+                font-size: 30px;
+                padding: 12px;
+                max-width: 95%;
+                text-shadow: 
+                    -1px -1px 0 #000,
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000,
+                    0 0 10px rgba(255, 255, 255, 0.7);
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .big-title {
+                font-size: 24px;
+                padding: 10px;
+                border-radius: 15px;
             }
             
-            /* For very small screens, hide the ASCII art and show a simpler version */
-            @media (max-width: 320px) {
-                .ascii-art {
-                    display: none;
+            @keyframes title-appear {
+                0% {
+                    transform: translate(-50%, -50%) scale(1.2);
+                    opacity: 0;
+                    top: 50%;
+                    left: 50%;
                 }
-                
-                .mobile-title {
-                    display: block;
-                    font-size: 1.2rem;
-                    margin-bottom: 15px;
-                    text-shadow: 0 0 5px #0f0, 0 0 10px #0f0;
-                    animation: glow 1.5s ease-in-out infinite alternate;
+                20% {
+                    transform: translate(-50%, -50%) scale(1.2);
+                    opacity: 1;
+                    top: 50%;
+                    left: 50%;
                 }
+                70% {
+                    transform: translate(-50%, -50%) scale(1.2);
+                    opacity: 1;
+                    top: 50%;
+                    left: 50%;
+                }
+                90% {
+                    transform: translate(-5px, 0) scale(1);
+                    opacity: 0.5;
+                    top: var(--target-top);
+                    left: calc(var(--target-left) + 10px);
+                }
+                100% {
+                    transform: translate(-10px, 0) scale(1);
+                    opacity: 0;
+                    top: var(--target-top);
+                    left: var(--target-left);
+                }
+            }
+        }
+        
+        /* Ensure text remains white when background is rainbow */
+        .big-title.rainbow-effect {
+            color: white;
+            text-shadow: 
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000,
+                2px 2px 0 #000,
+                0 0 15px rgba(0, 0, 0, 0.9);
+        }
+        
+        #combinedTitle.rainbow-effect {
+            color: #333;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes rainbow-text {
+            0% { 
+                color: #ff0000; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(255, 0, 0, 0.8);
+            } /* Red */
+            14% { 
+                color: #ff7f00; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(255, 127, 0, 0.8);
+            } /* Orange */
+            28% { 
+                color: #ffff00; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(255, 255, 0, 0.8);
+            } /* Yellow */
+            42% { 
+                color: #00ff00; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(0, 255, 0, 0.8);
+            } /* Green */
+            56% { 
+                color: #0000ff; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(0, 0, 255, 0.8);
+            } /* Blue */
+            70% { 
+                color: #4b0082; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(75, 0, 130, 0.8);
+            } /* Indigo */
+            85% { 
+                color: #9400d3; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(148, 0, 211, 0.8);
+            } /* Violet */
+            100% { 
+                color: white; 
+                text-shadow: 
+                    -2px -2px 0 #000,
+                    2px -2px 0 #000,
+                    -2px 2px 0 #000,
+                    2px 2px 0 #000,
+                    0 0 15px rgba(255, 255, 255, 0.7);
+            } /* Back to white */
+        }
+        
+        @keyframes rainbow-background {
+            0% { 
+                background-color: rgba(255, 0, 0, 0.7);
+                box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            } /* Red */
+            14% { 
+                background-color: rgba(255, 127, 0, 0.7);
+                box-shadow: 0 0 30px rgba(255, 127, 0, 0.5);
+            } /* Orange */
+            28% { 
+                background-color: rgba(255, 255, 0, 0.7);
+                box-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
+            } /* Yellow */
+            42% { 
+                background-color: rgba(0, 255, 0, 0.7);
+                box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            } /* Green */
+            56% { 
+                background-color: rgba(0, 0, 255, 0.7);
+                box-shadow: 0 0 30px rgba(0, 0, 255, 0.5);
+            } /* Blue */
+            70% { 
+                background-color: rgba(75, 0, 130, 0.7);
+                box-shadow: 0 0 30px rgba(75, 0, 130, 0.5);
+            } /* Indigo */
+            85% { 
+                background-color: rgba(148, 0, 211, 0.7);
+                box-shadow: 0 0 30px rgba(148, 0, 211, 0.5);
+            } /* Violet */
+            100% { 
+                background-color: rgba(255, 255, 255, 0.7);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            } /* White */
+        }
+        
+        .rainbow-effect {
+            animation: rainbow-background 1s linear;
+        }
+        
+        @keyframes title-appear {
+            0% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+                top: 50%;
+                left: 50%;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 1;
+                top: 50%;
+                left: 50%;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 1;
+                top: 50%;
+                left: 50%;
+            }
+            90% {
+                transform: translate(-10px, 0) scale(1);
+                opacity: 0.5;
+                top: var(--target-top);
+                left: calc(var(--target-left) + 20px);
+            }
+            100% {
+                transform: translate(-20px, 0) scale(1);
+                opacity: 0;
+                top: var(--target-top);
+                left: var(--target-left);
+            }
+        }
+        
+        .title-animating {
+            animation: title-appear 1.2s ease-in-out forwards;
+        }
+        
+        #combinedTitle.highlight {
+            animation: title-highlight 0.5s ease-in-out;
+        }
+        
+        @keyframes title-highlight {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Add these styles in the <style> section */
+        .curtain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        .curtain-container.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .curtain-stage {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 800px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #111;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+            transform: scale(0.9);
+            transition: transform 1s ease-out;
+        }
+
+        /* Add responsive styles for curtain container */
+        @media (max-width: 768px) {
+            .curtain-stage {
+                width: 95%;
+                height: 70vh;
             }
             
-            .mobile-title {
-                display: none;
+            .movie-title {
+                font-size: 28px !important;
             }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <pre class="ascii-art" id="ascii-art">
- ███▄ ▄███▓ ▒█████   ██▒   █▓ ██▓▓█████     ██▓███   ▒█████    ██████ ▄▄▄█████▓▓█████  ██▀███  
-▓██▒▀█▀ ██▒▒██▒  ██▒▓██░   █▒▓██▒▓█   ▀    ▓██░  ██▒▒██▒  ██▒▒██    ▒ ▓  ██▒ ▓▒▓█   ▀ ▓██ ▒ ██▒
-▓██    ▓██░▒██░  ██▒ ▓██  █▒░▒██▒▒███      ▓██░ ██▓▒▒██░  ██▒░ ▓██▄   ▒ ▓██░ ▒░▒███   ▓██ ░▄█ ▒
-▒██    ▒██ ▒██   ██░  ▒██ █░░░██░▒▓█  ▄    ▒██▄█▓▒ ▒▒██   ██░  ▒   ██▒░ ▓██▓ ░ ▒▓█  ▄ ▒██▀▀█▄  
-▒██▒   ░██▒░ ████▓▒░   ▒▀█░  ░██░░▒████▒   ▒██▒ ░  ░░ ████▓▒░▒██████▒▒  ▒██▒ ░ ░▒████▒░██▓ ▒██▒
-░ ▒░   ░  ░░ ▒░▒░▒░    ░ ▐░  ░▓  ░░ ▒░ ░   ▒▓▒░ ░  ░░ ▒░▒░▒░ ▒ ▒▓▒ ▒ ░  ▒ ░░   ░░ ▒░ ░░ ▒▓ ░▒▓░
-░  ░      ░  ░ ▒ ▒░    ░ ░░   ▒ ░ ░ ░  ░   ░▒ ░       ░ ▒ ▒░ ░ ░▒  ░ ░    ░     ░ ░  ░  ░▒ ░ ▒░
-░      ░   ░ ░ ░ ▒       ░░   ▒ ░   ░      ░░       ░ ░ ░ ▒  ░  ░  ░    ░         ░     ░░   ░ 
-       ░       ░ ░        ░   ░     ░  ░                ░ ░        ░              ░  ░   ░     
-                         ░                                                                      
- ███▄ ▄███▓ ▄▄▄        ██████  ██░ ██  █    ██  ██▓███                                         
-▓██▒▀█▀ ██▒▒████▄    ▒██    ▒ ▓██░ ██▒ ██  ▓██▒▓██░  ██▒                                        
-▓██    ▓██░▒██  ▀█▄  ░ ▓██▄   ▒██▀▀██░▓██  ▒██░▓██░ ██▓▒                                        
-▒██    ▒██ ░██▄▄▄▄██   ▒   ██▒░▓█ ░██ ▓▓█  ░██░▒██▄█▓▒ ▒                                        
-▒██▒   ░██▒ ▓█   ▓██▒▒██████▒▒░▓█▒░██▓▒▒█████▓ ▒██▒ ░  ░                                        
-░ ▒░   ░  ░ ▒▒   ▓▒█░▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░▒▓▒ ▒ ▒ ▒▓▒░ ░  ░                                        
-░  ░      ░  ▒   ▒▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░░░▒░ ░ ░ ░▒ ░                                             
-░      ░     ░   ▒   ░  ░  ░   ░  ░░ ░ ░░░ ░ ░ ░░                                               
-       ░         ░  ░      ░   ░  ░  ░   ░                                                      
-            </pre>
-            <div class="mobile-title">MOVIE POSTER MASHUP</div>
-            <h1>COMING SOON</h1>
-            <p class="subtitle"><a href="../">GO BACK</a></p>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
+        }
+        
+        @media (max-width: 576px) {
+            .curtain-stage {
+                width: 98%;
+                height: 60vh;
+            }
+            
+            .movie-title {
+                font-size: 22px !important;
+                bottom: 20px !important;
+            }
+            
+            .curtain-left::after, .curtain-right::after,
+            .curtain-left .gold-trim, .curtain-right .gold-trim {
+                width: 10px !important;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .curtain-stage {
+                height: 50vh;
+            }
+            
+            .movie-title {
+                font-size: 18px !important;
+                bottom: 15px !important;
+            }
+            
+            .curtain-stage::before {
+                height: 30px !important;
+                top: -20px !important;
+            }
+        }
+
+        .curtain-container.visible .curtain-stage {
+            transform: scale(1);
+        }
+
+        .curtain-left, .curtain-right {
+            position: absolute;
+            top: -80px; /* Extend further above for more hanging effect */
+            height: calc(100% + 80px);
+            width: 50%;
+            background-color: #8B0000;
+            z-index: 2;
+            transition: transform 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom-right-radius: 100px;
+            border-bottom-left-radius: 100px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .curtain-left {
+            left: 0;
+            transform-origin: left top;
+            box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.5), 5px 5px 15px rgba(0, 0, 0, 0.5);
+            border-top-right-radius: 30px;
+        }
+
+        .curtain-right {
+            right: 0;
+            transform-origin: right top;
+            box-shadow: inset 10px 0 20px rgba(0, 0, 0, 0.5), -5px 5px 15px rgba(0, 0, 0, 0.5);
+            border-top-left-radius: 30px;
+        }
+
+        /* Add curtain texture and folds */
+        .curtain-left::before, .curtain-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    to right,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 15px,
+                    rgba(0, 0, 0, 0.25) 15px,
+                    rgba(0, 0, 0, 0.25) 30px,
+                    rgba(0, 0, 0, 0.15) 30px,
+                    rgba(0, 0, 0, 0.15) 45px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent,
+                    transparent 30px,
+                    rgba(0, 0, 0, 0.3) 30px,
+                    rgba(0, 0, 0, 0.3) 60px
+                ),
+                linear-gradient(to bottom, #8B0000, #A00000 20%, #8B0000 40%, #A00000 60%, #8B0000 80%, #A00000);
+            opacity: 0.9;
+        }
+
+        /* Add vertical folds to curtains */
+        .curtain-left::before {
+            background-image: 
+                repeating-linear-gradient(
+                    to right,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 15px,
+                    rgba(0, 0, 0, 0.25) 15px,
+                    rgba(0, 0, 0, 0.25) 30px,
+                    rgba(0, 0, 0, 0.15) 30px,
+                    rgba(0, 0, 0, 0.15) 45px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent,
+                    transparent 30px,
+                    rgba(0, 0, 0, 0.3) 30px,
+                    rgba(0, 0, 0, 0.3) 60px
+                ),
+                linear-gradient(to bottom, #8B0000, #A00000 20%, #8B0000 40%, #A00000 60%, #8B0000 80%, #A00000);
+            box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .curtain-right::before {
+            background-image: 
+                repeating-linear-gradient(
+                    to left,
+                    rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.15) 15px,
+                    rgba(0, 0, 0, 0.25) 15px,
+                    rgba(0, 0, 0, 0.25) 30px,
+                    rgba(0, 0, 0, 0.15) 30px,
+                    rgba(0, 0, 0, 0.15) 45px
+                ),
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent,
+                    transparent 30px,
+                    rgba(0, 0, 0, 0.3) 30px,
+                    rgba(0, 0, 0, 0.3) 60px
+                ),
+                linear-gradient(to bottom, #8B0000, #A00000 20%, #8B0000 40%, #A00000 60%, #8B0000 80%, #A00000);
+            box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .curtain-left::after, .curtain-right::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 60%);
+        }
+
+        /* Add gold trim to curtains */
+        .curtain-left::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(139, 0, 0, 0), rgba(218, 165, 32, 0.7));
+            z-index: 1;
+        }
+
+        .curtain-right::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(139, 0, 0, 0), rgba(218, 165, 32, 0.7));
+            z-index: 1;
+        }
+
+        /* Add curtain top decoration */
+        .curtain-stage::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #8B0000;
+            border-top: 12px solid #DAA520;
+            border-bottom: 8px solid #DAA520;
+            z-index: 3;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            background-image: repeating-linear-gradient(
+                90deg,
+                rgba(218, 165, 32, 0.3),
+                rgba(218, 165, 32, 0.3) 10px,
+                rgba(139, 0, 0, 0.8) 10px,
+                rgba(139, 0, 0, 0.8) 20px
+            );
+        }
+
+        /* Enhance the curtain opening animation */
+        .curtain-container.open .curtain-left {
+            transform: translateX(-100%) rotateY(30deg) rotateZ(-5deg);
+        }
+
+        .curtain-container.open .curtain-right {
+            transform: translateX(100%) rotateY(-30deg) rotateZ(5deg);
+        }
+
+        .poster-display {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            z-index: 1;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transition-delay: 1.5s;
+        }
+
+        .curtain-container.open .poster-display {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .movie-title {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            transition-delay: 2.5s;
+            z-index: 3;
+        }
+
+        .curtain-container.open .movie-title {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: width 1.5s ease-out, height 1.5s ease-out, opacity 1.5s ease-out;
+            transition-delay: 2s;
+        }
+
+        .curtain-container.open .spotlight {
+            width: 150%;
+            height: 150%;
+            opacity: 1;
+        }
+
+        /* Fix the duplicate ::after pseudo-elements */
+        /* Add highlight effect to curtains */
+        .curtain-left::after, .curtain-right::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 60%);
+            pointer-events: none;
+        }
+
+        /* Add gold trim to curtains using additional elements */
+        .curtain-left .gold-trim {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(139, 0, 0, 0), rgba(218, 165, 32, 0.7));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .curtain-right .gold-trim {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(139, 0, 0, 0), rgba(218, 165, 32, 0.7));
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="stickman-container" id="stickmanContainer"></div>
+    <div class="container">
+        <div class="canvas-container">
+            <canvas id="canvas" width="400" height="600"></canvas>
+            <button id="fullscreenButton" class="fullscreen-button">Full Screen</button>
+        </div>
+        <div class="controls-container">
+            <h1>Movie Poster Mashup</h1>
+            <audio id="clickSound" src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADwAD///////////////////////////////////////////8AAAA8TEFNRTMuMTAwAc0AAAAAAAAAABSAJAJAQgAAgAAAA8DcWTzUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=" preload="auto"></audio>
+            <div class="controls">
+                <div class="button-container">
+                    <button onclick="generateMovies()">Generate Random Movies</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="clearCanvas()">Clear Canvas</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="undoAction()">↩️ Undo</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="redoAction()">↪️ Redo</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="savePoster()" style="background-color: #2196F3;">💾 Save Poster</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="finishedPoster()" style="background-color: #FF5722;">🎬 Finished Poster</button>
+                </div>
+            </div>
+            <div id="combinedTitle"></div>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div class="button-container">
+                    <button onclick="addAnotherMovie()" style="background-color: #9C27B0;">+ Another Movie</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="removeLastMovie()" style="background-color: #F44336;">- Remove Last Movie</button>
+                </div>
+            </div>
+            <div class="drawing-tools">
+                <input type="color" id="colorPicker" value="#000000">
+                <input type="range" id="brushSize" min="1" max="50" value="5">
+                <span>Brush Size</span>
+                <div class="button-container">
+                    <button class="tool-button active" id="brushTool" onclick="toggleTool('brush')">🖌️ Brush</button>
+                </div>
+                <div class="button-container">
+                    <button class="tool-button" id="eraserTool" onclick="toggleTool('eraser')">⌫ Eraser</button>
+                </div>
+                <div class="button-container">
+                    <button class="tool-button" id="fillTool" onclick="toggleTool('fill')">🪣 Fill</button>
+                </div>
+            </div>
+            <div class="text-tools">
+                <input type="text" id="textInput" placeholder="Enter text..." class="text-input">
+                <select id="fontSelect" class="font-select">
+                    <option value="Comic Sans MS" class="font-comic-sans">Comic Sans</option>
+                    <option value="Arial" class="font-arial">Arial</option>
+                    <option value="Times New Roman" class="font-times">Times New Roman</option>
+                    <option value="Impact" class="font-impact">Impact</option>
+                    <option value="Courier New" class="font-courier">Courier New</option>
+                    <option value="Georgia" class="font-georgia">Georgia</option>
+                    <option value="Verdana" class="font-verdana">Verdana</option>
+                    <option value="Pacifico" class="font-pacifico">Pacifico</option>
+                </select>
+                <input type="range" id="fontSize" min="10" max="100" value="20">
+                <span>Font Size: <span id="fontSizeValue">20</span>px</span>
+                <input type="color" id="textColorPicker" value="#000000" title="Text Color">
+                <div class="button-container">
+                    <button onclick="addText()">Add Text</button>
+                </div>
+            </div>
+            <div class="canvas-controls">
+                <div class="button-container">
+                    <button onclick="resizeCanvas('decrease')">🔍 Decrease Canvas</button>
+                </div>
+                <div class="button-container">
+                    <button onclick="resizeCanvas('increase')">🔎 Increase Canvas</button>
+                </div>
+                <span id="canvasSize"></span>
             </div>
         </div>
-        <canvas class="matrix-bg" id="matrix"></canvas>
+    </div>
 
-        <script>
-            // Matrix rain effect
-            const canvas = document.getElementById('matrix');
-            const ctx = canvas.getContext('2d');
+    <script>
+        // Initialize Web Audio API context
+        let audioContext;
+        
+        // Initialize audio context on first user interaction to comply with browser policies
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                return true;
+            }
+            return false;
+        }
+        
+        // Function to create a funky sound effect
+        function playFunkySound(type = 'random') {
+            // Initialize audio context if not already done
+            initAudioContext();
             
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+            // Create oscillator and gain nodes
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // Connect nodes
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Set random parameters based on button type for variety
+            let frequency, waveform, duration, fadeTime;
+            
+            // Create a bounce effect with quick decay
+            switch(type) {
+                case 'generate':
+                    // Bouncy sound for generate button
+                    frequency = 300 + Math.random() * 100;
+                    waveform = 'sine';
+                    duration = 0.3;
+                    // Create bounce effect with quick pitch drop
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.5, audioContext.currentTime + 0.1);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.3, audioContext.currentTime + duration);
+                    break;
+                case 'clear':
+                    // Soft bounce for clear button
+                    frequency = 200 + Math.random() * 100;
+                    waveform = 'sine';
+                    duration = 0.25;
+                    // Softer bounce effect
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.6, audioContext.currentTime + duration);
+                    break;
+                case 'undo':
+                    // Quick bounce for undo/redo
+                    frequency = 250 + Math.random() * 50;
+                    waveform = 'sine';
+                    duration = 0.15;
+                    // Very quick bounce
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, audioContext.currentTime + duration);
+                    break;
+                case 'save':
+                    // Double bounce for save
+                    frequency = 350;
+                    waveform = 'sine';
+                    duration = 0.3;
+                    // Two quick bounces
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, audioContext.currentTime + 0.1);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.5, audioContext.currentTime + 0.2);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.3, audioContext.currentTime + duration);
+                    break;
+                case 'finished':
+                    // Triple bounce for finished poster
+                    frequency = 400;
+                    waveform = 'sine';
+                    duration = 0.5;
+                    // Three bounces
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.8, audioContext.currentTime + 0.1);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.6, audioContext.currentTime + 0.2);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.4, audioContext.currentTime + 0.3);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.3, audioContext.currentTime + duration);
+                    break;
+                default:
+                    // Random bounce sound for other buttons
+                    frequency = 200 + Math.random() * 200;
+                    waveform = 'sine';
+                    duration = 0.2 + Math.random() * 0.2;
+                    // Random bounce effect
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * (0.5 + Math.random() * 0.3), audioContext.currentTime + duration);
+            }
+            
+            // Set oscillator type
+            oscillator.type = waveform;
+            
+            // Set fade in/out to avoid clicks - with quieter volume
+            fadeTime = Math.min(0.03, duration / 5);
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + fadeTime); // Reduced volume to 0.1 (was 0.3)
+            
+            // Create bounce effect with volume envelope
+            if (duration > 0.2) {
+                // For longer sounds, create a bouncy volume envelope
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + fadeTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + duration * 0.5);
+                gainNode.gain.exponentialRampToValueAtTime(0.02, audioContext.currentTime + duration - fadeTime);
+            } else {
+                // For shorter sounds, simple decay
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime + fadeTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration - fadeTime);
+            }
+            
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+            
+            // Start and stop the oscillator
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+            
+            return duration;
+        }
+
+        // Function to create a "tadaaaa" sound effect
+        function playTadaSound() {
+            // Initialize audio context if not already done
+            initAudioContext();
+            
+            // Create multiple oscillators for a richer sound
+            const oscillators = [];
+            const gainNodes = [];
+            
+            // Create a master gain node for overall volume control
+            const masterGain = audioContext.createGain();
+            masterGain.gain.value = 0.15; // Reduced from 0.3 to 0.15 for quieter sound
+            masterGain.connect(audioContext.destination);
+            
+            // Duration of the entire sound
+            const duration = 2.0; // Longer duration for more drama
+            
+            // Create the main "ta-daaaa" melody with theatrical fanfare
+            const mainOsc = audioContext.createOscillator();
+            const mainGain = audioContext.createGain();
+            
+            mainOsc.type = 'triangle'; // Triangle wave for a brighter sound
+            mainOsc.connect(mainGain);
+            mainGain.connect(masterGain);
+            
+            // The "ta-daaaa" frequency pattern - more dramatic with rising notes
+            const startFreq = 440; // A4 note
+            
+            // Set the frequency pattern for the main oscillator - theatrical rising pattern
+            mainOsc.frequency.setValueAtTime(startFreq * 0.75, audioContext.currentTime); // Start with lower note (ta)
+            mainOsc.frequency.setValueAtTime(startFreq, audioContext.currentTime + 0.1); // Jump to higher note (daaaa)
+            mainOsc.frequency.linearRampToValueAtTime(startFreq * 1.25, audioContext.currentTime + 0.3); // Rising for drama
+            mainOsc.frequency.linearRampToValueAtTime(startFreq * 1.5, audioContext.currentTime + 0.6); // Continue rising
+            mainOsc.frequency.exponentialRampToValueAtTime(startFreq * 1.2, audioContext.currentTime + duration); // Slight bend down
+            
+            // Volume envelope for the main oscillator - theatrical swelling
+            mainGain.gain.setValueAtTime(0, audioContext.currentTime);
+            mainGain.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05); // Reduced from 0.3 to 0.2
+            mainGain.gain.setValueAtTime(0.15, audioContext.currentTime + 0.1); // Reduced from 0.2 to 0.15
+            mainGain.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + 0.5); // Reduced from 0.4 to 0.25
+            mainGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration); // Long fade out
+            
+            // Add a second oscillator for harmony - theatrical chord
+            const harmonyOsc = audioContext.createOscillator();
+            const harmonyGain = audioContext.createGain();
+            
+            harmonyOsc.type = 'sine'; // Sine wave for a smoother harmony
+            harmonyOsc.connect(harmonyGain);
+            harmonyGain.connect(masterGain);
+            
+            // Set the frequency pattern for the harmony oscillator (perfect fifth above)
+            harmonyOsc.frequency.setValueAtTime(startFreq * 0.75 * 1.5, audioContext.currentTime);
+            harmonyOsc.frequency.setValueAtTime(startFreq * 1.5, audioContext.currentTime + 0.1);
+            harmonyOsc.frequency.linearRampToValueAtTime(startFreq * 1.25 * 1.5, audioContext.currentTime + 0.3);
+            harmonyOsc.frequency.linearRampToValueAtTime(startFreq * 1.5 * 1.5, audioContext.currentTime + 0.6);
+            harmonyOsc.frequency.exponentialRampToValueAtTime(startFreq * 1.2 * 1.5, audioContext.currentTime + duration);
+            
+            // Volume envelope for the harmony oscillator - theatrical swelling
+            harmonyGain.gain.setValueAtTime(0, audioContext.currentTime);
+            harmonyGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.05); // Reduced from 0.15 to 0.1
+            harmonyGain.gain.setValueAtTime(0.07, audioContext.currentTime + 0.1); // Reduced from 0.1 to 0.07
+            harmonyGain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.5); // Reduced from 0.25 to 0.15
+            harmonyGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+            
+            // Add a third oscillator for sparkle effect - theatrical shimmer
+            const sparkleOsc = audioContext.createOscillator();
+            const sparkleGain = audioContext.createGain();
+            
+            sparkleOsc.type = 'square'; // Square wave for a bright sparkle
+            sparkleOsc.connect(sparkleGain);
+            sparkleGain.connect(masterGain);
+            
+            // Higher frequency for sparkle - theatrical twinkling
+            sparkleOsc.frequency.setValueAtTime(startFreq * 2, audioContext.currentTime + 0.1);
+            sparkleOsc.frequency.linearRampToValueAtTime(startFreq * 3, audioContext.currentTime + 0.3);
+            sparkleOsc.frequency.linearRampToValueAtTime(startFreq * 4, audioContext.currentTime + 0.7); // Higher peak for drama
+            sparkleOsc.frequency.exponentialRampToValueAtTime(startFreq * 2.5, audioContext.currentTime + duration);
+            
+            // Volume envelope for the sparkle oscillator - theatrical twinkling
+            sparkleGain.gain.setValueAtTime(0, audioContext.currentTime);
+            sparkleGain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1); // Silent at first
+            sparkleGain.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.2); // Reduced from 0.1 to 0.05
+            sparkleGain.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.5); // Reduced from 0.15 to 0.08
+            sparkleGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration); // Fade out
+            
+            // Add a fourth oscillator for bass - theatrical rumble
+            const bassOsc = audioContext.createOscillator();
+            const bassGain = audioContext.createGain();
+            
+            bassOsc.type = 'sine'; // Sine wave for a smooth bass
+            bassOsc.connect(bassGain);
+            bassGain.connect(masterGain);
+            
+            // Lower frequency for bass - theatrical depth
+            bassOsc.frequency.setValueAtTime(startFreq * 0.25, audioContext.currentTime);
+            bassOsc.frequency.linearRampToValueAtTime(startFreq * 0.3, audioContext.currentTime + 0.5);
+            bassOsc.frequency.exponentialRampToValueAtTime(startFreq * 0.25, audioContext.currentTime + duration);
+            
+            // Volume envelope for the bass oscillator - theatrical rumble
+            bassGain.gain.setValueAtTime(0, audioContext.currentTime);
+            bassGain.gain.linearRampToValueAtTime(0.12, audioContext.currentTime + 0.3); // Reduced from 0.2 to 0.12
+            bassGain.gain.linearRampToValueAtTime(0.18, audioContext.currentTime + 0.6); // Reduced from 0.3 to 0.18
+            bassGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration); // Fade out
+            
+            // Add a tremolo effect for the main oscillator - theatrical vibrato
+            const tremoloOsc = audioContext.createOscillator();
+            const tremoloGain = audioContext.createGain();
+            
+            tremoloOsc.frequency.value = 6; // 6 Hz tremolo - theatrical vibrato
+            tremoloOsc.type = 'sine';
+            tremoloOsc.connect(tremoloGain);
+            tremoloGain.connect(mainGain.gain);
+            tremoloGain.gain.value = 0.07; // Reduced from 0.1 to 0.07 - Depth of tremolo
+            
+            // Start and stop all oscillators
+            mainOsc.start(audioContext.currentTime);
+            harmonyOsc.start(audioContext.currentTime);
+            sparkleOsc.start(audioContext.currentTime);
+            bassOsc.start(audioContext.currentTime);
+            tremoloOsc.start(audioContext.currentTime);
+            
+            mainOsc.stop(audioContext.currentTime + duration);
+            harmonyOsc.stop(audioContext.currentTime + duration);
+            sparkleOsc.stop(audioContext.currentTime + duration);
+            bassOsc.stop(audioContext.currentTime + duration);
+            tremoloOsc.stop(audioContext.currentTime + duration);
+            
+            return duration;
+        }
+
+        const movies = [
+            "The Matrix", "Jurassic Park", "Star Wars", "The Lion King",
+            "Inception", "Avatar", "The Dark Knight", "Titanic",
+            "Finding Nemo", "The Avengers", "Frozen", "The Godfather",
+            "E.T.", "Spider-Man", "Wonder Woman", "Black Panther",
+            "Harry Potter", "Lord of the Rings", "Pirates of the Caribbean", "Toy Story",
+            "The Shawshank Redemption", "Pulp Fiction", "Forrest Gump", "The Terminator",
+            "Back to the Future", "Indiana Jones", "Jaws", "The Silence of the Lambs",
+            "The Wizard of Oz", "Ghostbusters", "The Breakfast Club", "Fight Club",
+            "The Princess Bride", "Alien", "Die Hard", "The Little Mermaid",
+            "Beauty and the Beast", "Aladdin", "The Exorcist", "Goodfellas",
+            "Blade Runner", "Mad Max", "The Shining", "Jumanji",
+            "Men in Black", "The Fifth Element", "The Green Mile", "Gladiator",
+            "The Matrix Reloaded", "Casino Royale", "Iron Man", "The Incredibles"
+        ];
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentTool = 'brush';
+        
+        // Undo/Redo functionality
+        const undoStack = [];
+        const redoStack = [];
+        const maxStackSize = 20; // Limit stack size to prevent memory issues
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const brushSize = document.getElementById('brushSize');
+        const clickSound = document.getElementById('clickSound');
+
+        // Add funky sound effects to all buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Determine button type based on text content or function
+                let soundType = 'random';
                 
-                // Reset drops
-                const columns = canvas.width / fontSize;
-                drops.length = 0; // Clear the array
-                for (let i = 0; i < columns; i++) {
-                    drops[i] = Math.random() * -100;
+                if (this.textContent.includes('Generate')) {
+                    soundType = 'generate';
+                } else if (this.textContent.includes('Clear')) {
+                    soundType = 'clear';
+                } else if (this.textContent.includes('Undo') || this.textContent.includes('Redo')) {
+                    soundType = 'undo';
+                } else if (this.textContent.includes('Save')) {
+                    soundType = 'save';
+                } else if (this.textContent.includes('Finished')) {
+                    soundType = 'finished';
                 }
+                
+                // Play the funky sound
+                playFunkySound(soundType);
+                
+                // Prevent multiple animations from running simultaneously
+                if (!this.classList.contains('flipping')) {
+                    // Add flip animation
+                    this.classList.add('flipping');
+                    
+                    // Remove the class after animation completes and reset transform
+                    setTimeout(() => {
+                        this.classList.remove('flipping');
+                        // Reset transform to ensure button returns to normal state
+                        this.style.transform = '';
+                    }, 400); // Match animation duration
+                }
+            });
+        });
+
+        // Save initial canvas state
+        saveCanvasState();
+
+        function saveCanvasState() {
+            // Limit the stack size
+            if (undoStack.length >= maxStackSize) {
+                undoStack.shift(); // Remove the oldest state
             }
             
-            // Characters to display
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*()=+[]{}|;:,.<>/?~';
-            const fontSize = window.innerWidth <= 480 ? 10 : 14; // Smaller font size on mobile
-            const columns = canvas.width / fontSize;
+            // Create a temporary canvas with white background
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
             
-            // Array to track the y position of each column
-            const drops = [];
-            for (let i = 0; i < columns; i++) {
-                drops[i] = Math.random() * -100;
-            }
+            // Fill with white background first
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
             
-            // Drawing the characters
-            function draw() {
-                // Semi-transparent black to create fade effect
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            // Draw the original canvas content on top
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Save current state with white background
+            const canvasData = tempCanvas.toDataURL();
+            undoStack.push(canvasData);
+            
+            // Clear redo stack when a new action is performed
+            redoStack.length = 0;
+        }
+
+        function undoAction() {
+            if (undoStack.length <= 1) return; // Keep at least the initial state
+            
+            // Save current state to redo stack
+            const currentState = undoStack.pop();
+            redoStack.push(currentState);
+            
+            // Load the previous state
+            const previousState = undoStack[undoStack.length - 1];
+            loadCanvasState(previousState);
+        }
+
+        function redoAction() {
+            if (redoStack.length === 0) return;
+            
+            // Get the state to redo
+            const stateToRedo = redoStack.pop();
+            
+            // Add it to the undo stack
+            undoStack.push(stateToRedo);
+            
+            // Load the state
+            loadCanvasState(stateToRedo);
+        }
+
+        function loadCanvasState(state) {
+            const img = new Image();
+            img.src = state;
+            img.onload = function() {
+                // Clear canvas and fill with white first
+                ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                ctx.fillStyle = '#0f0'; // Green text
-                ctx.font = fontSize + 'px monospace';
+                // Draw the saved state on top
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+
+        function generateMovies() {
+            const movie1 = movies[Math.floor(Math.random() * movies.length)];
+            let movie2;
+            do {
+                movie2 = movies[Math.floor(Math.random() * movies.length)];
+            } while (movie2 === movie1);
+
+            const combinedTitle = document.getElementById('combinedTitle');
+            const newTitleText = `${movie1} meets ${movie2}`;
+            
+            animateTitleTransition(newTitleText, [movie1, movie2]);
+            
+            // Make all buttons shake
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(button => {
+                // Remove any existing shake animation
+                button.classList.remove('shaking');
                 
-                // Loop through each drop
-                for (let i = 0; i < drops.length; i++) {
-                    // Random character
-                    const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                // Force a reflow to restart the animation
+                void button.offsetWidth;
+                
+                // Add the shake animation
+                button.classList.add('shaking');
+                
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    button.classList.remove('shaking');
+                }, 1000); // Match animation duration
+            });
+        }
+        
+        function animateTitleTransition(newTitleText, moviesList) {
+            const combinedTitle = document.getElementById('combinedTitle');
+            
+            // Create overlay for big title animation
+            const overlay = document.createElement('div');
+            overlay.className = 'title-overlay';
+            
+            const bigTitle = document.createElement('div');
+            bigTitle.className = 'big-title';
+            bigTitle.textContent = newTitleText;
+            
+            overlay.appendChild(bigTitle);
+            document.body.appendChild(overlay);
+            
+            // Temporarily hide the regular title
+            combinedTitle.style.opacity = '0';
+            
+            // Calculate the target position for the animation
+            const titleRect = combinedTitle.getBoundingClientRect();
+            const targetTop = titleRect.top + window.scrollY;
+            const targetLeft = titleRect.left + window.scrollX - 20;
+            
+            // Set the custom properties for the animation
+            bigTitle.style.setProperty('--target-top', `${targetTop}px`);
+            bigTitle.style.setProperty('--target-left', `${targetLeft}px`);
+            
+            // Position the big title in the center of the screen initially
+            bigTitle.style.top = '50%';
+            bigTitle.style.left = '50%';
+            bigTitle.style.transform = 'translate(-50%, -50%) scale(1.5)';
+            
+            // Show overlay
+            setTimeout(() => {
+                overlay.classList.add('visible');
+                
+                // Start animation after a short delay
+                setTimeout(() => {
+                    // Add rainbow effect to the big title
+                    bigTitle.classList.add('rainbow-effect');
                     
-                    // x = i * fontSize, y = drops[i] * fontSize
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    // Start the movement animation
+                    bigTitle.classList.add('title-animating');
                     
-                    // Send the drop back to the top randomly after it crosses the screen
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
+                    // Update the regular title and show it when animation is almost complete
+                    setTimeout(() => {
+                        // Update the regular title
+                        combinedTitle.textContent = newTitleText;
+                        combinedTitle.dataset.movies = JSON.stringify(moviesList);
+                        
+                        // Show and highlight the regular title with rainbow effect
+                        combinedTitle.style.opacity = '1';
+                        combinedTitle.classList.add('highlight');
+                        combinedTitle.classList.add('rainbow-effect');
+                        
+                        // Remove highlight class after animation
+                        setTimeout(() => {
+                            combinedTitle.classList.remove('highlight');
+                        }, 600);
+                        
+                        // Remove rainbow effect after it completes
+                        setTimeout(() => {
+                            combinedTitle.classList.remove('rainbow-effect');
+                        }, 1000);
+                        
+                        // Re-enable or disable the "Add Another Movie" button as needed
+                        document.querySelector('button[onclick="addAnotherMovie()"]').disabled = (moviesList.length >= 3);
+                    }, 950); // Reduced from 1600ms to match the shorter animation
                     
-                    // Increment y coordinate
-                    drops[i]++;
+                    // Remove overlay after animation completes
+                    setTimeout(() => {
+                        document.body.removeChild(overlay);
+                    }, 1300); // Reduced from 2200ms
+                }, 150); // Reduced from 300ms
+            }, 30); // Reduced from 50ms
+        }
+
+        function clearCanvas() {
+            // Fill with white instead of clearing to transparent
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveCanvasState();
+        }
+
+        // Drawing functionality
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Add touch support for mobile devices
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+
+        function handleTouchStart(e) {
+            // Prevent scrolling when drawing
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const offsetX = touch.clientX - rect.left;
+            const offsetY = touch.clientY - rect.top;
+            
+            // Convert touch coordinates to canvas coordinates
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX = offsetX * scaleX;
+            const canvasY = offsetY * scaleY;
+            
+            if (currentTool === 'fill') {
+                fillCanvas(canvasX, canvasY);
+                return;
+            }
+            
+            isDrawing = true;
+            [lastX, lastY] = [canvasX, canvasY];
+        }
+
+        function handleTouchMove(e) {
+            if (!isDrawing) return;
+            
+            // Prevent scrolling when drawing
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const offsetX = touch.clientX - rect.left;
+            const offsetY = touch.clientY - rect.top;
+            
+            // Convert touch coordinates to canvas coordinates
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            const canvasX = offsetX * scaleX;
+            const canvasY = offsetY * scaleY;
+            
+            if (currentTool === 'fill') return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(canvasX, canvasY);
+            
+            if (currentTool === 'eraser') {
+                ctx.strokeStyle = 'white';
+                ctx.globalCompositeOperation = 'destination-out';
+            } else {
+                ctx.strokeStyle = colorPicker.value;
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            [lastX, lastY] = [canvasX, canvasY];
+        }
+
+        function startDrawing(e) {
+            if (currentTool === 'fill') {
+                // For fill tool, handle it immediately on mousedown and don't start drawing
+                fillCanvas(e.offsetX, e.offsetY);
+                return;
+            }
+            
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function toggleTool(tool) {
+            currentTool = tool;
+            
+            // Update button states
+            document.getElementById('brushTool').classList.toggle('active', tool === 'brush');
+            document.getElementById('eraserTool').classList.toggle('active', tool === 'eraser');
+            document.getElementById('fillTool').classList.toggle('active', tool === 'fill');
+            
+            // Update cursor
+            if (tool === 'eraser') {
+                canvas.style.cursor = 'crosshair';
+            } else if (tool === 'fill') {
+                canvas.style.cursor = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\'><text y=\'20\' font-size=\'20\'>🪣</text></svg>"), auto';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            if (currentTool === 'fill') return; // Don't draw if fill tool is selected
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            
+            if (currentTool === 'eraser') {
+                ctx.strokeStyle = 'white';
+                ctx.globalCompositeOperation = 'destination-out';
+            } else {
+                ctx.strokeStyle = colorPicker.value;
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveCanvasState();
+            }
+        }
+
+        let isAddingText = false;
+        let lastCanvasState = null;
+        
+        function addText() {
+            const textInput = document.getElementById('textInput');
+            if (!textInput.value.trim()) return;
+            
+            isAddingText = true;
+            canvas.style.cursor = 'text';
+            
+            // Save the current canvas state once
+            lastCanvasState = canvas.toDataURL();
+            
+            // Add mousemove event for text preview
+            canvas.addEventListener('mousemove', previewText);
+            
+            // Add touch move event for mobile devices
+            canvas.addEventListener('touchmove', handleTextTouchMove);
+            
+            function handleTextTouchMove(e) {
+                if (!isAddingText) return;
+                
+                // Prevent scrolling
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
+                
+                // Convert touch coordinates to canvas coordinates
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                const x = offsetX * scaleX;
+                const y = offsetY * scaleY;
+                
+                previewTextAt(x, y);
+            }
+            
+            function previewText(e) {
+                if (!isAddingText) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Convert mouse coordinates to canvas coordinates
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                const canvasX = x * scaleX;
+                const canvasY = y * scaleY;
+                
+                previewTextAt(canvasX, canvasY);
+            }
+            
+            function previewTextAt(x, y) {
+                const fontSelect = document.getElementById('fontSelect');
+                const selectedFont = fontSelect.value;
+                const fontSize = document.getElementById('fontSize').value;
+                const textColor = document.getElementById('textColorPicker').value;
+                
+                // Restore the original canvas state
+                if (lastCanvasState) {
+                    const img = new Image();
+                    img.src = lastCanvasState;
+                    img.onload = function() {
+                        // Clear and redraw the original canvas
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Draw the preview text
+                        ctx.font = `${fontSize}px "${selectedFont}"`;
+                        ctx.fillStyle = textColor;
+                        ctx.globalAlpha = 0.7; // Semi-transparent for preview
+                        ctx.fillText(textInput.value, x, y);
+                        ctx.globalAlpha = 1.0; // Reset alpha
+                    };
                 }
             }
             
-            // Animation loop
-            let animationId;
-            function startAnimation() {
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                }
+            function handleTextClick(e) {
+                if (!isAddingText) return;
                 
-                function animate() {
-                    draw();
-                    animationId = requestAnimationFrame(animate);
-                }
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
                 
-                animate();
+                // Convert mouse coordinates to canvas coordinates
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                const canvasX = x * scaleX;
+                const canvasY = y * scaleY;
+                
+                placeTextAt(canvasX, canvasY);
             }
             
-            // Initial setup
-            resizeCanvas();
-            startAnimation();
+            function handleTextTouch(e) {
+                if (!isAddingText) return;
+                
+                // Prevent default behavior
+                e.preventDefault();
+                
+                const touch = e.changedTouches[0];
+                const rect = canvas.getBoundingClientRect();
+                const offsetX = touch.clientX - rect.left;
+                const offsetY = touch.clientY - rect.top;
+                
+                // Convert touch coordinates to canvas coordinates
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                
+                const canvasX = offsetX * scaleX;
+                const canvasY = offsetY * scaleY;
+                
+                placeTextAt(canvasX, canvasY);
+            }
             
-            // Handle responsive behavior
-            window.addEventListener('resize', () => {
-                resizeCanvas();
+            function placeTextAt(x, y) {
+                const fontSelect = document.getElementById('fontSelect');
+                const selectedFont = fontSelect.value;
+                const fontSize = document.getElementById('fontSize').value;
+                const textColor = document.getElementById('textColorPicker').value;
+                
+                // Restore the original canvas state
+                if (lastCanvasState) {
+                    const img = new Image();
+                    img.src = lastCanvasState;
+                    img.onload = function() {
+                        // Clear and redraw the original canvas
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Draw the final text
+                        ctx.font = `${fontSize}px "${selectedFont}"`;
+                        ctx.fillStyle = textColor;
+                        ctx.fillText(textInput.value, x, y);
+                        
+                        // Save state after adding text
+                        saveCanvasState();
+                        
+                        // Reset
+                        isAddingText = false;
+                        lastCanvasState = null;
+                        canvas.style.cursor = 'default';
+                        textInput.value = '';
+                        canvas.removeEventListener('click', handleTextClick);
+                        canvas.removeEventListener('touchend', handleTextTouch);
+                        canvas.removeEventListener('mousemove', previewText);
+                        canvas.removeEventListener('touchmove', handleTextTouchMove);
+                    };
+                }
+            }
+            
+            canvas.addEventListener('click', handleTextClick);
+            canvas.addEventListener('touchend', handleTextTouch);
+        }
+
+        // Update font size display when slider changes
+        document.getElementById('fontSize').addEventListener('input', function() {
+            document.getElementById('fontSizeValue').textContent = this.value;
+        });
+
+        // Prevent drawing while adding text
+        canvas.addEventListener('mousedown', (e) => {
+            if (isAddingText) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        function resizeCanvas(action) {
+            // Save the current canvas content
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // Fill with white background first
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw the original canvas content on top
+            tempCtx.drawImage(canvas, 0, 0);
+
+            // Calculate new dimensions
+            const scaleFactor = action === 'increase' ? 1.2 : 0.8;
+            const newWidth = Math.round(canvas.width * scaleFactor);
+            const newHeight = Math.round(canvas.height * scaleFactor);
+
+            // Set minimum and maximum sizes
+            const minSize = 200;
+            const maxSize = 800;
+            
+            if (newWidth >= minSize && newWidth <= maxSize && 
+                newHeight >= minSize && newHeight <= maxSize) {
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+
+                // Fill new canvas with white first
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Restore the content scaled to new size
+                ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight);
+                
+                // Update size display
+                updateCanvasSizeDisplay();
+                
+                // Save state after resizing
+                saveCanvasState();
+                
+                // Update canvas display for mobile
+                updateCanvasDisplayForMobile();
+            }
+        }
+
+        // Function to update canvas display for mobile
+        function updateCanvasDisplayForMobile() {
+            // Check if we're on a small screen
+            if (window.innerWidth <= 450) {
+                // Let CSS handle the scaling
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+            } else {
+                // Reset to default
+                canvas.style.width = '';
+                canvas.style.height = '';
+            }
+        }
+
+        function updateCanvasSizeDisplay() {
+            const sizeDisplay = document.getElementById('canvasSize');
+            sizeDisplay.textContent = `Canvas: ${canvas.width}x${canvas.height}`;
+        }
+
+        // Initialize canvas with white background
+        function initializeCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveCanvasState();
+            updateCanvasDisplayForMobile();
+        }
+        
+        // Call this function when the page loads and on resize
+        window.addEventListener('load', function() {
+            createStickmen();
+            initializeCanvas();
+            generateMovies();
+            updateCanvasSizeDisplay();
+        });
+        
+        // Update canvas display when window is resized
+        window.addEventListener('resize', updateCanvasDisplayForMobile);
+
+        // Load Pacifico font from Google Fonts
+        if (!document.getElementById('google-fonts')) {
+            const link = document.createElement('link');
+            link.id = 'google-fonts';
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Pacifico&display=swap';
+            document.head.appendChild(link);
+        }
+
+        // Function to save the poster as an image
+        function savePoster() {
+            // Create a temporary canvas with white background
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // Fill with white background
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw the original canvas content on top
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Get the canvas data as a data URL from the temp canvas
+            const canvasData = tempCanvas.toDataURL('image/jpeg', 0.9);
+            
+            // Create a temporary link element
+            const downloadLink = document.createElement('a');
+            
+            // Get the combined title or use a default name
+            let posterName = 'movie-poster-mashup';
+            const titleElement = document.getElementById('combinedTitle');
+            if (titleElement && titleElement.textContent) {
+                // Get the movies from the data attribute if available
+                let movieList = [];
+                try {
+                    movieList = JSON.parse(titleElement.dataset.movies || '[]');
+                    posterName = movieList.join('-meets-').toLowerCase().replace(/\s+/g, '-');
+                } catch (e) {
+                    // Fall back to the old method if data attribute isn't available
+                    posterName = titleElement.textContent
+                        .replace(/\s+meets\s+/g, '-meets-')
+                        .replace(/\s+and\s+/g, '-and-')
+                        .replace(/,\s*/g, '-')
+                        .replace(/\s+/g, '-')
+                        .toLowerCase();
+                }
+            }
+            
+            // Set the download attributes
+            downloadLink.download = posterName + '.jpg';
+            downloadLink.href = canvasData;
+            
+            // Append to the body, click it, and remove it
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Play the click sound for feedback
+            clickSound.currentTime = 0;
+            clickSound.play();
+        }
+
+        function fillCanvas(startX, startY) {
+            // Don't fill if we're in text adding mode
+            if (isAddingText) return;
+            
+            // Save the current canvas state before filling
+            saveCanvasState();
+            
+            // Get the canvas data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Get the color at the clicked position
+            const startPos = (startY * width + startX) * 4;
+            const targetR = data[startPos];
+            const targetG = data[startPos + 1];
+            const targetB = data[startPos + 2];
+            const targetA = data[startPos + 3];
+            
+            // Get the fill color
+            const fillColor = hexToRgb(colorPicker.value);
+            const fillR = fillColor[0];
+            const fillG = fillColor[1];
+            const fillB = fillColor[2];
+            
+            // If target color is the same as fill color, no need to fill
+            if (Math.abs(targetR - fillR) < 5 && 
+                Math.abs(targetG - fillG) < 5 && 
+                Math.abs(targetB - fillB) < 5) {
+                return;
+            }
+            
+            // Define the color matching threshold
+            const threshold = 10;
+            
+            // Function to check if a pixel matches the target color
+            function matchesTarget(pos) {
+                return Math.abs(data[pos] - targetR) < threshold &&
+                       Math.abs(data[pos + 1] - targetG) < threshold &&
+                       Math.abs(data[pos + 2] - targetB) < threshold &&
+                       Math.abs(data[pos + 3] - targetA) < threshold;
+            }
+            
+            // Function to set a pixel to the fill color
+            function setFillColor(pos) {
+                data[pos] = fillR;
+                data[pos + 1] = fillG;
+                data[pos + 2] = fillB;
+                data[pos + 3] = 255; // Fully opaque
+            }
+            
+            // Use a stack-based approach for the flood fill
+            const stack = [[startX, startY]];
+            const visited = new Set(); // Track visited pixels
+            
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                
+                // Skip if out of bounds
+                if (x < 0 || x >= width || y < 0 || y >= height) {
+                    continue;
+                }
+                
+                // Create a unique key for this pixel
+                const key = `${x},${y}`;
+                
+                // Skip if already visited
+                if (visited.has(key)) {
+                    continue;
+                }
+                
+                // Mark as visited
+                visited.add(key);
+                
+                // Get the pixel position in the data array
+                const pos = (y * width + x) * 4;
+                
+                // If this pixel doesn't match the target color, skip it
+                if (!matchesTarget(pos)) {
+                    continue;
+                }
+                
+                // Set this pixel to the fill color
+                setFillColor(pos);
+                
+                // Add the neighboring pixels to the stack
+                stack.push([x + 1, y]); // Right
+                stack.push([x - 1, y]); // Left
+                stack.push([x, y + 1]); // Down
+                stack.push([x, y - 1]); // Up
+            }
+            
+            // Update the canvas with the filled data
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function hexToRgb(hex) {
+            // Remove the # if present
+            hex = hex.replace('#', '');
+            
+            // Parse the hex values
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            return [r, g, b];
+        }
+
+        function addAnotherMovie() {
+            const combinedTitle = document.getElementById('combinedTitle');
+            
+            // Get the current movies from the data attribute
+            let currentMovies = [];
+            try {
+                currentMovies = JSON.parse(combinedTitle.dataset.movies || '[]');
+            } catch (e) {
+                // If parsing fails, extract movies from the text content
+                const titleText = combinedTitle.textContent;
+                if (titleText.includes(' meets ')) {
+                    currentMovies = titleText.split(' meets ');
+                }
+            }
+            
+            // If we couldn't get the movies, start fresh
+            if (!currentMovies.length) {
+                generateMovies();
+                return;
+            }
+            
+            // Check if we've already reached the maximum of 3 movies
+            if (currentMovies.length >= 3) {
+                // We've already added one extra movie, so disable the button
+                document.querySelector('button[onclick="addAnotherMovie()"]').disabled = true;
+                return;
+            }
+            
+            // Generate a new movie that's not already in the list
+            let newMovie;
+            do {
+                newMovie = movies[Math.floor(Math.random() * movies.length)];
+            } while (currentMovies.includes(newMovie));
+            
+            // Add the new movie to the list
+            currentMovies.push(newMovie);
+            
+            // Create the new title text
+            const newTitleText = `${currentMovies[0]} meets ${currentMovies[1]} and ${currentMovies[2]}`;
+            
+            // Animate the title transition
+            animateTitleTransition(newTitleText, currentMovies);
+            
+            // Play the click sound for feedback
+            clickSound.currentTime = 0;
+            clickSound.play();
+        }
+        
+        function removeLastMovie() {
+            const combinedTitle = document.getElementById('combinedTitle');
+            
+            // Get the current movies from the data attribute
+            let currentMovies = [];
+            try {
+                currentMovies = JSON.parse(combinedTitle.dataset.movies || '[]');
+            } catch (e) {
+                // If parsing fails, extract movies from the text content
+                const titleText = combinedTitle.textContent;
+                if (titleText.includes(' meets ')) {
+                    currentMovies = titleText.split(' meets ');
+                }
+            }
+            
+            // If we have 2 or fewer movies, just regenerate
+            if (currentMovies.length <= 2) {
+                generateMovies();
+                return;
+            }
+            
+            // Remove the last movie
+            currentMovies.pop();
+            
+            // Create the new title text
+            const newTitleText = `${currentMovies[0]} meets ${currentMovies[1]}`;
+            
+            // Animate the title transition
+            animateTitleTransition(newTitleText, currentMovies);
+            
+            // Play the click sound for feedback
+            clickSound.currentTime = 0;
+            clickSound.play();
+        }
+
+        // Generate random stickmen in the background
+        function createStickmen() {
+            const container = document.getElementById('stickmanContainer');
+            const types = ['sunglasses', 'crown', 'tophat', 'headphones'];
+            const colors = ['#FF5555', '#66CCFF', '#FFCC00', '#66FF66', '#FF66FF', '#FFFF66'];
+            const count = 20; // Number of stickmen
+            
+            // Add SVG filter for crayon effect
+            const svgFilter = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgFilter.style.width = '0';
+            svgFilter.style.height = '0';
+            svgFilter.style.position = 'absolute';
+            svgFilter.innerHTML = `
+                <defs>
+                    <filter id="crayon-filter">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+                    </filter>
+                </defs>
+            `;
+            document.body.appendChild(svgFilter);
+            
+            for (let i = 0; i < count; i++) {
+                const stickman = document.createElement('div');
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                stickman.className = `stickman stickman-${type}`;
+                
+                // Random position
+                const left = Math.random() * 100; // Random percentage across the screen
+                const delay = Math.random() * 30; // Random delay for animation
+                const duration = 15 + Math.random() * 30; // Random duration between 15-45s
+                const size = 60 + Math.random() * 60; // Increased size range from 60-120px (was 40-80px)
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                stickman.style.left = `${left}%`;
+                stickman.style.animationDelay = `-${delay}s`;
+                stickman.style.animationDuration = `${duration}s`;
+                stickman.style.width = `${size}px`;
+                stickman.style.height = `${size * 1.6}px`;
+                
+                // Add random rotation
+                const rotation = Math.random() * 40 - 20; // Random rotation between -20 and 20 degrees
+                stickman.style.transform = `rotate(${rotation}deg)`;
+                
+                // Add random color filter for some stickmen
+                if (Math.random() > 0.5) {
+                    stickman.style.filter = `url('#crayon-filter') hue-rotate(${Math.random() * 360}deg)`;
+                }
+                
+                container.appendChild(stickman);
+            }
+        }
+
+        // Call the function when the page loads
+        window.addEventListener('load', createStickmen);
+
+        // Fullscreen functionality
+        document.getElementById('fullscreenButton').addEventListener('click', function() {
+            // Get the original canvas position
+            const originalCanvas = document.getElementById('canvas');
+            const canvasRect = originalCanvas.getBoundingClientRect();
+            
+            // Create fullscreen container
+            const fullscreenContainer = document.createElement('div');
+            fullscreenContainer.className = 'fullscreen-mode';
+            
+            // Clone the canvas with white background
+            const fullscreenCanvas = document.createElement('canvas');
+            fullscreenCanvas.width = canvas.width;
+            fullscreenCanvas.height = canvas.height;
+            const fullscreenCtx = fullscreenCanvas.getContext('2d');
+            
+            // Position the canvas at the original position initially
+            fullscreenCanvas.style.position = 'absolute';
+            fullscreenCanvas.style.top = canvasRect.top + 'px';
+            fullscreenCanvas.style.left = canvasRect.left + 'px';
+            fullscreenCanvas.style.width = canvasRect.width + 'px';
+            fullscreenCanvas.style.height = canvasRect.height + 'px';
+            fullscreenCanvas.style.borderRadius = '20px'; // Match original canvas style
+            fullscreenCanvas.style.opacity = '1'; // Start visible
+            fullscreenCanvas.style.transform = 'none'; // Clear default transform
+            fullscreenCanvas.classList.add('from-original'); // Add the special class for animation
+            
+            // Fill with white background first
+            fullscreenCtx.fillStyle = 'white';
+            fullscreenCtx.fillRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
+            
+            // Then draw the original canvas content on top
+            fullscreenCtx.drawImage(canvas, 0, 0);
+            
+            // Create exit button
+            const exitButton = document.createElement('button');
+            exitButton.className = 'exit-fullscreen';
+            exitButton.innerHTML = '✕';
+            exitButton.addEventListener('click', function() {
+                // Animate back to original position
+                fullscreenCanvas.style.top = canvasRect.top + 'px';
+                fullscreenCanvas.style.left = canvasRect.left + 'px';
+                fullscreenCanvas.style.width = canvasRect.width + 'px';
+                fullscreenCanvas.style.height = canvasRect.height + 'px';
+                fullscreenCanvas.style.transform = 'none';
+                
+                // Fade out container
+                fullscreenContainer.classList.remove('visible');
+                
+                // Remove after transition completes
+                setTimeout(function() {
+                    document.body.removeChild(fullscreenContainer);
+                    document.body.style.overflow = 'auto';
+                }, 500); // Match the transition duration
             });
             
-            // Check if device is in portrait or landscape and adjust ASCII art
-            function checkOrientation() {
-                const asciiArt = document.getElementById('ascii-art');
-                if (window.innerWidth < window.innerHeight && window.innerWidth < 500) {
-                    // Portrait mode on small screens - make ASCII art smaller
-                    asciiArt.style.fontSize = '4px';
+            // Add elements to container
+            fullscreenContainer.appendChild(fullscreenCanvas);
+            fullscreenContainer.appendChild(exitButton);
+            
+            // Add to body
+            document.body.appendChild(fullscreenContainer);
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            
+            // Create confetti immediately
+            createConfetti(fullscreenCanvas);
+            
+            // Force a reflow to ensure the initial state is rendered
+            setTimeout(function() {
+                fullscreenContainer.classList.add('visible');
+            }, 10);
+            
+            // Play sound
+            clickSound.currentTime = 0;
+            clickSound.play();
+        });
+        
+        // Function to create confetti
+        function createConfetti(targetElement) {
+            // Create a container for the confetti
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+            
+            // Get the position of the target element
+            const rect = targetElement.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Confetti colors - more vibrant and varied
+            const colors = [
+                '#FF5555', '#66CCFF', '#FFCC00', '#66FF66', '#FF66FF', '#FFFF66', 
+                '#FF3333', '#33CCFF', '#FFAA00', '#33FF33', '#FF33FF', '#FFFF33',
+                '#FF9999', '#99DDFF', '#FFDD99', '#99FF99', '#FF99FF', '#FFFF99',
+                '#FFFFFF', '#CCCCCC', '#FFCC33', '#33FFCC', '#CC33FF', '#33CCFF'
+            ];
+            
+            // Create confetti pieces - increased count
+            const confettiCount = 150;
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Random properties
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = 3 + Math.random() * 15; // More varied sizes
+                const shape = Math.random() > 0.7 ? 'circle' : (Math.random() > 0.5 ? 'square' : 'rectangle');
+                
+                // Set styles
+                confetti.style.backgroundColor = color;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = shape === 'rectangle' ? `${size * 2}px` : `${size}px`;
+                confetti.style.borderRadius = shape === 'circle' ? '50%' : '0';
+                
+                // Position around the edges of the poster and across the screen, not over it
+                // Calculate a random position that's outside the poster
+                let x, y;
+                const margin = 20; // Minimum distance from poster edge
+                const posterWidth = rect.width;
+                const posterHeight = rect.height;
+                
+                // Get window dimensions for better distribution
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                
+                // Distribute confetti more widely across the screen
+                if (Math.random() < 0.7) {
+                    // 70% of confetti around the poster edges
+                    const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+                    
+                    switch(side) {
+                        case 0: // Top
+                            x = rect.left + Math.random() * posterWidth;
+                            y = rect.top - margin - Math.random() * 150;
+                            break;
+                        case 1: // Right
+                            x = rect.right + margin + Math.random() * 150;
+                            y = rect.top + Math.random() * posterHeight;
+                            break;
+                        case 2: // Bottom
+                            x = rect.left + Math.random() * posterWidth;
+                            y = rect.bottom + margin + Math.random() * 150;
+                            break;
+                        case 3: // Left
+                            x = rect.left - margin - Math.random() * 150;
+                            y = rect.top + Math.random() * posterHeight;
+                            break;
+                    }
                 } else {
-                    // Landscape or larger screens
-                    if (window.innerWidth <= 768) {
-                        asciiArt.style.fontSize = '5px';
-                    } else {
-                        asciiArt.style.fontSize = '10px';
+                    // 30% of confetti distributed across the screen
+                    x = Math.random() * windowWidth;
+                    y = Math.random() * windowHeight;
+                    
+                    // Make sure it's not over the poster
+                    if (x > rect.left - margin && x < rect.right + margin && 
+                        y > rect.top - margin && y < rect.bottom + margin) {
+                        // If it would be over the poster, move it to an edge
+                        const edge = Math.floor(Math.random() * 4);
+                        switch(edge) {
+                            case 0: y = rect.top - margin - Math.random() * 50; break; // Top
+                            case 1: x = rect.right + margin + Math.random() * 50; break; // Right
+                            case 2: y = rect.bottom + margin + Math.random() * 50; break; // Bottom
+                            case 3: x = rect.left - margin - Math.random() * 50; break; // Left
+                        }
                     }
                 }
+                
+                confetti.style.left = `${x}px`;
+                confetti.style.top = `${y}px`;
+                
+                // Random animation delay - shorter delays to start with the transition
+                confetti.style.animationDelay = `${Math.random() * 0.3}s`;
+                
+                // Set custom properties for dynamic movement based on position
+                // Movement direction should be toward the center of the screen
+                const moveTowardCenterX = centerX - x;
+                const moveTowardCenterY = centerY - y;
+                
+                // Normalize and scale the movement
+                const magnitude = Math.sqrt(moveTowardCenterX * moveTowardCenterX + moveTowardCenterY * moveTowardCenterY);
+                const normalizedX = moveTowardCenterX / magnitude;
+                const normalizedY = moveTowardCenterY / magnitude;
+                
+                // Scale the movement (but not too close to the poster)
+                const movementScale = 30 + Math.random() * 50;
+                const tx = normalizedX * movementScale;
+                const ty = normalizedY * movementScale;
+                
+                // Set the custom properties
+                confetti.style.setProperty('--tx', `${tx}px`);
+                confetti.style.setProperty('--ty', `${ty}px`);
+                confetti.style.setProperty('--tr', `${Math.random() * 360}deg`);
+                
+                // Add to container
+                confettiContainer.appendChild(confetti);
             }
             
-            // Check orientation on load and resize
-            checkOrientation();
-            window.addEventListener('resize', checkOrientation);
+            // Remove the confetti container after animations complete
+            setTimeout(function() {
+                document.body.removeChild(confettiContainer);
+            }, 2500); // Increased to match the new animation duration
+        }
+
+        /* Add this function to the JavaScript section */
+        function finishedPoster() {
+            // Initialize audio context if needed
+            initAudioContext();
             
-            // Optimize performance by reducing animation frame rate on mobile
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // Use setInterval with lower frame rate on mobile
-                if (animationId) {
-                    cancelAnimationFrame(animationId);
-                    animationId = null;
-                }
-                setInterval(draw, 50); // 20fps instead of 60fps
-            }
-        </script>
-    </body>
-</html>
+            // Create the curtain container
+            const curtainContainer = document.createElement('div');
+            curtainContainer.className = 'curtain-container';
+            
+            // Create the stage
+            const stage = document.createElement('div');
+            stage.className = 'curtain-stage';
+            
+            // Create curtains
+            const curtainLeft = document.createElement('div');
+            curtainLeft.className = 'curtain-left';
+            
+            // Add gold trim to left curtain
+            const leftTrim = document.createElement('div');
+            leftTrim.className = 'gold-trim';
+            curtainLeft.appendChild(leftTrim);
+            
+            const curtainRight = document.createElement('div');
+            curtainRight.className = 'curtain-right';
+            
+            // Add gold trim to right curtain
+            const rightTrim = document.createElement('div');
+            rightTrim.className = 'gold-trim';
+            curtainRight.appendChild(rightTrim);
+            
+            // Create spotlight
+            const spotlight = document.createElement('div');
+            spotlight.className = 'spotlight';
+            
+            // Create poster display
+            const posterDisplay = document.createElement('img');
+            posterDisplay.className = 'poster-display';
+            
+            // Get the current canvas content with white background
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // Fill with white background first
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw the original canvas content on top
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Get the canvas data as a data URL from the temp canvas
+            const canvasData = tempCanvas.toDataURL('image/jpeg', 0.9);
+            posterDisplay.src = canvasData;
+            
+            // Create movie title
+            const movieTitle = document.createElement('div');
+            movieTitle.className = 'movie-title';
+            
+            // Get the title from the combinedTitle element
+            const titleElement = document.getElementById('combinedTitle');
+            movieTitle.textContent = titleElement.textContent || 'Movie Poster Mashup';
+            
+            // Add elements to the stage
+            stage.appendChild(curtainLeft);
+            stage.appendChild(curtainRight);
+            stage.appendChild(spotlight);
+            stage.appendChild(posterDisplay);
+            stage.appendChild(movieTitle);
+            
+            // Add stage to container
+            curtainContainer.appendChild(stage);
+            
+            // Add container to body
+            document.body.appendChild(curtainContainer);
+            
+            // Force a reflow
+            void curtainContainer.offsetWidth;
+            
+            // Show the container
+            curtainContainer.classList.add('visible');
+            
+            // Open curtains after a delay
+            setTimeout(() => {
+                curtainContainer.classList.add('open');
+                
+                // Play the tada sound when curtains open (only once)
+                playTadaSound();
+                
+                // Generate new movies and remove the curtain after 7 seconds
+                setTimeout(() => {
+                    // Fade out
+                    curtainContainer.classList.remove('visible');
+                    
+                    // Remove after transition
+                    setTimeout(() => {
+                        document.body.removeChild(curtainContainer);
+                        
+                        // Clear the canvas
+                        clearCanvas();
+                        
+                        // Generate new movies
+                        generateMovies();
+                    }, 1000);
+                }, 7000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html> 
