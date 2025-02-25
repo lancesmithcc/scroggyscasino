@@ -508,47 +508,34 @@
             bottom: -150px;
             right: 20px;
             font-size: 64px;
-            transition: bottom 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+            transition: bottom 0.5s cubic-bezier(0.17, 0.89, 0.32, 1.49), opacity 0.5s ease;
             z-index: 2000;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
+            opacity: 0;
         }
 
         .devil-popup.show {
             bottom: 20px;
-        }
-
-        .speech-bubble {
-            position: absolute;
-            background: #ffffff;
-            color: #000000;
-            padding: 15px;
-            border-radius: 20px;
-            font-size: 16px;
-            width: max-content;
-            max-width: 200px;
-            bottom: 100%;
-            right: 0;
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s, transform 0.5s;
-            font-family: var(--font-family);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-            text-shadow: none;
-        }
-
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            right: 20px;
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #ffffff transparent transparent;
-        }
-
-        .devil-popup.show .speech-bubble {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
             opacity: 1;
-            transform: translateY(0);
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .collector-emoji {
+            font-size: 80px;
+            display: block;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
         }
 
         /* Name input overlay */
@@ -1325,6 +1312,52 @@
         }
 
         .reset-button{font-size:10px;color:#ffffff;}
+
+        @keyframes flash-border {
+            0% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); }
+        }
+
+        .devil-popup .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #ffffff transparent transparent;
+        }
+
+        .devil-popup.show .speech-bubble {
+            opacity: 1;
+            transform: translateY(0);
+            animation: flash-border 2s infinite;
+        }
+
+        .devil-popup .speech-bubble {
+            position: absolute;
+            background: #ffffff;
+            color: #000000;
+            padding: 15px;
+            border-radius: 20px;
+            font-size: 18px;
+            width: max-content;
+            max-width: 280px;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s, transform 0.5s;
+            font-family: var(--font-family);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            text-shadow: none;
+            font-weight: bold;
+            line-height: 1.3;
+            z-index: 2001;
+            pointer-events: none; /* Ensure it doesn't block interactions */
+        }
     </style>
 </head>
 <body>
@@ -1534,7 +1567,7 @@
     </div>
     <div class="devil-popup" id="devil-popup">
         <div class="speech-bubble">Alright punk you better pay up or im gonna break yo knees! 🦿</div>
-        😈
+        <span class="collector-emoji">😈</span>
     </div>
 
     <script>
@@ -1548,6 +1581,25 @@
         const message = document.getElementById('message');
         const moneyDisplay = document.getElementById('money');
         const jackpotAnimation = document.getElementById('jackpot-animation');
+
+        // Debt collector characters with their threatening messages
+        const debtCollectors = [
+            { emoji: '😈', message: "Listen up {name}, pay your debt or I'll use your kneecaps as hockey pucks! 🏒" },
+            { emoji: '👹', message: "Yo {name}! Your debt's bigger than my nose, and that's saying something! Pay up or else! 💥" },
+            { emoji: '🦹‍♂️', message: "I've been watching you {name}... in the bathroom... in the kitchen... PAY YOUR DEBT! 👁️" },
+            { emoji: '🧛‍♂️', message: "Your debt is making me thirsty, {name}. I vant to suck your vallet! 🩸" },
+            { emoji: '🤡', message: "Knock knock, {name}! Who's there? YOUR WORST DEBT NIGHTMARE! HAHAHA! 🔪" },
+            { emoji: '🦖', message: "RAWR! Your debt stinks worse than my breath, {name}! And I eat garbage! 🦴" },
+            { emoji: '🧟‍♀️', message: "Your debt's the only thing more rotten than me, {name}! BRAAAINS... AND MONEY! 🧠" },
+            { emoji: '🕵️‍♂️', message: "I've seen your browser history, {name}. Pay your debt or everyone else will too! 🔍" },
+            { emoji: '👮‍♀️', message: "You have the right to remain broke, {name}! Anything you earn will be used to pay your debt! 🚨" },
+            { emoji: '🧙‍♂️', message: "By the power of compound interest, {name}, your debt has TRIPLED! Abracadabra, pay up! ✨" },
+            { emoji: '👽', message: "We've probed your bank account, {name}. It's emptier than Uranus! 🛸" },
+            { emoji: '🤖', message: "SCANNING {name}'s ASSETS... RESULT: PATHETIC. INITIATING DEBT COLLECTION PROTOCOL. BEEP BOOP. 🔋" }
+        ];
+        
+        // Current debt collector index
+        let currentCollectorIndex = 0;
 
         // Prize values for each emoji combination
         const PRIZES = {
@@ -1709,19 +1761,15 @@
             moneyDisplay.classList.toggle('negative', isNegative);
             
             // Update button states
-            spinButton.disabled = money < SPIN_COST;
+            spinButton.disabled = false; // Allow spinning even with negative money
             betAllButton.disabled = money <= 0;
             
             console.log('Button states updated - Spin:', spinButton.disabled, 'Bet All:', betAllButton.disabled);
             
             const devilPopup = document.getElementById('devil-popup');
             if (isNegative) {
-                devilPopup.querySelector('.speech-bubble').textContent = 
-                    `Alright ${playerName}, you better pay up or im gonna break yo knees! 🦿`;
-                devilPopup.classList.add('show');
-                setTimeout(() => {
-                    devilPopup.classList.remove('show');
-                }, 5000);
+                // Always show a debt collector when money is negative
+                showDebtCollector();
             } else {
                 devilPopup.classList.remove('show');
             }
@@ -1730,6 +1778,43 @@
             if (playerName.toLowerCase() !== 'cashmeoutside' || playerEmoji !== '🤑') {
                 legitimateMoney = money;
             }
+        }
+
+        // Function to show a debt collector
+        function showDebtCollector() {
+            const devilPopup = document.getElementById('devil-popup');
+            
+            // Pick the next debt collector in the array
+            const collector = debtCollectors[currentCollectorIndex];
+            console.log('Showing debt collector:', collector.emoji, collector.message);
+            
+            // Update the collector emoji and message
+            devilPopup.querySelector('.speech-bubble').textContent = 
+                `${collector.message.replace('{name}', playerName)}`;
+            
+            // Update the emoji displayed
+            devilPopup.querySelector('.collector-emoji').textContent = collector.emoji;
+            
+            // Show the popup
+            devilPopup.classList.add('show');
+            console.log('Debt collector popup shown, speech bubble should be visible');
+            
+            // Force a reflow to ensure the animation triggers properly
+            setTimeout(() => {
+                const speechBubble = devilPopup.querySelector('.speech-bubble');
+                speechBubble.style.opacity = '1';
+                speechBubble.style.transform = 'translateY(0)';
+                console.log('Speech bubble visibility enforced');
+            }, 100);
+            
+            // Increment the collector index for next time
+            currentCollectorIndex = (currentCollectorIndex + 1) % debtCollectors.length;
+            
+            // Hide the popup after 12 seconds
+            setTimeout(() => {
+                devilPopup.classList.remove('show');
+                console.log('Debt collector popup hidden');
+            }, 12000);
         }
 
         function createCoin(x, y) {
@@ -1900,8 +1985,8 @@
         // Spin function - main game mechanic
         function spin() {
             console.log('Spin function called');
-            if (spinButton.disabled || money < SPIN_COST) {
-                console.log('Spin button is disabled or not enough money');
+            if (spinButton.disabled) {
+                console.log('Spin button is disabled');
                 return;
             }
             
@@ -2220,26 +2305,22 @@
                 playVictoryTune();
             } else {
                 console.log('BET ALL LOSS! Reels do not match.');
-                // Lose everything (already set money to 0)
-                message.textContent = `💀 BET ALL LOST! ${playerName} LOST EVERYTHING! The devil laughs at you!`;
+                // Lose everything (already set money to 0) PLUS 100% penalty
+                money = -betAmount; // Apply 100% penalty, making money negative
+                message.textContent = `💀 BET ALL LOST! ${playerName} LOST EVERYTHING AND OWES ${betAmount} MORE COINS! The debt collectors are coming!`;
                 message.classList.add('show');
                 message.style.fontSize = '';
                 message.style.color = '#ff5555';
                 
-                // Show devil laughing
-                const devilPopup = document.getElementById('devil-popup');
-                devilPopup.querySelector('.speech-bubble').textContent = `HAHAHA! Thanks for the coins, ${playerName}! Want to try again?`;
-                devilPopup.classList.add('show');
-                setTimeout(() => {
-                    devilPopup.classList.remove('show');
-                }, 5000);
+                // Show debt collector immediately
+                showDebtCollector();
                 
                 playLosingSound();
             }
             
             updateMoney();
             spinButton.disabled = false;
-            betAllButton.disabled = false;
+            betAllButton.disabled = money <= 0;
             
             // Only update high score with legitimate money
             if (legitimateMoney > highScore) {
