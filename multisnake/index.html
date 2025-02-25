@@ -1,384 +1,1126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MULTISNAKE COMING SOON...</title>
-        <style>
+    <title>Multi$nake</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Monaco';
+            src: url('https://cdn.jsdelivr.net/npm/@fontsource/monaco@4.5.1/files/monaco-normal-400.woff2') format('woff2');
+        }
+        canvas {
+            border: 12px solid #FFA500; /* Orange-gold border */
+            box-shadow: none;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            /* Remove the outer gray frame */
+            outline: none;
+            outline-offset: 0;
+            max-width: 100%;
+            height: auto;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            background: linear-gradient(to bottom, #006400, #003000); /* Dark green gradient */
+            position: relative;
+            overflow: hidden;
+            font-family: 'Nunito', sans-serif;
+            animation: rotateGradient 30s linear infinite; /* Slow rotation */
+            box-sizing: border-box;
+        }
+        
+        /* Game container to handle responsive sizing */
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        
+        /* Mobile controls */
+        .mobile-controls {
+            display: none; /* Hidden by default */
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            align-items: center;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .control-button {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid #FFA500;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #FFA500;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        
+        /* Only show mobile controls on touch devices, not on desktop regardless of screen size */
+        body.has-touch-support .mobile-controls {
+            display: block;
+        }
+        
+        @keyframes rotateGradient {
+            0% {
+                background: linear-gradient(0deg, #006400, #003000);
+            }
+            25% {
+                background: linear-gradient(90deg, #006400, #003000);
+            }
+            50% {
+                background: linear-gradient(180deg, #006400, #003000);
+            }
+            75% {
+                background: linear-gradient(270deg, #006400, #003000);
+            }
+            100% {
+                background: linear-gradient(360deg, #006400, #003000);
+            }
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 25% 45%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 40% 15%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 55% 70%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 70% 30%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 85% 60%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 15% 80%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 30% 35%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 65% 85%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px),
+                radial-gradient(1px 1px at 90% 10%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0) 1px);
+            background-size: 300px 300px;
+            pointer-events: none;
+            z-index: -1;
+            animation: starMove 20s linear infinite;
+        }
+        
+        @keyframes starMove {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-300px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes textPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .score-container {
+            position: absolute;
+            width: 100%;
+            pointer-events: none;
+        }
+        
+        .score-text {
+            font-weight: 900;
+            animation: textPulse 3s ease-in-out infinite;
+            display: inline-block;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .death-message {
+            font-family: 'Nunito', sans-serif;
+            font-size: 32px;
+            font-weight: bold;
+            color: orange;
+            text-align: center;
+            margin-top: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+            width: 100%;
+        }
+
+        /* Add responsive styles for different orientations */
+        @media (orientation: landscape) and (max-width: 900px) {
             body {
-                background-color: #000;
-                color: #00ff00;
-                font-family: 'Courier New', monospace;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                overflow: hidden;
-                position: relative;
+                flex-direction: row;
+                padding: 5px;
             }
             
-            .container {
-                text-align: center;
-                position: relative;
-                z-index: 2;
-                padding: 20px;
-                max-width: 100%;
-                box-sizing: border-box;
+            .game-container {
+                flex: 2;
+                margin-right: 10px;
             }
             
-            .ascii-art {
-                white-space: pre;
-                font-size: 10px;
-                line-height: 1;
-                margin-bottom: 20px;
-                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-                animation: glow 1.5s ease-in-out infinite alternate;
-                display: block;
-                overflow-x: auto;
-                max-width: 100%;
+            body.has-touch-support .mobile-controls {
+                flex: 1;
+                margin-top: 0;
             }
             
-            h1 {
-                font-size: 2.5rem;
-                letter-spacing: 2px;
-                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-                animation: glow 1.5s ease-in-out infinite alternate;
-                margin: 0.5em 0;
-            }
-            
-            .subtitle {
-                font-size: 1.2rem;
-                margin-top: 10px;
-                opacity: 0.8;
-                text-shadow: 0 0 3px #00ff00;
-                padding: 0 10px;
-            }
-            
-            @keyframes glow {
-                from {
-                    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-                }
-                to {
-                    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-                }
-            }
-            
-            .snake-bg {
+            .death-message {
                 position: absolute;
-                top: 0;
+                bottom: 10px;
                 left: 0;
+                right: 0;
+            }
+        }
+
+        @media (orientation: portrait) {
+            body {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .game-container {
                 width: 100%;
-                height: 100%;
-                z-index: 1;
             }
             
-            .loading-bar {
-                width: 80%;
-                max-width: 300px;
-                height: 20px;
-                background-color: #111;
-                border: 1px solid #00ff00;
-                margin: 30px auto 0;
-                position: relative;
-                overflow: hidden;
+            body.has-touch-support .mobile-controls {
+                margin-top: 20px;
             }
-            
-            .loading-progress {
-                height: 100%;
-                width: 0%;
-                background-color: #00ff00;
-                box-shadow: 0 0 10px #00ff00;
-                animation: loading 8s infinite;
-            }
-            
-            @keyframes loading {
-                0% { width: 0%; }
-                50% { width: 70%; }
-                75% { width: 85%; }
-                90% { width: 95%; }
-                100% { width: 98%; }
-            }
-            
-            .score {
-                font-size: 1.2rem;
-                margin-top: 10px;
-                color: #00ff00;
-                text-shadow: 0 0 3px #00ff00;
-            }
-            
-            /* Mobile responsiveness */
-            @media (max-width: 768px) {
-                .ascii-art {
-                    font-size: 5px;
-                }
-                
-                h1 {
-                    font-size: 1.8rem;
-                }
-                
-                .subtitle {
-                    font-size: 1rem;
-                }
-            }
-            
-            @media (max-width: 480px) {
-                .ascii-art {
-                    font-size: 3px;
-                }
-                
-                h1 {
-                    font-size: 1.5rem;
-                }
-                
-                .subtitle {
-                    font-size: 0.9rem;
-                }
-                
-                .loading-bar {
-                    height: 15px;
-                }
-            }
-            
-            /* For very small screens, hide the ASCII art and show a simpler version */
-            @media (max-width: 320px) {
-                .ascii-art {
-                    display: none;
-                }
-                
-                .mobile-title {
-                    display: block;
-                    font-size: 1.2rem;
-                    margin-bottom: 15px;
-                    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-                    animation: glow 1.5s ease-in-out infinite alternate;
-                }
-            }
-            
-            .mobile-title {
-                display: none;
-            }
-        </style>
+        }
+    </style>
     </head>
     <body>
-        <div class="container">
-            <pre class="ascii-art" id="ascii-art">
- ███▄ ▄███▓ █    ██  ██▓  ████████▓ ██▓  ██████  ███▄    █  ▄▄▄       ██ ▄█▀▓█████ 
-▓██▒▀█▀ ██▒ ██  ▓██▒▓██▒ ▓  ██▒ ▓▒▓██▒▒██    ▒  ██ ▀█   █ ▒████▄     ██▄█▒ ▓█   ▀ 
-▓██    ▓██░▓██  ▒██░▒██░    ██░ ▒░▒██▒░ ▓██▄   ▓██  ▀█ ██▒▒██  ▀█▄  ▓███▄░ ▒███   
-▒██    ▒██ ▓▓█  ░██░▒██░  ▒ ██▓ ░ ░██░  ▒   ██▒▓██▒  ▐▌██▒░██▄▄▄▄██ ▓██ █▄ ▒▓█  ▄ 
-▒██▒   ░██▒▒▒█████▓ ░██░  ▒██▒ ░ ░██░▒██████▒▒▒██░   ▓██░ ▓█   ▓██▒▒██▒ █▄░▒████▒
-░ ▒░   ░  ░░▒▓▒ ▒ ▒ ░▓    ▒ ░░   ░▓  ▒ ▒▓▒ ▒ ░░ ▒░   ▒ ▒  ▒▒   ▓▒█░▒ ▒▒ ▓▒░░ ▒░ ░
-░  ░      ░░░▒░ ░ ░  ▒ ░    ░     ▒ ░░ ░▒  ░ ░░ ░░   ░ ▒░  ▒   ▒▒ ░░ ░▒ ▒░ ░ ░  ░
-░      ░    ░░░ ░ ░  ▒ ░  ░       ▒ ░░  ░  ░     ░   ░ ░   ░   ▒   ░ ░░ ░    ░   
-       ░      ░      ░            ░        ░           ░       ░  ░░  ░      ░  ░
-            </pre>
-            <div class="mobile-title">MULTISNAKE</div>
-            <h1>COMING SOON</h1>
-            
-             <div class="score">Score: <span id="score">0 | <a href="../">GO BACK</a></span></div>
-            <div class="loading-bar">
-                <div class="loading-progress"></div>
-            </div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+    <div id="deathMessage" class="death-message"></div>
+    <div class="mobile-controls">
+        <div class="control-row">
+            <button class="control-button" id="red-left">←</button>
+            <button class="control-button" id="red-up">↑</button>
+            <button class="control-button" id="red-right">→</button>
+            <button class="control-button" id="red-down">↓</button>
         </div>
-        <canvas class="snake-bg" id="snake-canvas"></canvas>
+        <div class="control-row">
+            <button class="control-button" id="blue-left">←</button>
+            <button class="control-button" id="blue-up">↑</button>
+            <button class="control-button" id="blue-right">→</button>
+            <button class="control-button" id="blue-down">↓</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        <script>
-            // Snake game animation
-            const canvas = document.getElementById('snake-canvas');
-            const ctx = canvas.getContext('2d');
-            let score = 0;
-            const scoreDisplay = document.getElementById('score');
+        // Player objects
+        const player1 = {
+            x: 100,
+            y: 300,
+            size: 20,
+            speed: 3,
+            color: 'red',
+            body: [],
+            maxLength: 100,
+            direction: { x: 1, y: 0 }
+        };
+
+        const player2 = {
+            x: 700,
+            y: 300,
+            size: 20,
+            speed: 3,
+            color: 'blue',
+            body: [],
+            maxLength: 100,
+            direction: { x: -1, y: 0 }
+        };
+
+        // Add after canvas setup
+        let hue = 0; // For rainbow effect
+        const checkerSize = 50; // Size of checker squares
+
+        // Add after the player objects
+        const gameState = {
+            gameOver: false,
+            winner: null
+        };
+
+        // Add after the gameState object
+        const scores = {
+            red: 0,
+            blue: 0
+        };
+
+        // Add after the scores object
+        const bomb = {
+            x: 0,
+            y: 0,
+            size: 25,
+            active: false,
+            explosionRadius: 50,
+            explosionFrame: 0,
+            exploding: false
+        };
+
+        // Add after the bomb object
+        const victoryAnimation = {
+            progress: 0,
+            maxHeight: 300,
+            speed: 2,
+            angle: 15,
+            topOffset: 150,
+            bottomOffset: 150
+        };
+
+        function drawBackground() {
+            // Update hue for rainbow effect
+            hue = (hue + 0.5) % 360;
             
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                
-                // Adjust grid size based on screen dimensions
-                gridSize = Math.min(Math.floor(window.innerWidth / 40), Math.floor(window.innerHeight / 40));
-                gridSize = Math.max(8, gridSize); // Ensure minimum grid size
-                
-                // Reset snakes positions when resizing
-                initSnakes();
-            }
-            
-            // Grid size for the snake game (adjusted for responsiveness)
-            let gridSize = Math.min(Math.floor(window.innerWidth / 40), Math.floor(window.innerHeight / 40));
-            gridSize = Math.max(8, gridSize); // Ensure minimum grid size
-            
-            // Snake class
-            class Snake {
-                constructor(color) {
-                    this.color = color || '#00ff00';
-                    this.reset();
-                }
-                
-                reset() {
-                    // Random initial position
-                    const x = Math.floor(Math.random() * (canvas.width / gridSize));
-                    const y = Math.floor(Math.random() * (canvas.height / gridSize));
-                    
-                    // Random initial direction
-                    const directions = ['up', 'down', 'left', 'right'];
-                    this.direction = directions[Math.floor(Math.random() * directions.length)];
-                    
-                    // Initial body (3 segments)
-                    this.body = [];
-                    for (let i = 0; i < 5; i++) {
-                        this.body.push({
-                            x: x,
-                            y: y + i
-                        });
-                    }
-                    
-                    // Speed (cells per second)
-                    this.speed = 5 + Math.random() * 5;
-                    this.lastUpdateTime = 0;
-                    this.updateInterval = 1000 / this.speed;
-                    
-                    // Random color intensity
-                    const intensity = 0.7 + Math.random() * 0.3;
-                    this.currentColor = `rgba(0, ${Math.floor(255 * intensity)}, 0, ${0.7 + Math.random() * 0.3})`;
-                }
-                
-                update(currentTime) {
-                    // Update only at specific intervals based on speed
-                    if (!this.lastUpdateTime || currentTime - this.lastUpdateTime > this.updateInterval) {
-                        this.lastUpdateTime = currentTime;
-                        
-                        // Get current head position
-                        const head = {...this.body[0]};
-                        
-                        // Randomly change direction sometimes
-                        if (Math.random() < 0.02) {
-                            const directions = ['up', 'down', 'left', 'right'];
-                            this.direction = directions[Math.floor(Math.random() * directions.length)];
-                        }
-                        
-                        // Move the head in the current direction
-                        switch (this.direction) {
-                            case 'up':
-                                head.y--;
-                                break;
-                            case 'down':
-                                head.y++;
-                                break;
-                            case 'left':
-                                head.x--;
-                                break;
-                            case 'right':
-                                head.x++;
-                                break;
-                        }
-                        
-                        // Check for wall collision
-                        if (head.x < 0 || head.x >= canvas.width / gridSize || 
-                            head.y < 0 || head.y >= canvas.height / gridSize) {
-                            // Reset snake if it hits a wall
-                            this.reset();
-                            // Increment the score
-                            score += 10;
-                            scoreDisplay.textContent = score;
-                            return;
-                        }
-                        
-                        // Move the snake (add new head, remove tail)
-                        this.body.unshift(head);
-                        this.body.pop();
-                    }
-                }
-                
-                draw() {
-                    for (let i = 0; i < this.body.length; i++) {
-                        // Calculate size (head is bigger)
-                        const size = i === 0 ? gridSize : gridSize - 1;
-                        
-                        // Calculate color (head is brighter)
-                        let alpha = i === 0 ? 1 : Math.max(0.3, 1 - i / (this.body.length));
-                        const segmentColor = `rgba(0, 255, 0, ${alpha})`;
-                        
-                        // Draw segment with glow effect
-                        ctx.shadowColor = '#00ff00';
-                        ctx.shadowBlur = i === 0 ? 10 : 5;
-                        ctx.fillStyle = segmentColor;
-                        ctx.fillRect(
-                            this.body[i].x * gridSize, 
-                            this.body[i].y * gridSize, 
-                            size, 
-                            size
-                        );
-                        ctx.shadowBlur = 0;
-                    }
+            // Draw rainbow checkerboard
+            for (let x = 0; x < canvas.width; x += checkerSize) {
+                for (let y = 0; y < canvas.height; y += checkerSize) {
+                    // Use HSL for rainbow colors
+                    ctx.fillStyle = `hsl(${hue}, 70%, ${((x + y) / checkerSize) % 2 === 0 ? 30 : 20}%)`;
+                    ctx.fillRect(x, y, checkerSize, checkerSize);
                 }
             }
+        }
+
+        function drawSnake(player) {
+            // Draw body with enhanced 3D effect and rounded corners
+            player.body.forEach((segment, index) => {
+                const alpha = 0.3 + (0.7 * (index / player.body.length));
+                const baseColor = player.color === 'red' ? [255, 0, 0] : [0, 0, 255];
+                
+                // Create 3D effect with multiple layers
+                // Bottom shadow layer (much darker)
+                ctx.fillStyle = `rgba(${baseColor[0] * 0.3}, ${baseColor[1] * 0.3}, ${baseColor[2] * 0.3}, ${alpha})`;
+                ctx.beginPath();
+                ctx.roundRect(segment.x + 6, segment.y + 6, player.size, player.size, player.size / 3);
+                ctx.fill();
+                
+                // Middle layer (base color)
+                ctx.fillStyle = `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${alpha})`;
+                ctx.beginPath();
+                ctx.roundRect(segment.x, segment.y, player.size, player.size, player.size / 3);
+                ctx.fill();
+                
+                // Highlight layer (darker and lower down)
+                ctx.fillStyle = `rgba(${Math.min(255, baseColor[0] + 80)}, ${Math.min(255, baseColor[1] + 80)}, ${Math.min(255, baseColor[2] + 80)}, ${alpha * 0.6})`;
+                ctx.beginPath();
+                ctx.roundRect(segment.x - 1, segment.y + 1, player.size * 0.5, player.size * 0.5, player.size / 5);
+                ctx.fill();
+            });
+        }
+
+        // Add a function to draw the scores
+        function drawScores() {
+            // Set up text styling
+            ctx.font = 'bold 36px "Nunito", sans-serif';
+            ctx.textAlign = 'center';
             
-            // Create multiple snakes
-            const snakes = [];
-            function initSnakes() {
-                snakes.length = 0; // Clear existing snakes
+            // Add drop shadow effect
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            // Calculate scale factor for pulsing effect
+            const pulseFactor = 1 + 0.1 * Math.sin(Date.now() / 1500);
+            
+            // Save context for scaling
+            ctx.save();
+            
+            // Draw red score at the top with scaling
+            ctx.translate(canvas.width / 2, 50);
+            ctx.scale(pulseFactor, pulseFactor);
+            ctx.translate(-canvas.width / 2, -50);
+            
+            // Draw text with frame color (orange)
+            ctx.fillStyle = '#FFA500';
+            ctx.fillText(`✨ Red Wins: ${scores.red}`, canvas.width / 2, 50);
+            
+            // Restore context
+            ctx.restore();
+            
+            // Save context for blue score scaling
+            ctx.save();
+            
+            // Draw blue score at the bottom with scaling (slightly out of phase)
+            ctx.translate(canvas.width / 2, canvas.height - 30);
+            ctx.scale(pulseFactor * 0.9, pulseFactor * 0.9); // Slightly different scale
+            ctx.translate(-canvas.width / 2, -(canvas.height - 30));
+            
+            // Draw text with frame color (orange)
+            ctx.fillStyle = '#FFA500';
+            ctx.fillText(`✨ Blue Wins: ${scores.blue}`, canvas.width / 2, canvas.height - 30);
+            
+            // Restore context
+            ctx.restore();
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        // Add a function to place the bomb randomly
+        function placeBomb() {
+            bomb.x = Math.floor(Math.random() * (canvas.width - bomb.size * 2)) + bomb.size;
+            bomb.y = Math.floor(Math.random() * (canvas.height - bomb.size * 2)) + bomb.size;
+            bomb.active = true;
+            bomb.exploding = false;
+            bomb.explosionFrame = 0;
+        }
+
+        // Update the drawBomb function to make it cooler
+        function drawBomb() {
+            if (!bomb.active) return;
+            
+            if (bomb.exploding) {
+                // Super simple explosion with 4 solid-colored circles that fade out
+                const explosionSize = bomb.explosionRadius * (bomb.explosionFrame / 40);
                 
-                const snakeCount = Math.max(3, Math.floor((canvas.width * canvas.height) / (400 * 400))); // Adjust count based on screen size
+                // Calculate fade-out opacity based on explosion progress
+                const fadeOpacity = 1 - (bomb.explosionFrame / 40);
                 
-                for (let i = 0; i < snakeCount; i++) {
-                    snakes.push(new Snake());
+                // Draw 4 solid-colored circles with a red-to-yellow color scheme
+                const colors = ['#FF0000', '#FF4500', '#FF8C00', '#FFD700']; // Red, Dark Orange, Orange, Yellow
+                const circleCount = 4;
+                
+                for (let i = 0; i < circleCount; i++) {
+                    const scale = 1 - (i * 0.25); // Evenly spaced sizes
+                    const size = explosionSize * scale;
+                    const color = colors[i];
+                    
+                    // Apply the fade-out effect to each circle
+                    const rgba = hexToRgba(color, fadeOpacity);
+                    ctx.fillStyle = rgba;
+                    ctx.beginPath();
+                    ctx.arc(
+                        bomb.x + bomb.size/2, 
+                        bomb.y + bomb.size/2, 
+                        size, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    ctx.fill();
                 }
+                
+                bomb.explosionFrame++;
+                if (bomb.explosionFrame > 40) {
+                    bomb.active = false;
+                    setTimeout(placeBomb, 2000); // Place a new bomb after 2 seconds
+                }
+            } else {
+                // Enhanced bomb appearance
+                const pulseAmount = Math.sin(Date.now() / 200) * 0.1;
+                const bombSize = bomb.size * (1 + pulseAmount);
+                
+                // Save context for shadow
+                ctx.save();
+                
+                // Add enhanced drop shadow
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 5;
+                ctx.shadowOffsetY = 5;
+                
+                // Draw bomb body with metallic gradient
+                const bombGradient = ctx.createRadialGradient(
+                    bomb.x + bombSize/2 - bombSize/4, 
+                    bomb.y + bombSize/2 - bombSize/4, 
+                    0,
+                    bomb.x + bombSize/2, 
+                    bomb.y + bombSize/2, 
+                    bombSize/2
+                );
+                bombGradient.addColorStop(0, '#444');
+                bombGradient.addColorStop(0.5, '#111');
+                bombGradient.addColorStop(0.8, '#000');
+                bombGradient.addColorStop(1, '#222');
+                
+                ctx.fillStyle = bombGradient;
+                ctx.beginPath();
+                ctx.arc(bomb.x + bombSize/2, bomb.y + bombSize/2, bombSize/2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Remove shadow for details
+                ctx.restore();
+                
+                // Draw bomb cap (metallic)
+                const capGradient = ctx.createRadialGradient(
+                    bomb.x + bombSize/2 - bombSize/12, 
+                    bomb.y + bombSize/4 - bombSize/12, 
+                    0,
+                    bomb.x + bombSize/2, 
+                    bomb.y + bombSize/4, 
+                    bombSize/6
+                );
+                capGradient.addColorStop(0, '#AAA');
+                capGradient.addColorStop(0.5, '#777');
+                capGradient.addColorStop(1, '#555');
+                
+                ctx.fillStyle = capGradient;
+                ctx.beginPath();
+                ctx.arc(bomb.x + bombSize/2, bomb.y + bombSize/4, bombSize/6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw highlight on bomb
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.beginPath();
+                ctx.arc(
+                    bomb.x + bombSize/3, 
+                    bomb.y + bombSize/3, 
+                    bombSize/4, 
+                    0, Math.PI * 2
+                );
+                ctx.fill();
+                
+                // Draw animated fuse with wave pattern
+                ctx.strokeStyle = '#8B4513'; // Brown
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(bomb.x + bombSize/2, bomb.y + bombSize/4);
+                
+                // Create wavy fuse
+                const fuseLength = bombSize;
+                const segments = 10;
+                const waveHeight = 5;
+                const waveSpeed = Date.now() / 300;
+                
+                for (let i = 0; i <= segments; i++) {
+                    const t = i / segments;
+                    const x = bomb.x + bomb.size/2 + t * fuseLength;
+                    const y = bomb.y + bomb.size/4 - fuseLength/2 * t + 
+                             Math.sin(t * Math.PI * 3 + waveSpeed) * waveHeight;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw animated spark
+                const sparkTime = Date.now() / 100;
+                const sparkHue = (sparkTime % 60) + 10;
+                const sparkSize = 3 + Math.sin(sparkTime) * 2;
+                const sparkX = bomb.x + bomb.size/2 + fuseLength;
+                const sparkY = bomb.y + bomb.size/4 - fuseLength/2 + 
+                              Math.sin(Math.PI * 3 + waveSpeed) * waveHeight;
+                
+                // Draw multiple spark particles
+                for (let i = 0; i < 5; i++) {
+                    const particleAngle = Math.random() * Math.PI * 2;
+                    const particleDistance = Math.random() * sparkSize * 1.5;
+                    const particleX = sparkX + Math.cos(particleAngle) * particleDistance;
+                    const particleY = sparkY + Math.sin(particleAngle) * particleDistance;
+                    const particleSize = 1 + Math.random() * 2;
+                    
+                    ctx.fillStyle = `hsl(${sparkHue + i * 10}, 100%, ${50 + i * 10}%)`;
+                    ctx.beginPath();
+                    ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Add glow around spark
+                const sparkGlow = ctx.createRadialGradient(
+                    sparkX, sparkY, 0,
+                    sparkX, sparkY, sparkSize * 3
+                );
+                sparkGlow.addColorStop(0, `hsla(${sparkHue}, 100%, 70%, 0.8)`);
+                sparkGlow.addColorStop(0.5, `hsla(${sparkHue}, 100%, 60%, 0.4)`);
+                sparkGlow.addColorStop(1, `hsla(${sparkHue}, 100%, 50%, 0)`);
+                
+                ctx.fillStyle = sparkGlow;
+                ctx.beginPath();
+                ctx.arc(sparkX, sparkY, sparkSize * 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add warning pulsing glow around bomb
+                const warningOpacity = 0.1 + Math.sin(Date.now() / 300) * 0.1;
+                const warningGlow = ctx.createRadialGradient(
+                    bomb.x + bombSize/2, bomb.y + bombSize/2, bombSize/2,
+                    bomb.x + bombSize/2, bomb.y + bombSize/2, bombSize * 1.5
+                );
+                warningGlow.addColorStop(0, `rgba(255, 0, 0, ${warningOpacity})`);
+                warningGlow.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                
+                ctx.fillStyle = warningGlow;
+                ctx.beginPath();
+                ctx.arc(bomb.x + bombSize/2, bomb.y + bombSize/2, bombSize * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Add bomb collision check to the gameLoop
+        function checkBombCollision() {
+            if (!bomb.active || bomb.exploding) return false;
+            
+            // Check if player1 hit the bomb
+            if (Math.abs(player1.x + player1.size/2 - (bomb.x + bomb.size/2)) < (player1.size + bomb.size)/2 &&
+                Math.abs(player1.y + player1.size/2 - (bomb.y + bomb.size/2)) < (player1.size + bomb.size)/2) {
+                bomb.exploding = true;
+                gameState.gameOver = true;
+                gameState.winner = 'blue';
+                scores.blue++;
+                return true;
             }
             
-            // Main animation loop
-            function draw(timestamp) {
-                // Fade effect
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Check if player2 hit the bomb
+            if (Math.abs(player2.x + player2.size/2 - (bomb.x + bomb.size/2)) < (player2.size + bomb.size)/2 &&
+                Math.abs(player2.y + player2.size/2 - (bomb.y + bomb.size/2)) < (player2.size + bomb.size)/2) {
+                bomb.exploding = true;
+                gameState.gameOver = true;
+                gameState.winner = 'red';
+                scores.red++;
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Update game loop
+        function gameLoop() {
+            // Draw rainbow checkered background
+            drawBackground();
+
+            if (gameState.gameOver) {
+                // Update death message based on how the player died
+                const deathMessage = document.getElementById('deathMessage');
+                if (bomb.exploding) {
+                    deathMessage.textContent = `${gameState.winner === 'red' ? 'BLUE' : 'RED'} EXPLODED!`;
+                } else {
+                    deathMessage.textContent = `YIKES, ${gameState.winner === 'red' ? 'BLUE' : 'RED'} died!`;
+                }
                 
-                // Update and draw all snakes
-                snakes.forEach(snake => {
-                    snake.update(timestamp);
-                    snake.draw();
+                // Draw the bomb explosion first if it's active
+                if (bomb.active && bomb.exploding) {
+                    drawBomb();
+                }
+                
+                // Update victory animation
+                if (victoryAnimation.progress < 100) {
+                    victoryAnimation.progress += victoryAnimation.speed;
+                }
+                
+                // Calculate bar height with ease-in-out effect
+                const easeInOut = (t) => {
+                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                };
+
+                const animationProgress = easeInOut(victoryAnimation.progress / 100);
+                const barHeight = Math.min(victoryAnimation.maxHeight, 
+                                          (victoryAnimation.maxHeight * animationProgress));
+                
+                // Save context for rotation
+                ctx.save();
+                
+                // Draw top bar with rotation - moved up with offset
+                ctx.save(); // Save context for top bar
+                ctx.translate(canvas.width / 2, -victoryAnimation.topOffset);
+                ctx.rotate(victoryAnimation.angle * Math.PI / 180);
+                ctx.translate(-canvas.width / 2, victoryAnimation.topOffset);
+                
+                // Add drop shadow to the bar
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 8;
+                ctx.shadowOffsetY = 8;
+                
+                // Create more complex gradient for top bar with additional color stops
+                const topGradient = ctx.createLinearGradient(0, -victoryAnimation.topOffset, 0, barHeight);
+                topGradient.addColorStop(0, gameState.winner);
+                topGradient.addColorStop(0.2, shadeColor(gameState.winner, 70)); // Very light shade
+                topGradient.addColorStop(0.4, shadeColor(gameState.winner, 30)); // Light shade
+                topGradient.addColorStop(0.6, gameState.winner); // Original color
+                topGradient.addColorStop(0.8, shadeColor(gameState.winner, -30)); // Dark shade
+                topGradient.addColorStop(1, shadeColor(gameState.winner, -70)); // Very dark shade
+                
+                ctx.fillStyle = topGradient;
+                // Make the bar wider and taller to ensure it touches the bottom
+                ctx.fillRect(-canvas.width * 2, -victoryAnimation.topOffset, canvas.width * 5, barHeight);
+                ctx.restore(); // Restore context after top bar
+                
+                // Save context for bottom bar rotation
+                ctx.save();
+                // Draw bottom bar with rotation (same angle as top) - moved down with offset
+                ctx.translate(canvas.width / 2, canvas.height + victoryAnimation.bottomOffset);
+                ctx.rotate(victoryAnimation.angle * Math.PI / 180);
+                ctx.translate(-canvas.width / 2, -(canvas.height + victoryAnimation.bottomOffset));
+                
+                // Add drop shadow to the bottom bar
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 8;
+                ctx.shadowOffsetY = 8;
+                
+                // Create more complex gradient for bottom bar with additional color stops
+                const bottomGradient = ctx.createLinearGradient(0, canvas.height + victoryAnimation.bottomOffset - barHeight, 0, canvas.height + victoryAnimation.bottomOffset);
+                bottomGradient.addColorStop(0, shadeColor(gameState.winner, -70)); // Very dark shade
+                bottomGradient.addColorStop(0.2, shadeColor(gameState.winner, -30)); // Dark shade
+                bottomGradient.addColorStop(0.4, gameState.winner); // Original color
+                bottomGradient.addColorStop(0.6, shadeColor(gameState.winner, 30)); // Light shade
+                bottomGradient.addColorStop(0.8, shadeColor(gameState.winner, 70)); // Very light shade
+                bottomGradient.addColorStop(1, gameState.winner);
+                
+                ctx.fillStyle = bottomGradient;
+                // Make the bar wider and position it to ensure it touches the bottom
+                ctx.fillRect(-canvas.width * 2, canvas.height + victoryAnimation.bottomOffset - barHeight, canvas.width * 5, barHeight);
+                ctx.restore(); // Restore context after bottom bar
+                
+                // Reset transformation
+                ctx.restore();
+                
+                // Draw victory text with pulsing animation
+                const victoryPulseFactor = 1 + 0.05 * Math.sin(Date.now() / 2000); // Slower and subtler pulse
+
+                // Save context for scaling
+                ctx.save();
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(victoryPulseFactor, victoryPulseFactor);
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+                ctx.font = 'bold 72px "Nunito", sans-serif';
+                ctx.textAlign = 'center';
+
+                // Set shadow
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 4;
+                ctx.shadowOffsetY = 4;
+
+                // Draw text with stroke
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 8;
+                ctx.strokeText(
+                    `${gameState.winner.toUpperCase()} WINS!`, 
+                    canvas.width / 2, 
+                    canvas.height / 2
+                );
+
+                // Draw colored fill
+                ctx.fillStyle = 'white'; // Change text to white for better contrast with colored bars
+                ctx.fillText(
+                    `${gameState.winner.toUpperCase()} WINS!`, 
+                    canvas.width / 2, 
+                    canvas.height / 2
+                );
+
+                // Restore context
+                ctx.restore();
+
+                // Save context for restart text scaling (different timing)
+                ctx.save();
+                const restartPulseFactor = 1 + 0.05 * Math.sin(Date.now() / 1500); // Slightly faster pulse
+
+                ctx.translate(canvas.width / 2, canvas.height / 2 + 50);
+                ctx.scale(restartPulseFactor, restartPulseFactor);
+                ctx.translate(-canvas.width / 2, -(canvas.height / 2 + 50));
+
+                // Reset shadow for restart text but keep some effects
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+
+                // Add "Click to restart" text with outline
+                ctx.font = '24px "Nunito", sans-serif';
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 3;
+                ctx.strokeText(
+                    'Click to restart', 
+                    canvas.width / 2, 
+                    canvas.height / 2 + 50
+                );
+
+                // Fill the text
+                ctx.fillStyle = 'white';
+                ctx.fillText(
+                    'Click to restart', 
+                    canvas.width / 2, 
+                    canvas.height / 2 + 50
+                );
+
+                // Restore context
+                ctx.restore();
+                
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Update snake bodies
+            updateSnakeBody(player1);
+            updateSnakeBody(player2);
+
+            // Check collisions
+            if (checkCollision(player1, player2)) {
+                gameState.gameOver = true;
+                gameState.winner = 'blue';
+                scores.blue++; // Increment blue score
+            }
+            else if (checkCollision(player2, player1)) {
+                gameState.gameOver = true;
+                gameState.winner = 'red';
+                scores.red++; // Increment red score
+            }
+            else {
+                // Check bomb collision
+                checkBombCollision();
+            }
+
+            // Draw players
+            drawSnake(player1);
+            drawSnake(player2);
+            
+            // Draw bomb
+            drawBomb();
+
+            // Always draw scores
+            drawScores();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateSnakeBody(player) {
+            // Add current position to body
+            player.body.unshift({ x: player.x, y: player.y });
+            
+            // Remove tail if body is too long
+            if (player.body.length > player.maxLength) {
+                player.body.pop();
+            }
+        }
+
+        function checkCollision(player, otherPlayer) {
+            // Check if player's head hits other player's body
+            return otherPlayer.body.some((segment, index) => {
+                if (index === 0) return false; // Skip head collision
+                return Math.abs(player.x - segment.x) < player.size &&
+                       Math.abs(player.y - segment.y) < player.size;
+            });
+        }
+
+        function resetGame() {
+            // Clear the death message
+            document.getElementById('deathMessage').textContent = '';
+            
+            // Reset player 1
+            player1.x = 100;
+            player1.y = 300;
+            player1.body = [];
+            player1.direction = { x: 1, y: 0 };
+
+            // Reset player 2
+            player2.x = 700;
+            player2.y = 300;
+            player2.body = [];
+            player2.direction = { x: -1, y: 0 };
+
+            // Reset game state
+            gameState.gameOver = false;
+            gameState.winner = null;
+
+            // Reset bomb
+            bomb.active = false;
+            bomb.exploding = false;
+            setTimeout(placeBomb, 1000); // Place a new bomb after 1 second
+
+            // Reset victory animation
+            victoryAnimation.progress = 0;
+        }
+
+        // Handle keyboard input
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Movement update function
+        function updateMovement() {
+            // Player 1 (Red) - Arrow keys
+            if (keys['ArrowLeft'] && player1.direction.x !== 1) {
+                player1.direction = { x: -1, y: 0 };
+            }
+            if (keys['ArrowRight'] && player1.direction.x !== -1) {
+                player1.direction = { x: 1, y: 0 };
+            }
+            if (keys['ArrowUp'] && player1.direction.y !== 1) {
+                player1.direction = { x: 0, y: -1 };
+            }
+            if (keys['ArrowDown'] && player1.direction.y !== -1) {
+                player1.direction = { x: 0, y: 1 };
+            }
+
+            // Player 2 (Blue) - WASD keys
+            if (keys['a'] && player2.direction.x !== 1) {
+                player2.direction = { x: -1, y: 0 };
+            }
+            if (keys['d'] && player2.direction.x !== -1) {
+                player2.direction = { x: 1, y: 0 };
+            }
+            if (keys['w'] && player2.direction.y !== 1) {
+                player2.direction = { x: 0, y: -1 };
+            }
+            if (keys['s'] && player2.direction.y !== -1) {
+                player2.direction = { x: 0, y: 1 };
+            }
+
+            // Update positions
+            player1.x += player1.direction.x * player1.speed;
+            player1.y += player1.direction.y * player1.speed;
+            player2.x += player2.direction.x * player2.speed;
+            player2.y += player2.direction.y * player2.speed;
+
+            // Wall collision
+            if (player1.x < 0) player1.x = canvas.width - player1.size;
+            if (player1.x > canvas.width - player1.size) player1.x = 0;
+            if (player1.y < 0) player1.y = canvas.height - player1.size;
+            if (player1.y > canvas.height - player1.size) player1.y = 0;
+
+            if (player2.x < 0) player2.x = canvas.width - player2.size;
+            if (player2.x > canvas.width - player2.size) player2.x = 0;
+            if (player2.y < 0) player2.y = canvas.height - player2.size;
+            if (player2.y > canvas.height - player2.size) player2.y = 0;
+        }
+
+        // Start the game
+        setInterval(updateMovement, 1000/60); // Update movement 60 times per second
+        gameLoop();
+
+        // Update style to remove the gray background
+        document.body.style.backgroundColor = 'black';
+
+        // Add click handler for restart
+        canvas.addEventListener('click', () => {
+            if (gameState.gameOver) {
+                gameState.gameOver = false;
+                gameState.winner = null;
+                resetGame();
+            }
+        });
+
+        // Add touch handler for mobile devices
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault(); // Prevent default touch behavior
+            if (gameState.gameOver) {
+                gameState.gameOver = false;
+                gameState.winner = null;
+                resetGame();
+            }
+        });
+
+        // Place the first bomb when the game starts
+        placeBomb();
+
+        // Add this helper function to shade colors
+        function shadeColor(color, percent) {
+            let R, G, B;
+            if (color === 'red') {
+                R = 255; G = 0; B = 0;
+            } else if (color === 'blue') {
+                R = 0; G = 0; B = 255;
+            }
+            
+            R = Math.max(0, Math.min(255, R + percent));
+            G = Math.max(0, Math.min(255, G + percent));
+            B = Math.max(0, Math.min(255, B + percent));
+            
+            return `rgb(${R}, ${G}, ${B})`;
+        }
+
+        // Add this helper function to convert hex colors to rgba
+        function hexToRgba(hex, alpha) {
+            // Remove the hash if it exists
+            hex = hex.replace('#', '');
+            
+            // Parse the hex values
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            // Return rgba string
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Add this function to handle canvas resizing
+        function resizeCanvas() {
+            const container = document.querySelector('.game-container');
+            const containerWidth = container.clientWidth;
+            
+            // If container is smaller than canvas default size
+            if (containerWidth < 800) {
+                const aspectRatio = canvas.height / canvas.width;
+                const newWidth = containerWidth - 24; // Account for border
+                const newHeight = newWidth * aspectRatio;
+                
+                canvas.style.width = newWidth + 'px';
+                canvas.style.height = newHeight + 'px';
+            } else {
+                canvas.style.width = '800px';
+                canvas.style.height = '600px';
+            }
+        }
+
+        // Call resize on load and window resize
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        // Setup mobile controls with proper device detection
+        function setupMobileControls() {
+            // Detect if device supports touch (better than just checking user agent)
+            const hasTouchSupport = 'ontouchstart' in window || 
+                                   navigator.maxTouchPoints > 0 || 
+                                   (navigator.msMaxTouchPoints > 0);
+            
+            // Check if likely a mobile device based on user agent as a secondary check
+            const isMobileBrowser = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Only show controls if both touch is supported and likely a mobile browser
+            if (hasTouchSupport && isMobileBrowser) {
+                // Add class to body to trigger CSS rules
+                document.body.classList.add('has-touch-support');
+                
+                // Set up data attributes for controls if not already set
+                document.getElementById('red-up').setAttribute('data-direction', 'up1');
+                document.getElementById('red-down').setAttribute('data-direction', 'down1');
+                document.getElementById('red-left').setAttribute('data-direction', 'left1');
+                document.getElementById('red-right').setAttribute('data-direction', 'right1');
+                
+                document.getElementById('blue-up').setAttribute('data-direction', 'up2');
+                document.getElementById('blue-down').setAttribute('data-direction', 'down2');
+                document.getElementById('blue-left').setAttribute('data-direction', 'left2');
+                document.getElementById('blue-right').setAttribute('data-direction', 'right2');
+                
+                const controls = document.querySelectorAll('.control-button');
+                
+                controls.forEach(button => {
+                    // Use both touchstart and mousedown to ensure it works on all devices
+                    button.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        const direction = button.getAttribute('data-direction');
+                        handleMobileControl(direction);
+                    });
+                    
+                    button.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                    });
+                });
+            } else {
+                // Ensure controls are hidden on desktop
+                document.querySelector('.mobile-controls').style.display = 'none';
+            }
+        }
+
+        // Updated orientation change function to respect device type
+        function handleOrientationChange() {
+            // Only proceed if we're on a touch device
+            if (!document.body.classList.contains('has-touch-support')) {
+                return;
+            }
+            
+            // Get the current orientation
+            const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+            const mobileControls = document.querySelector('.mobile-controls');
+            
+            if (isLandscape) {
+                // In landscape mode, position controls side by side
+                mobileControls.style.display = 'flex';
+                mobileControls.style.flexDirection = 'row';
+                mobileControls.style.justifyContent = 'space-around';
+                
+                // Adjust control rows to be vertical
+                document.querySelectorAll('.control-row').forEach(row => {
+                    row.style.flexDirection = 'column';
+                    row.style.margin = '0 10px';
                 });
                 
-                // Request the next frame
-                requestAnimationFrame(draw);
+                // Make buttons smaller in landscape
+                document.querySelectorAll('.control-button').forEach(button => {
+                    button.style.width = '50px';
+                    button.style.height = '50px';
+                    button.style.margin = '5px 0';
+                });
+            } else {
+                // In portrait mode, position controls stacked
+                mobileControls.style.display = 'block';
+                
+                // Reset control rows to horizontal
+                document.querySelectorAll('.control-row').forEach(row => {
+                    row.style.flexDirection = 'row';
+                    row.style.marginBottom = '10px';
+                });
+                
+                // Reset button size in portrait
+                document.querySelectorAll('.control-button').forEach(button => {
+                    button.style.width = '60px';
+                    button.style.height = '60px';
+                    button.style.margin = '0';
+                });
             }
             
-            // Initialize
+            // Force a canvas resize
             resizeCanvas();
-            initSnakes();
-            
-            // Start animation
-            requestAnimationFrame(draw);
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                resizeCanvas();
-            });
-            
-            // Mobile optimization
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                // Reduce animation complexity on mobile
-                gridSize = Math.max(10, gridSize); // Larger grid for mobile means fewer calculations
+        }
+
+        // Re-adding the handleMobileControl function that was removed
+        function handleMobileControl(direction) {
+            // Handle player 1 controls
+            if (direction === 'up1') {
+                player1.direction = { x: 0, y: -1 };
+            } else if (direction === 'down1') {
+                player1.direction = { x: 0, y: 1 };
+            } else if (direction === 'left1') {
+                player1.direction = { x: -1, y: 0 };
+            } else if (direction === 'right1') {
+                player1.direction = { x: 1, y: 0 };
             }
             
-            // Check if device is in portrait or landscape and adjust ASCII art
-            function checkOrientation() {
-                const asciiArt = document.getElementById('ascii-art');
-                if (window.innerWidth < window.innerHeight && window.innerWidth < 500) {
-                    // Portrait mode on small screens - make ASCII art smaller
-                    asciiArt.style.fontSize = '4px';
-                } else {
-                    // Landscape or larger screens
-                    if (window.innerWidth <= 768) {
-                        asciiArt.style.fontSize = '5px';
-                    } else {
-                        asciiArt.style.fontSize = '10px';
-                    }
-                }
+            // Handle player 2 controls
+            if (direction === 'up2') {
+                player2.direction = { x: 0, y: -1 };
+            } else if (direction === 'down2') {
+                player2.direction = { x: 0, y: 1 };
+            } else if (direction === 'left2') {
+                player2.direction = { x: -1, y: 0 };
+            } else if (direction === 'right2') {
+                player2.direction = { x: 1, y: 0 };
             }
-            
-            // Check orientation on load and resize
-            checkOrientation();
-            window.addEventListener('resize', checkOrientation);
-        </script>
+        }
+        
+        // Call setup on load
+        window.addEventListener('load', setupMobileControls);
+
+        // Add orientation change handling
+        window.matchMedia("(orientation: landscape)").addEventListener("change", handleOrientationChange);
+
+        // Call on load to set initial state
+        window.addEventListener('load', handleOrientationChange);
+    </script>
     </body>
-</html>
+</html> 
