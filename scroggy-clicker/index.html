@@ -399,31 +399,6 @@
             100% { transform: scale(1) translateY(-50px) rotate(0deg); opacity: 0; }
         }
         
-        /* Sound toggle button */
-        .sound-toggle {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(30, 30, 70, 0.7);
-            border: 1px solid #9370DB;
-            color: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.2s;
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
-        }
-        
-        .sound-toggle:hover {
-            background: rgba(50, 50, 100, 0.8);
-            transform: scale(1.1);
-        }
-        
         /* Special button style for ultimate upgrades */
         .special-btn {
             background: linear-gradient(135deg, #9932CC 0%, #4B0082 100%);
@@ -591,23 +566,24 @@
         
         /* Joke display styles */
         .joke-container {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
+            padding: 10px 15px;
             background-color: rgba(30, 30, 70, 0.8);
-            padding: 12px 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
-            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
             width: 80%;
             max-width: 500px;
+            text-align: center;
             font-family: 'Nunito', sans-serif;
             font-size: 16px;
             color: #e6e6fa;
             border: 1px solid #9370DB;
-            z-index: 10;
-            transition: opacity 0.5s, transform 0.5s;
+            opacity: 0;
+            z-index: 100;
+            transition: all 0.5s ease;
             overflow-wrap: break-word;
             word-wrap: break-word;
         }
@@ -617,14 +593,14 @@
             line-height: 1.4;
         }
         
+        /* Joke animation classes */
+        .joke-visible {
+            opacity: 1;
+        }
+        
         .joke-enter {
             opacity: 0;
             transform: translate(-50%, 20px);
-        }
-        
-        .joke-visible {
-            opacity: 1;
-            transform: translate(-50%, 0);
         }
         
         .joke-exit {
@@ -643,25 +619,43 @@
         @media (max-width: 980px) {
             .game-container {
                 flex-direction: column;
-                height: auto;
+                align-items: center;
             }
             
             .game-area {
-                min-height: 500px;
-                border-right: none;
-                border-bottom: 2px solid #4B0082;
+                width: 95%;
+                max-width: none;
+                padding-bottom: 80px; /* Make room for joke container */
             }
             
             .shop-area {
-                height: 400px;
+                width: 95%;
+                margin-top: 20px;
+                max-height: 300px;
                 overflow-y: auto;
             }
             
             .joke-container {
-                bottom: 70px;
+                position: fixed;
+                max-width: 90%;
                 width: 90%;
-                font-size: 15px;
-                padding: 10px 15px;
+                bottom: 10px;
+                z-index: 200; /* Ensure it's on top */
+            }
+            
+            /* Sound toggle removed
+            .sound-toggle {
+                bottom: 15px;
+                right: 15px;
+            }
+            */
+            
+            .wizard {
+                margin-bottom: 10px;
+            }
+            
+            .stats {
+                margin-bottom: 80px;
             }
         }
         
@@ -672,6 +666,7 @@
             
             .wizard {
                 font-size: 140px;
+                margin-bottom: 20px; /* Reduced from 40px */
             }
             
             .game-title {
@@ -679,32 +674,42 @@
             }
             
             .game-area {
-                min-height: 450px;
-                padding: 20px 15px;
+                min-height: 430px; /* Reduced from 450px */
+                padding: 20px 15px 90px; /* Reduced bottom padding from 110px */
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
             }
             
             .score-display {
                 font-size: 26px;
+                margin-top: 50px;
+                margin-bottom: 20px; /* Added to reduce space */
             }
             
             .stats {
-                margin-top: 20px;
+                margin-top: 10px; /* Reduced from 20px */
+                margin-bottom: 40px; /* Reduced from 60px */
             }
             
             .joke-container {
                 width: 90%;
                 max-width: 400px;
-                bottom: 65px;
+                bottom: 15px;
+                position: absolute;
             }
         }
         
         @media (max-width: 480px) {
             .wizard {
                 font-size: 120px;
+                margin-bottom: 15px; /* Reduced from 30px */
             }
             
             .score-display {
                 font-size: 22px;
+                margin-top: 50px; /* Reduced from 60px */
+                margin-bottom: 15px; /* Added to reduce space */
             }
             
             .game-title {
@@ -713,29 +718,70 @@
             
             .stats {
                 font-size: 15px;
-                padding: 10px;
+                padding: 8px; /* Reduced from 10px */
+                margin-top: 5px; /* Added to reduce space */
+                margin-bottom: 40px; /* Reduced from 70px */
+            }
+            
+            .game-area {
+                min-height: 400px; /* Reduced from 420px */
+                padding: 15px 10px 80px; /* Reduced bottom padding from 100px */
             }
             
             .joke-container {
-                bottom: 60px;
+                bottom: 10px;
                 font-size: 14px;
                 padding: 8px 12px;
                 width: 95%;
             }
             
             .upgrade-btn {
-                padding: 12px;
+                padding: 8px;
                 font-size: 14px;
+                margin-bottom: 8px;
             }
             
             .player-name-display {
                 font-size: 16px;
                 padding: 6px 12px;
             }
+        }
+        
+        /* Fix for very small screens like iPhone SE */
+        @media (max-width: 375px) {
+            .game-area {
+                padding-bottom: 80px; /* Reduced from 120px */
+                min-height: 380px; /* Reduced from 400px */
+            }
             
-            .sound-toggle {
-                width: 35px;
-                height: 35px;
+            .wizard {
+                font-size: 100px;
+                margin-bottom: 10px; /* Reduced from 20px */
+            }
+            
+            .score-display {
+                margin-top: 50px; /* Reduced from 70px */
+                font-size: 20px;
+                margin-bottom: 10px; /* Added to reduce space */
+            }
+            
+            .stats {
+                margin-top: 5px; /* Reduced from 15px */
+                margin-bottom: 30px; /* Reduced from 60px */
+                font-size: 14px;
+                padding: 6px; /* Reduced padding */
+            }
+            
+            .joke-container {
+                font-size: 13px;
+                padding: 6px 10px;
+                bottom: 8px;
+            }
+            
+            .upgrade-btn {
+                padding: 6px;
+                font-size: 13px;
+                margin-bottom: 6px;
             }
         }
     </style>
@@ -763,7 +809,6 @@
                 <p>Points per click: <span id="pointsPerClick">1</span></p>
                 <p>Auto-clickers: <span id="autoClickers">0</span></p>
             </div>
-            <div class="sound-toggle" id="soundToggle">🔊</div>
             <div class="joke-container joke-enter" id="jokeContainer">
                 <p class="joke-text" id="jokeText">Why did the wizard always win at hide and seek? Because he was outstanding in his field!</p>
             </div>
@@ -955,7 +1000,6 @@
         const ultimateAutoClickerUpgrade = document.getElementById('ultimateAutoClickerUpgrade');
         const timeWarpUpgrade = document.getElementById('timeWarpUpgrade');
         const gameArea = document.querySelector('.game-area');
-        const soundToggle = document.getElementById('soundToggle');
         const wizardApprenticeUpgrade = document.getElementById('wizardApprenticeUpgrade');
         const manaPoolUpgrade = document.getElementById('manaPoolUpgrade');
         const wizardTowerUpgrade = document.getElementById('wizardTowerUpgrade');
@@ -1119,10 +1163,13 @@
         // Sound settings
         let soundEnabled = true;
         
+        // Sound toggle removed but keeping sounds enabled
+        /*
         soundToggle.addEventListener('click', function() {
             soundEnabled = !soundEnabled;
             soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
         });
+        */
         
         function playSound(sound) {
             if (soundEnabled) {
@@ -1630,13 +1677,39 @@
                     jokeContainer.classList.add('joke-visible');
                 }, 50);
             }, 500);
+            
+            // Reposition elements on mobile if needed
+            if (window.innerWidth <= 768) {
+                // Make sure stats and wizard are not overlapped by joke
+                const statsBox = document.querySelector('.stats');
+                const jokeHeight = jokeContainer.offsetHeight + 20; // Height + margin
+                statsBox.style.marginBottom = jokeHeight + 'px';
+            }
         }
         
         // Show initial joke with delay
         setTimeout(() => {
             jokeContainer.classList.remove('joke-enter');
             jokeContainer.classList.add('joke-visible');
+            
+            // Initial positioning for mobile
+            if (window.innerWidth <= 768) {
+                const statsBox = document.querySelector('.stats');
+                const jokeHeight = jokeContainer.offsetHeight + 20;
+                statsBox.style.marginBottom = jokeHeight + 'px';
+            }
         }, 1000);
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                const statsBox = document.querySelector('.stats');
+                const jokeHeight = jokeContainer.offsetHeight + 20;
+                statsBox.style.marginBottom = jokeHeight + 'px';
+            } else {
+                document.querySelector('.stats').style.marginBottom = '';
+            }
+        });
         
         // Set up joke interval (15 seconds)
         setInterval(displayNewJoke, 15000);
