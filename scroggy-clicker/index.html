@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard Clicker Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0c0c2e;
+            color: #e6e6fa;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(50, 50, 100, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(70, 70, 140, 0.9);
+            transform: scale(1.05);
+        }
+        
+        .game-container {
+            display: flex;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 700px;
+        }
+        
+        .game-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 600px;
+            padding: 30px;
+            border-right: 2px solid #4B0082;
+            background-color: rgba(25, 25, 65, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.2) 0%, rgba(25, 25, 65, 0) 70%);
+            pointer-events: none;
+        }
+        
+        .shop-area {
+            flex: 1;
+            padding: 30px;
+            background-color: rgba(30, 30, 70, 0.9);
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+        }
+        
+        .shop-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: rgba(30, 30, 70, 0.95);
+            padding: 10px 0;
+            z-index: 5;
+            border-bottom: 2px solid #9370DB;
+        }
+        
+        .shop-items {
+            overflow-y: auto;
+            padding-right: 10px;
+            flex-grow: 1;
+            /* Styling the scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: #9370DB rgba(30, 30, 70, 0.5);
+        }
+        
+        /* Custom scrollbar for webkit browsers */
+        .shop-items::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .shop-items::-webkit-scrollbar-track {
+            background: rgba(30, 30, 70, 0.5);
+            border-radius: 10px;
+        }
+        
+        .shop-items::-webkit-scrollbar-thumb {
+            background: #9370DB;
+            border-radius: 10px;
+        }
+        
+        .shop-items::-webkit-scrollbar-thumb:hover {
+            background: #8A2BE2;
+        }
+        
+        .wizard {
+            font-size: 180px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.7));
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .wizard:hover {
+            filter: drop-shadow(0 0 25px rgba(138, 43, 226, 0.9));
+        }
+        
+        .wizard:active {
+            transform: scale(0.92);
+            filter: drop-shadow(0 0 35px rgba(138, 43, 226, 1));
+        }
+        
+        /* Enhanced wizard click animation */
+        @keyframes wizardClick {
+            0% { transform: scale(1) rotate(0deg); }
+            30% { transform: scale(0.8) rotate(-5deg); }
+            60% { transform: scale(1.25) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(2deg); }
+            90% { transform: scale(0.95) rotate(0deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .wizard-click-animation {
+            animation: wizardClick 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        
+        .score-display {
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+            letter-spacing: 1px;
+        }
+        
+        .upgrade-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 0 10px rgba(138, 43, 226, 0.4);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            font-weight: 600;
+        }
+        
+        .upgrade-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+            z-index: -1;
+        }
+        
+        .upgrade-btn:hover::before {
+            left: 100%;
+        }
+        
+        .upgrade-btn:hover {
+            background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(138, 43, 226, 0.6);
+            letter-spacing: 0.5px;
+        }
+        
+        .upgrade-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        
+        .upgrade-btn:disabled {
+            background: linear-gradient(135deg, #666 0%, #444 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0.7;
+        }
+        
+        .upgrade-cost {
+            float: right;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 5px rgba(138, 43, 226, 0.7);
+        }
+        
+        h2 {
+            color: #e6e6fa;
+            border-bottom: 2px solid #9370DB;
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+            text-align: center;
+        }
+        
+        .stats {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: rgba(70, 70, 120, 0.5);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid #9370DB;
+        }
+        
+        .stats p {
+            margin: 8px 0;
+            font-size: 18px;
+        }
+        
+        .magic-particles {
+            position: absolute;
+            pointer-events: none;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 1) 0%, rgba(138, 43, 226, 0) 70%);
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 5;
+        }
+        
+        .game-title {
+            position: absolute;
+            top: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+            letter-spacing: 2px;
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .shop-title::before,
+        .shop-title::after {
+            content: '✨';
+            margin: 0 10px;
+            font-size: 20px;
+        }
+        
+        /* New styles for power buttons */
+        .power-btn {
+            background: linear-gradient(135deg, #ff7700 0%, #ff2b00 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 0 15px rgba(255, 119, 0, 0.4);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 15px;
+        }
+        
+        .power-btn::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+        
+        .power-btn:hover {
+            background: linear-gradient(135deg, #ff9500 0%, #ff4800 100%);
+            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 119, 0, 0.6);
+            transform: translateY(-3px) scale(1.02);
+        }
+        
+        .power-btn .upgrade-cost {
+            background-color: rgba(0, 0, 0, 0.4);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.6);
+            text-shadow: 0 0 5px rgba(255, 119, 0, 0.7);
+        }
+        
+        .power-btn .btn-icon {
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7));
+        }
+        
+        /* Auto-clicker buttons can keep their purple theme with slight adjustments */
+        .auto-btn {
+            background: linear-gradient(135deg, #4a6bff 0%, #2745e8 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 0 15px rgba(74, 107, 255, 0.4);
+        }
+        
+        .auto-btn:hover {
+            background: linear-gradient(135deg, #5a7bff 0%, #3755f8 100%);
+            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.4), 0 0 20px rgba(74, 107, 255, 0.6);
+        }
+        
+        .auto-btn .upgrade-cost {
+            text-shadow: 0 0 5px rgba(74, 107, 255, 0.7);
+        }
+        
+        /* Score popup animation */
+        @keyframes scorePopup {
+            0% { transform: scale(0.5); opacity: 0; }
+            20% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(1) translateY(-40px); opacity: 0; }
+        }
+        
+        .score-popup {
+            position: absolute;
+            color: #ffdd00;
+            font-weight: bold;
+            font-size: 22px;
+            text-shadow: 0 0 10px rgba(255, 221, 0, 0.7), 0 0 5px rgba(0, 0, 0, 0.9);
+            pointer-events: none;
+            z-index: 100;
+            animation: scorePopup 1s forwards;
+        }
+        
+        /* Screen shake effect */
+        @keyframes screenShake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(5px, 5px) rotate(1deg); }
+            50% { transform: translate(-5px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 5px) rotate(1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        
+        .screen-shake {
+            animation: screenShake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        
+        /* Critical hit effect - updated to not block clicks */
+        .critical-text {
+            position: absolute;
+            color: #ff0000;
+            font-weight: 800;
+            font-size: 32px;
+            text-shadow: 0 0 15px #ff0000, 0 0 5px #000000;
+            z-index: 10;
+            animation: criticalAnimation 1.2s forwards;
+            transform-origin: center;
+            pointer-events: none; /* This ensures clicks pass through */
+        }
+        
+        @keyframes criticalAnimation {
+            0% { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+            25% { transform: scale(1.5) rotate(5deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(-3deg); opacity: 1; }
+            100% { transform: scale(1) translateY(-50px) rotate(0deg); opacity: 0; }
+        }
+        
+        /* Sound toggle button */
+        .sound-toggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 30, 70, 0.7);
+            border: 1px solid #9370DB;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+        }
+        
+        .sound-toggle:hover {
+            background: rgba(50, 50, 100, 0.8);
+            transform: scale(1.1);
+        }
+        
+        /* Special button style for ultimate upgrades */
+        .special-btn {
+            background: linear-gradient(135deg, #9932CC 0%, #4B0082 100%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(153, 50, 204, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .special-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent, 
+                transparent
+            );
+            animation: rotate 4s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            100% {
+                transform: rotate(1turn);
+            }
+        }
+        
+        .special-btn:hover {
+            background: linear-gradient(135deg, #B041FF 0%, #6A0DAD 100%);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5), 0 0 30px rgba(153, 50, 204, 0.8);
+        }
+        
+        .special-btn .upgrade-cost {
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Separator for upgrade categories */
+        .upgrade-separator {
+            text-align: center;
+            color: #e6e6fa;
+            font-size: 14px;
+            margin: 15px 0;
+            position: relative;
+            opacity: 0.8;
+        }
+        
+        .upgrade-separator::before,
+        .upgrade-separator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 35%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #9370DB, transparent);
+        }
+        
+        .upgrade-separator::before {
+            left: 0;
+        }
+        
+        .upgrade-separator::after {
+            right: 0;
+        }
+        
+        /* Name input modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2a2a5a 0%, #1a1a40 100%);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.7);
+            text-align: center;
+            border: 2px solid #9370DB;
+        }
+        
+        .modal-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #e6e6fa;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.7);
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 2px solid #9370DB;
+            background-color: rgba(30, 30, 70, 0.6);
+            color: white;
+            font-size: 18px;
+            font-family: 'Nunito', sans-serif;
+            text-align: center;
+        }
+        
+        .modal-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+            border-color: #8A2BE2;
+        }
+        
+        .modal-button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #9370DB 0%, #8A2BE2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .modal-button:hover {
+            background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.4), 0 0 15px rgba(138, 43, 226, 0.6);
+        }
+        
+        .player-name-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            color: #e6e6fa;
+            text-shadow: 0 0 5px rgba(138, 43, 226, 0.7);
+            background-color: rgba(30, 30, 70, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Secret code animation */
+        @keyframes secretCodeActivated {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.5); filter: brightness(2); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        
+        .secret-code-activated {
+            animation: secretCodeActivated 1s ease-in-out;
+        }
+        
+        /* Joke display styles */
+        .joke-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(30, 30, 70, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            color: #e6e6fa;
+            border: 1px solid #9370DB;
+            z-index: 10;
+            transition: opacity 0.5s, transform 0.5s;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+        
+        .joke-text {
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .joke-enter {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+        }
+        
+        .joke-visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+        
+        .joke-exit {
+            opacity: 0;
+            transform: translate(-50%, -20px);
+        }
+        
+        /* Responsive styles for various screen sizes */
+        @media (max-width: 1200px) {
+            .game-container {
+                height: auto;
+                max-height: none;
+            }
+        }
+        
+        @media (max-width: 980px) {
+            .game-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .game-area {
+                min-height: 500px;
+                border-right: none;
+                border-bottom: 2px solid #4B0082;
+            }
+            
+            .shop-area {
+                height: 400px;
+                overflow-y: auto;
+            }
+            
+            .joke-container {
+                bottom: 70px;
+                width: 90%;
+                font-size: 15px;
+                padding: 10px 15px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .wizard {
+                font-size: 140px;
+            }
+            
+            .game-title {
+                font-size: 28px;
+            }
+            
+            .game-area {
+                min-height: 450px;
+                padding: 20px 15px;
+            }
+            
+            .score-display {
+                font-size: 26px;
+            }
+            
+            .stats {
+                margin-top: 20px;
+            }
+            
+            .joke-container {
+                width: 90%;
+                max-width: 400px;
+                bottom: 65px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .wizard {
+                font-size: 120px;
+            }
+            
+            .score-display {
+                font-size: 22px;
+            }
+            
+            .game-title {
+                font-size: 24px;
+            }
+            
+            .stats {
+                font-size: 15px;
+                padding: 10px;
+            }
+            
+            .joke-container {
+                bottom: 60px;
+                font-size: 14px;
+                padding: 8px 12px;
+                width: 95%;
+            }
+            
+            .upgrade-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .player-name-display {
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            
+            .sound-toggle {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button" title="Back to ScroggyGames.com">←</a>
+    
+    <!-- Name input modal -->
+    <div class="modal-overlay" id="nameModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Welcome to Wizard Clicker!</h2>
+            <p>Enter your wizard name to begin:</p>
+            <input type="text" class="modal-input" id="playerNameInput" placeholder="Enter your name...">
+            <button class="modal-button" id="startGameButton">Start Game</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-area">
+            <div class="game-title">WIZARD CLICKER</div>
+            <div class="player-name-display" id="playerNameDisplay"></div>
+            <div class="score-display">Score: <span id="score">0</span></div>
+            <div class="wizard" id="wizard">🧙</div>
+            <div class="stats">
+                <p>Points per click: <span id="pointsPerClick">1</span></p>
+                <p>Auto-clickers: <span id="autoClickers">0</span></p>
+            </div>
+            <div class="sound-toggle" id="soundToggle">🔊</div>
+            <div class="joke-container joke-enter" id="jokeContainer">
+                <p class="joke-text" id="jokeText">Why did the wizard always win at hide and seek? Because he was outstanding in his field!</p>
+            </div>
+        </div>
+        
+        <div class="shop-area">
+            <h2 class="shop-title">Magic Shop</h2>
+            <div class="shop-items">
+                <button id="doubleClickUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">⚡</span> Double Click Power <span class="upgrade-cost">Cost: 50</span>
+                </button>
+                <button id="autoClickerUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🔄</span> Auto Clicker <span class="upgrade-cost">Cost: 100</span>
+                </button>
+                <button id="tripleClickUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">⚡⚡⚡</span> Triple Click Power <span class="upgrade-cost">Cost: 500</span>
+                </button>
+                <button id="superAutoClickerUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🔮</span> Super Auto Clicker <span class="upgrade-cost">Cost: 1000</span>
+                </button>
+                <button id="criticalClickUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">💥</span> Critical Clicks <span class="upgrade-cost">Cost: 2000</span>
+                </button>
+                <button id="goldenWizardUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">👑</span> Golden Wizard <span class="upgrade-cost">Cost: 5000</span>
+                </button>
+                <button id="megaAutoClickerUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">⚙️</span> Mega Auto Clicker <span class="upgrade-cost">Cost: 7500</span>
+                </button>
+                <button id="rainbowWizardUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🌈</span> Rainbow Wizard <span class="upgrade-cost">Cost: 15000</span>
+                </button>
+                <button id="multiClickUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">👆</span> Multi-Click <span class="upgrade-cost">Cost: 25000</span>
+                </button>
+                <button id="ultimateAutoClickerUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">⚡</span> Ultimate Auto Clicker <span class="upgrade-cost">Cost: 50000</span>
+                </button>
+                <button id="timeWarpUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Cost: 100000</span>
+                </button>
+                <button id="wizardApprenticeUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">👨‍🎓</span> Wizard Apprentice <span class="upgrade-cost">Cost: 200000</span>
+                </button>
+                <button id="manaPoolUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🔵</span> Mana Pool <span class="upgrade-cost">Cost: 350000</span>
+                </button>
+                <button id="wizardTowerUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🏰</span> Wizard Tower <span class="upgrade-cost">Cost: 500000</span>
+                </button>
+                <button id="ancientScrollUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">📜</span> Ancient Scroll <span class="upgrade-cost">Cost: 750000</span>
+                </button>
+                <button id="familiarUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🐱</span> Magical Familiar <span class="upgrade-cost">Cost: 1000000</span>
+                </button>
+                <button id="wizardStaffUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🪄</span> Enchanted Staff <span class="upgrade-cost">Cost: 2000000</span>
+                </button>
+                <button id="magicCircleUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">⭕</span> Magic Circle <span class="upgrade-cost">Cost: 3500000</span>
+                </button>
+                <button id="phoenixFeatherUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🔥</span> Phoenix Feather <span class="upgrade-cost">Cost: 5000000</span>
+                </button>
+                <button id="crystalBallUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🔮</span> Crystal Ball <span class="upgrade-cost">Cost: 7500000</span>
+                </button>
+                <button id="elementalMasteryUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🌪️</span> Elemental Mastery <span class="upgrade-cost">Cost: 10000000</span>
+                </button>
+                <button id="wizardGuildUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🏛️</span> Wizard Guild <span class="upgrade-cost">Cost: 25000000</span>
+                </button>
+                <button id="timeLoopUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">🔄</span> Time Loop <span class="upgrade-cost">Cost: 50000000</span>
+                </button>
+                <button id="magicUniversityUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🏫</span> Magic University <span class="upgrade-cost">Cost: 100000000</span>
+                </button>
+                <button id="cosmicPowerUpgrade" class="upgrade-btn power-btn">
+                    <span class="btn-icon">✨</span> Cosmic Power <span class="upgrade-cost">Cost: 250000000</span>
+                </button>
+                <button id="dimensionalRiftUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🌀</span> Dimensional Rift <span class="upgrade-cost">Cost: 500000000</span>
+                </button>
+                <button id="wizardAscensionUpgrade" class="upgrade-btn power-btn special-btn">
+                    <span class="btn-icon">👁️</span> Wizard Ascension <span class="upgrade-cost">Cost: 1000000000</span>
+                </button>
+                <button id="magicFactoryUpgrade" class="upgrade-btn auto-btn">
+                    <span class="btn-icon">🏭</span> Magic Factory <span class="upgrade-cost">Cost: 2500000000</span>
+                </button>
+                <button id="realityWarpUpgrade" class="upgrade-btn power-btn special-btn">
+                    <span class="btn-icon">🌌</span> Reality Warp <span class="upgrade-cost">Cost: 5000000000</span>
+                </button>
+                <button id="infinityGemUpgrade" class="upgrade-btn power-btn special-btn">
+                    <span class="btn-icon">💎</span> Infinity Gem <span class="upgrade-cost">Cost: 10000000000</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Game state
+        let gameState = {
+            score: 0,
+            pointsPerClick: 1,
+            autoClickers: 0,
+            doubleClickCost: 50,
+            autoClickerCost: 100,
+            tripleClickCost: 500,
+            superAutoClickerCost: 1000,
+            criticalClickCost: 2000,
+            goldenWizardCost: 5000,
+            megaAutoClickerCost: 7500,
+            doubleClickPurchased: false,
+            tripleClickPurchased: false,
+            criticalClickPurchased: false,
+            goldenWizardPurchased: false,
+            criticalChance: 0,
+            criticalMultiplier: 5,
+            rainbowWizardCost: 15000,
+            multiClickCost: 25000,
+            ultimateAutoClickerCost: 50000,
+            timeWarpCost: 100000,
+            rainbowWizardPurchased: false,
+            multiClickPurchased: false,
+            timeWarpPurchased: false,
+            multiClickCount: 1,
+            timeWarpActive: false,
+            timeWarpCooldown: false,
+            wizardApprenticeCost: 200000,
+            manaPoolCost: 350000,
+            wizardTowerCost: 500000,
+            ancientScrollCost: 750000,
+            familiarCost: 1000000,
+            wizardStaffCost: 2000000,
+            magicCircleCost: 3500000,
+            phoenixFeatherCost: 5000000,
+            crystalBallCost: 7500000,
+            elementalMasteryCost: 10000000,
+            wizardGuildCost: 25000000,
+            timeLoopCost: 50000000,
+            magicUniversityCost: 100000000,
+            cosmicPowerCost: 250000000,
+            dimensionalRiftCost: 500000000,
+            wizardAscensionCost: 1000000000,
+            magicFactoryCost: 2500000000,
+            realityWarpCost: 5000000000,
+            infinityGemCost: 10000000000,
+            wizardApprenticePurchased: false,
+            manaPoolPurchased: false,
+            ancientScrollPurchased: false,
+            wizardStaffPurchased: false,
+            phoenixFeatherPurchased: false,
+            elementalMasteryPurchased: false,
+            timeLoopPurchased: false,
+            cosmicPowerPurchased: false,
+            wizardAscensionPurchased: false,
+            realityWarpPurchased: false,
+            infinityGemPurchased: false,
+            apprenticeCount: 0,
+            apprenticeMultiplier: 1,
+            manaRegeneration: 0,
+            maxMana: 0,
+            currentMana: 0,
+            timeLoopActive: false,
+            timeLoopCooldown: false,
+            ascensionLevel: 0,
+            realityWarpActive: false,
+            playerName: "",
+            secretCodeActivated: false
+        };
+        
+        // DOM elements
+        const scoreDisplay = document.getElementById('score');
+        const pointsPerClickDisplay = document.getElementById('pointsPerClick');
+        const autoClickersDisplay = document.getElementById('autoClickers');
+        const wizard = document.getElementById('wizard');
+        const doubleClickUpgrade = document.getElementById('doubleClickUpgrade');
+        const autoClickerUpgrade = document.getElementById('autoClickerUpgrade');
+        const tripleClickUpgrade = document.getElementById('tripleClickUpgrade');
+        const superAutoClickerUpgrade = document.getElementById('superAutoClickerUpgrade');
+        const criticalClickUpgrade = document.getElementById('criticalClickUpgrade');
+        const goldenWizardUpgrade = document.getElementById('goldenWizardUpgrade');
+        const megaAutoClickerUpgrade = document.getElementById('megaAutoClickerUpgrade');
+        const rainbowWizardUpgrade = document.getElementById('rainbowWizardUpgrade');
+        const multiClickUpgrade = document.getElementById('multiClickUpgrade');
+        const ultimateAutoClickerUpgrade = document.getElementById('ultimateAutoClickerUpgrade');
+        const timeWarpUpgrade = document.getElementById('timeWarpUpgrade');
+        const gameArea = document.querySelector('.game-area');
+        const soundToggle = document.getElementById('soundToggle');
+        const wizardApprenticeUpgrade = document.getElementById('wizardApprenticeUpgrade');
+        const manaPoolUpgrade = document.getElementById('manaPoolUpgrade');
+        const wizardTowerUpgrade = document.getElementById('wizardTowerUpgrade');
+        const ancientScrollUpgrade = document.getElementById('ancientScrollUpgrade');
+        const familiarUpgrade = document.getElementById('familiarUpgrade');
+        const wizardStaffUpgrade = document.getElementById('wizardStaffUpgrade');
+        const magicCircleUpgrade = document.getElementById('magicCircleUpgrade');
+        const phoenixFeatherUpgrade = document.getElementById('phoenixFeatherUpgrade');
+        const crystalBallUpgrade = document.getElementById('crystalBallUpgrade');
+        const elementalMasteryUpgrade = document.getElementById('elementalMasteryUpgrade');
+        const wizardGuildUpgrade = document.getElementById('wizardGuildUpgrade');
+        const timeLoopUpgrade = document.getElementById('timeLoopUpgrade');
+        const magicUniversityUpgrade = document.getElementById('magicUniversityUpgrade');
+        const cosmicPowerUpgrade = document.getElementById('cosmicPowerUpgrade');
+        const dimensionalRiftUpgrade = document.getElementById('dimensionalRiftUpgrade');
+        const wizardAscensionUpgrade = document.getElementById('wizardAscensionUpgrade');
+        const magicFactoryUpgrade = document.getElementById('magicFactoryUpgrade');
+        const realityWarpUpgrade = document.getElementById('realityWarpUpgrade');
+        const infinityGemUpgrade = document.getElementById('infinityGemUpgrade');
+        const nameModal = document.getElementById('nameModal');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const startGameButton = document.getElementById('startGameButton');
+        const playerNameDisplay = document.getElementById('playerNameDisplay');
+        const jokeContainer = document.getElementById('jokeContainer');
+        const jokeText = document.getElementById('jokeText');
+        
+        // Wizard jokes array
+        const wizardJokes = [
+            "Why did the wizard always win at hide and seek? Because he was outstanding in his field!",
+            "What do you call a wizard who's bad at magic? An odd-job conjurer.",
+            "Why don't wizards like to argue? Because they don't want to spell it out for you.",
+            "How do wizards pay for things? With spell-ing bees!",
+            "What's a wizard's favorite place to shop? Abercrombie & Witch!",
+            "Why did the wizard go to therapy? He had staff issues.",
+            "What do you call a wizard who's always late? Tardy Potter.",
+            "How do wizards make their coffee? They use a magic bean!",
+            "What's a wizard's favorite musical instrument? A spell-o-phone!",
+            "Why did the wizard get kicked out of the grocery store? He was shoplifting!",
+            "What do you call a wizard who fixes computers? A tech-romancer!",
+            "Why don't wizards ever get lost? They take the spell-evator!",
+            "What's a wizard's favorite exercise? The magic circle!",
+            "Why did the wizard put his money in the bank? He was saving up for a crystal ball!",
+            "What do you call a wizard who works at a restaurant? A dinner magician!",
+            "Why don't wizards tell jokes? Because everyone keeps spell-checking them!",
+            "What's a wizard's favorite game? Spell-itaire!",
+            "How do wizards greet each other? They wave their wands!",
+            "What do you call a wizard who's good at gardening? A hedge wizard!",
+            "Why did the wizard become a baker? He specialized in making dough rise!"
+        ];
+        
+        // Handle name input and game start
+        startGameButton.addEventListener('click', function() {
+            const playerName = playerNameInput.value.trim();
+            if (playerName) {
+                gameState.playerName = playerName;
+                playerNameDisplay.textContent = playerName;
+                nameModal.style.display = 'none';
+                
+                // Check for secret code
+                if (playerName === "ScroggysStaff" && !gameState.secretCodeActivated) {
+                    gameState.secretCodeActivated = true;
+                    gameState.pointsPerClick = 10000000;
+                    
+                    // Visual effect for secret code
+                    wizard.classList.add('secret-code-activated');
+                    
+                    // Special sound effect
+                    const secretSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1936.mp3');
+                    playSound(secretSound);
+                    
+                    // Add special message
+                    const statsDiv = document.querySelector('.stats');
+                    const secretInfo = document.createElement('p');
+                    secretInfo.style.color = '#ffdd00';
+                    secretInfo.style.fontWeight = 'bold';
+                    secretInfo.textContent = "SECRET CODE ACTIVATED!";
+                    statsDiv.prepend(secretInfo);
+                    
+                    // Update display
+                    updateDisplay();
+                    
+                    // Create lots of particles for celebration
+                    const centerX = gameArea.offsetWidth / 2;
+                    const centerY = gameArea.offsetHeight / 2;
+                    createMagicParticles(centerX, centerY, 50);
+                }
+            } else {
+                playerNameInput.placeholder = "Please enter a name!";
+                playerNameInput.style.borderColor = "red";
+                setTimeout(() => {
+                    playerNameInput.style.borderColor = "#9370DB";
+                    playerNameInput.placeholder = "Enter your name...";
+                }, 2000);
+            }
+        });
+        
+        // Allow pressing Enter to submit name
+        playerNameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startGameButton.click();
+            }
+        });
+        
+        // Focus the input when modal opens
+        window.addEventListener('load', function() {
+            playerNameInput.focus();
+        });
+        
+        // Update display
+        function updateDisplay() {
+            scoreDisplay.textContent = gameState.score.toLocaleString();
+            pointsPerClickDisplay.textContent = gameState.pointsPerClick.toLocaleString();
+            autoClickersDisplay.textContent = gameState.autoClickers.toLocaleString();
+            
+            // Update button states based on affordability
+            doubleClickUpgrade.disabled = gameState.score < gameState.doubleClickCost || gameState.doubleClickPurchased;
+            autoClickerUpgrade.disabled = gameState.score < gameState.autoClickerCost;
+            tripleClickUpgrade.disabled = gameState.score < gameState.tripleClickCost || gameState.tripleClickPurchased;
+            superAutoClickerUpgrade.disabled = gameState.score < gameState.superAutoClickerCost;
+            criticalClickUpgrade.disabled = gameState.score < gameState.criticalClickCost || gameState.criticalClickPurchased;
+            goldenWizardUpgrade.disabled = gameState.score < gameState.goldenWizardCost || gameState.goldenWizardPurchased;
+            megaAutoClickerUpgrade.disabled = gameState.score < gameState.megaAutoClickerCost;
+            rainbowWizardUpgrade.disabled = gameState.score < gameState.rainbowWizardCost || gameState.rainbowWizardPurchased;
+            multiClickUpgrade.disabled = gameState.score < gameState.multiClickCost || gameState.multiClickPurchased;
+            ultimateAutoClickerUpgrade.disabled = gameState.score < gameState.ultimateAutoClickerCost;
+            timeWarpUpgrade.disabled = gameState.score < gameState.timeWarpCost || gameState.timeWarpPurchased || gameState.timeWarpCooldown;
+            wizardApprenticeUpgrade.disabled = gameState.score < gameState.wizardApprenticeCost;
+            manaPoolUpgrade.disabled = gameState.score < gameState.manaPoolCost || gameState.manaPoolPurchased;
+            wizardTowerUpgrade.disabled = gameState.score < gameState.wizardTowerCost;
+            ancientScrollUpgrade.disabled = gameState.score < gameState.ancientScrollCost || gameState.ancientScrollPurchased;
+            familiarUpgrade.disabled = gameState.score < gameState.familiarCost;
+            wizardStaffUpgrade.disabled = gameState.score < gameState.wizardStaffCost || gameState.wizardStaffPurchased;
+            magicCircleUpgrade.disabled = gameState.score < gameState.magicCircleCost;
+            phoenixFeatherUpgrade.disabled = gameState.score < gameState.phoenixFeatherCost || gameState.phoenixFeatherPurchased;
+            crystalBallUpgrade.disabled = gameState.score < gameState.crystalBallCost;
+            elementalMasteryUpgrade.disabled = gameState.score < gameState.elementalMasteryCost || gameState.elementalMasteryPurchased;
+            wizardGuildUpgrade.disabled = gameState.score < gameState.wizardGuildCost;
+            timeLoopUpgrade.disabled = gameState.score < gameState.timeLoopCost || gameState.timeLoopPurchased || gameState.timeLoopCooldown;
+            magicUniversityUpgrade.disabled = gameState.score < gameState.magicUniversityCost;
+            cosmicPowerUpgrade.disabled = gameState.score < gameState.cosmicPowerCost || gameState.cosmicPowerPurchased;
+            dimensionalRiftUpgrade.disabled = gameState.score < gameState.dimensionalRiftCost;
+            wizardAscensionUpgrade.disabled = gameState.score < gameState.wizardAscensionCost || gameState.wizardAscensionPurchased;
+            magicFactoryUpgrade.disabled = gameState.score < gameState.magicFactoryCost;
+            realityWarpUpgrade.disabled = gameState.score < gameState.realityWarpCost || gameState.realityWarpPurchased || gameState.realityWarpActive;
+            infinityGemUpgrade.disabled = gameState.score < gameState.infinityGemCost || gameState.infinityGemPurchased;
+            
+            // Update mana display if mana pool is purchased
+            if (gameState.manaPoolPurchased) {
+                const manaDisplay = document.getElementById('manaDisplay');
+                if (manaDisplay) {
+                    manaDisplay.textContent = `${Math.floor(gameState.currentMana)}/${gameState.maxMana}`;
+                }
+            }
+        }
+        
+        // Add sound effects
+        const clickSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3');
+        const criticalSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1936.mp3');
+        const upgradeSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+        
+        // Sound settings
+        let soundEnabled = true;
+        
+        soundToggle.addEventListener('click', function() {
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+        });
+        
+        function playSound(sound) {
+            if (soundEnabled) {
+                // Create a clone to allow overlapping sounds
+                const soundClone = sound.cloneNode();
+                soundClone.volume = 0.3;
+                soundClone.play();
+            }
+        }
+        
+        // Enhanced click the wizard function
+        function clickWizard(event) {
+            let pointsEarned = gameState.pointsPerClick;
+            let isCritical = false;
+            
+            // Check for critical hit
+            if (gameState.criticalChance > 0 && Math.random() < gameState.criticalChance) {
+                pointsEarned *= gameState.criticalMultiplier;
+                isCritical = true;
+                
+                // Show critical hit effect
+                const critText = document.createElement('div');
+                critText.textContent = 'CRITICAL!';
+                critText.classList.add('critical-text');
+                
+                const rect = gameArea.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top - 30;
+                
+                critText.style.left = `${x - 50}px`;
+                critText.style.top = `${y}px`;
+                
+                gameArea.appendChild(critText);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    critText.remove();
+                }, 1200);
+                
+                // Add screen shake for critical hits
+                gameArea.classList.remove('screen-shake');
+                void gameArea.offsetWidth;
+                gameArea.classList.add('screen-shake');
+                
+                // Play critical sound
+                playSound(criticalSound);
+            } else {
+                // Play regular click sound
+                playSound(clickSound);
+            }
+            
+            // Show score popup
+            const scorePopup = document.createElement('div');
+            scorePopup.textContent = `+${pointsEarned}`;
+            scorePopup.classList.add('score-popup');
+            
+            if (isCritical) {
+                scorePopup.style.color = '#ff5500';
+                scorePopup.style.fontSize = '28px';
+                scorePopup.style.textShadow = '0 0 10px rgba(255, 85, 0, 0.7), 0 0 5px rgba(0, 0, 0, 0.9)';
+            }
+            
+            const rect = gameArea.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            scorePopup.style.left = `${x}px`;
+            scorePopup.style.top = `${y}px`;
+            
+            gameArea.appendChild(scorePopup);
+            
+            // Remove after animation
+            setTimeout(() => {
+                scorePopup.remove();
+            }, 1000);
+            
+            gameState.score += pointsEarned;
+            updateDisplay();
+            
+            // Enhanced visual feedback
+            wizard.classList.remove('wizard-click-animation');
+            void wizard.offsetWidth;
+            wizard.classList.add('wizard-click-animation');
+            
+            // Create more particles at click position
+            createMagicParticles(x, y, isCritical ? 15 : 8);
+        }
+        
+        // Enhanced particle creation
+        function createMagicParticles(x, y, count = 8) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('magic-particles');
+                
+                // Random position around click
+                const randomX = x + (Math.random() - 0.5) * 120;
+                const randomY = y + (Math.random() - 0.5) * 120;
+                
+                particle.style.left = `${randomX}px`;
+                particle.style.top = `${randomY}px`;
+                
+                // Random size
+                const size = Math.random() * 20 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random color - more variety
+                let hue;
+                if (Math.random() < 0.3) {
+                    hue = Math.random() * 360; // Sometimes completely random color
+                } else {
+                    hue = 260 + Math.random() * 60; // Usually purple to blue range
+                }
+                
+                particle.style.background = `radial-gradient(circle, hsla(${hue}, 100%, 70%, 1) 0%, hsla(${hue}, 100%, 70%, 0) 70%)`;
+                
+                gameArea.appendChild(particle);
+                
+                // Animate with more variety
+                setTimeout(() => {
+                    particle.style.opacity = '0.8';
+                    
+                    // More varied movement
+                    const distance = Math.random() * 150 + 50;
+                    const angle = Math.random() * Math.PI * 2;
+                    const xMove = Math.cos(angle) * distance;
+                    const yMove = Math.sin(angle) * distance;
+                    
+                    particle.style.transform = `translate(${xMove}px, ${yMove}px) scale(${Math.random() * 0.5 + 0.5})`;
+                    particle.style.transition = `all ${Math.random() * 1.5 + 0.7}s cubic-bezier(0.1, 0.8, 0.3, 1)`;
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 2000);
+                }, 10);
+            }
+        }
+        
+        // Enhanced auto clicker function with improved performance for large numbers
+        function autoClick() {
+            if (gameState.autoClickers > 0) {
+                // Add points based on total auto-clickers
+                gameState.score += gameState.autoClickers;
+                updateDisplay();
+                
+                // Visual feedback for auto clicks - optimize for large numbers
+                if (gameState.autoClickers > 10000) {
+                    // For extremely large numbers, show constant particles
+                    if (Math.random() < 0.2) {
+                        createOptimizedParticles(30);
+                    }
+                } else if (gameState.autoClickers > 1000) {
+                    // For large numbers, show more particles but less frequently
+                    if (Math.random() < 0.3) {
+                        createOptimizedParticles(Math.min(20, Math.ceil(gameState.autoClickers / 1000)));
+                    }
+                } else if (gameState.autoClickers > 100) {
+                    // For medium numbers
+                    if (Math.random() < 0.3) {
+                        createOptimizedParticles(Math.min(12, Math.ceil(gameState.autoClickers / 100)));
+                    }
+                } else {
+                    // For small numbers, original behavior
+                    if (Math.random() < 0.3) {
+                        const centerX = gameArea.offsetWidth / 2;
+                        const centerY = gameArea.offsetHeight / 2;
+                        createMagicParticles(centerX, centerY, Math.min(gameState.autoClickers, 12));
+                    }
+                }
+                
+                // Subtle wizard pulse for auto clicks - only if not already animating
+                if (!wizard.classList.contains('wizard-click-animation') && Math.random() < 0.1) {
+                    wizard.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        wizard.style.transform = '';
+                    }, 300);
+                }
+            }
+        }
+        
+        // Optimized particle creation for large numbers of auto-clickers
+        function createOptimizedParticles(count) {
+            const centerX = gameArea.offsetWidth / 2;
+            const centerY = gameArea.offsetHeight / 2;
+            
+            // Create particles in a more distributed pattern
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2; // Distribute in a circle
+                const distance = Math.random() * 100 + 50;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                const particle = document.createElement('div');
+                particle.classList.add('magic-particles');
+                
+                // Random size
+                const size = Math.random() * 15 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random color
+                const hue = 260 + Math.random() * 60; // Purple to blue range
+                particle.style.background = `radial-gradient(circle, hsla(${hue}, 100%, 70%, 1) 0%, hsla(${hue}, 100%, 70%, 0) 70%)`;
+                
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                gameArea.appendChild(particle);
+                
+                // Animate
+                setTimeout(() => {
+                    particle.style.opacity = '0.8';
+                    
+                    // Outward movement
+                    const outDistance = Math.random() * 100 + 50;
+                    particle.style.transform = `translate(${Math.cos(angle) * outDistance}px, ${Math.sin(angle) * outDistance}px) scale(${Math.random() * 0.5 + 0.5})`;
+                    particle.style.transition = `all ${Math.random() * 1 + 0.5}s ease-out`;
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 1500);
+                }, 10);
+            }
+        }
+        
+        // Event listeners
+        wizard.addEventListener('click', clickWizard);
+        
+        doubleClickUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.doubleClickCost && !gameState.doubleClickPurchased) {
+                gameState.score -= gameState.doubleClickCost;
+                gameState.pointsPerClick *= 2;
+                gameState.doubleClickPurchased = true;
+                doubleClickUpgrade.innerHTML = '<span class="btn-icon">⚡</span> Double Click Power <span class="upgrade-cost">Purchased</span>';
+                updateDisplay();
+            }
+        });
+        
+        autoClickerUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.autoClickerCost) {
+                gameState.score -= gameState.autoClickerCost;
+                gameState.autoClickers += 1;
+                gameState.autoClickerCost = Math.floor(gameState.autoClickerCost * 1.5);
+                autoClickerUpgrade.innerHTML = `<span class="btn-icon">🔄</span> Auto Clicker <span class="upgrade-cost">Cost: ${gameState.autoClickerCost}</span>`;
+                updateDisplay();
+            }
+        });
+        
+        tripleClickUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.tripleClickCost && !gameState.tripleClickPurchased) {
+                gameState.score -= gameState.tripleClickCost;
+                gameState.pointsPerClick *= 3;
+                gameState.tripleClickPurchased = true;
+                tripleClickUpgrade.innerHTML = '<span class="btn-icon">⚡⚡⚡</span> Triple Click Power <span class="upgrade-cost">Purchased</span>';
+                updateDisplay();
+            }
+        });
+        
+        superAutoClickerUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.superAutoClickerCost) {
+                gameState.score -= gameState.superAutoClickerCost;
+                gameState.autoClickers += 5;
+                gameState.superAutoClickerCost = Math.floor(gameState.superAutoClickerCost * 2);
+                superAutoClickerUpgrade.innerHTML = `<span class="btn-icon">🔮</span> Super Auto Clicker <span class="upgrade-cost">Cost: ${gameState.superAutoClickerCost}</span>`;
+                updateDisplay();
+            }
+        });
+        
+        criticalClickUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.criticalClickCost && !gameState.criticalClickPurchased) {
+                gameState.score -= gameState.criticalClickCost;
+                gameState.criticalChance = 0.25; // 25% chance for critical hits
+                gameState.criticalClickPurchased = true;
+                criticalClickUpgrade.innerHTML = '<span class="btn-icon">💥</span> Critical Clicks <span class="upgrade-cost">Purchased</span>';
+                
+                // Add critical hit info to stats
+                const statsDiv = document.querySelector('.stats');
+                const criticalInfo = document.createElement('p');
+                criticalInfo.innerHTML = `Critical chance: <span>25%</span> (×${gameState.criticalMultiplier})`;
+                statsDiv.appendChild(criticalInfo);
+                
+                updateDisplay();
+            }
+        });
+        
+        goldenWizardUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.goldenWizardCost && !gameState.goldenWizardPurchased) {
+                gameState.score -= gameState.goldenWizardCost;
+                gameState.pointsPerClick *= 10;
+                gameState.goldenWizardPurchased = true;
+                goldenWizardUpgrade.innerHTML = '<span class="btn-icon">👑</span> Golden Wizard <span class="upgrade-cost">Purchased</span>';
+                
+                // Change wizard appearance
+                wizard.textContent = '🧙‍♂️';
+                wizard.style.filter = 'drop-shadow(0 0 15px gold) brightness(1.2) sepia(1) hue-rotate(320deg) saturate(5)';
+                
+                updateDisplay();
+            }
+        });
+        
+        megaAutoClickerUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.megaAutoClickerCost) {
+                gameState.score -= gameState.megaAutoClickerCost;
+                gameState.autoClickers += 25;
+                gameState.megaAutoClickerCost = Math.floor(gameState.megaAutoClickerCost * 2.5);
+                megaAutoClickerUpgrade.innerHTML = `<span class="btn-icon">⚙️</span> Mega Auto Clicker <span class="upgrade-cost">Cost: ${gameState.megaAutoClickerCost}</span>`;
+                updateDisplay();
+            }
+        });
+        
+        // Rainbow Wizard upgrade
+        rainbowWizardUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.rainbowWizardCost && !gameState.rainbowWizardPurchased) {
+                gameState.score -= gameState.rainbowWizardCost;
+                gameState.pointsPerClick *= 5;
+                gameState.criticalChance = Math.min(gameState.criticalChance + 0.25, 0.5); // Add 25% crit chance, max 50%
+                gameState.rainbowWizardPurchased = true;
+                rainbowWizardUpgrade.innerHTML = '<span class="btn-icon">🌈</span> Rainbow Wizard <span class="upgrade-cost">Purchased</span>';
+                
+                // Change wizard appearance with rainbow effect
+                wizard.textContent = '🧙‍♂️';
+                
+                // Add rainbow animation
+                const rainbowAnimation = document.createElement('style');
+                rainbowAnimation.textContent = `
+                    @keyframes rainbowGlow {
+                        0% { filter: drop-shadow(0 0 15px red) brightness(1.2); }
+                        16.6% { filter: drop-shadow(0 0 15px orange) brightness(1.2); }
+                        33.3% { filter: drop-shadow(0 0 15px yellow) brightness(1.2); }
+                        50% { filter: drop-shadow(0 0 15px green) brightness(1.2); }
+                        66.6% { filter: drop-shadow(0 0 15px blue) brightness(1.2); }
+                        83.3% { filter: drop-shadow(0 0 15px indigo) brightness(1.2); }
+                        100% { filter: drop-shadow(0 0 15px violet) brightness(1.2); }
+                    }
+                `;
+                document.head.appendChild(rainbowAnimation);
+                
+                wizard.style.animation = 'float 3s ease-in-out infinite, rainbowGlow 5s linear infinite';
+                
+                // Update critical hit info if it exists
+                const criticalInfo = document.querySelector('.stats p:last-child');
+                if (criticalInfo && criticalInfo.innerHTML.includes('Critical chance')) {
+                    criticalInfo.innerHTML = `Critical chance: <span>${gameState.criticalChance * 100}%</span> (×${gameState.criticalMultiplier})`;
+                } else if (gameState.criticalChance > 0) {
+                    // Add critical hit info to stats
+                    const statsDiv = document.querySelector('.stats');
+                    const newCriticalInfo = document.createElement('p');
+                    newCriticalInfo.innerHTML = `Critical chance: <span>${gameState.criticalChance * 100}%</span> (×${gameState.criticalMultiplier})`;
+                    statsDiv.appendChild(newCriticalInfo);
+                }
+                
+                playSound(upgradeSound);
+                updateDisplay();
+            }
+        });
+        
+        // Multi-Click upgrade
+        multiClickUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.multiClickCost && !gameState.multiClickPurchased) {
+                gameState.score -= gameState.multiClickCost;
+                gameState.multiClickCount = 3; // Click 3 times with one click
+                gameState.multiClickPurchased = true;
+                multiClickUpgrade.innerHTML = '<span class="btn-icon">👆</span> Multi-Click <span class="upgrade-cost">Purchased</span>';
+                
+                // Add multi-click info to stats
+                const statsDiv = document.querySelector('.stats');
+                const multiClickInfo = document.createElement('p');
+                multiClickInfo.innerHTML = `Multi-click: <span>${gameState.multiClickCount}x</span>`;
+                statsDiv.appendChild(multiClickInfo);
+                
+                playSound(upgradeSound);
+                updateDisplay();
+            }
+        });
+        
+        // Ultimate Auto Clicker upgrade
+        ultimateAutoClickerUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.ultimateAutoClickerCost) {
+                gameState.score -= gameState.ultimateAutoClickerCost;
+                gameState.autoClickers += 100;
+                gameState.ultimateAutoClickerCost = Math.floor(gameState.ultimateAutoClickerCost * 3);
+                ultimateAutoClickerUpgrade.innerHTML = `<span class="btn-icon">⚡</span> Ultimate Auto Clicker <span class="upgrade-cost">Cost: ${gameState.ultimateAutoClickerCost}</span>`;
+                
+                playSound(upgradeSound);
+                updateDisplay();
+            }
+        });
+        
+        // Time Warp upgrade
+        timeWarpUpgrade.addEventListener('click', function() {
+            if (gameState.score >= gameState.timeWarpCost && !gameState.timeWarpPurchased && !gameState.timeWarpCooldown) {
+                gameState.score -= gameState.timeWarpCost;
+                gameState.timeWarpPurchased = true;
+                timeWarpUpgrade.innerHTML = '<span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Activate</span>';
+                timeWarpUpgrade.disabled = false;
+                
+                // Change the button to be an activatable ability
+                timeWarpUpgrade.removeEventListener('click', arguments.callee);
+                timeWarpUpgrade.addEventListener('click', activateTimeWarp);
+                
+                playSound(upgradeSound);
+                updateDisplay();
+            }
+        });
+        
+        // Time Warp activation function
+        function activateTimeWarp() {
+            if (!gameState.timeWarpActive && !gameState.timeWarpCooldown) {
+                // Start time warp
+                gameState.timeWarpActive = true;
+                timeWarpUpgrade.disabled = true;
+                timeWarpUpgrade.innerHTML = '<span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Active!</span>';
+                
+                // Visual effect for time warp
+                document.body.style.transition = 'filter 0.5s';
+                document.body.style.filter = 'hue-rotate(180deg) brightness(1.2)';
+                
+                // Speed up auto clickers for 10 seconds
+                const originalInterval = window.autoClickerInterval;
+                clearInterval(originalInterval);
+                
+                // Run auto clickers 5x faster
+                window.autoClickerInterval = setInterval(autoClick, 200);
+                
+                // Play special sound
+                const timeWarpSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.mp3');
+                playSound(timeWarpSound);
+                
+                // End time warp after 10 seconds
+                setTimeout(() => {
+                    gameState.timeWarpActive = false;
+                    gameState.timeWarpCooldown = true;
+                    document.body.style.filter = '';
+                    
+                    // Reset auto clicker interval
+                    clearInterval(window.autoClickerInterval);
+                    window.autoClickerInterval = setInterval(autoClick, 1000);
+                    
+                    // Start cooldown (60 seconds)
+                    timeWarpUpgrade.innerHTML = '<span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Cooldown: 60s</span>';
+                    
+                    let cooldownTime = 60;
+                    const cooldownInterval = setInterval(() => {
+                        cooldownTime--;
+                        timeWarpUpgrade.innerHTML = `<span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Cooldown: ${cooldownTime}s</span>`;
+                        
+                        if (cooldownTime <= 0) {
+                            clearInterval(cooldownInterval);
+                            gameState.timeWarpCooldown = false;
+                            timeWarpUpgrade.disabled = false;
+                            timeWarpUpgrade.innerHTML = '<span class="btn-icon">⏱️</span> Time Warp <span class="upgrade-cost">Activate</span>';
+                        }
+                    }, 1000);
+                    
+                }, 10000);
+            }
+        }
+        
+        // Modify click wizard function to handle multi-click
+        const originalClickWizard = clickWizard;
+        clickWizard = function(event) {
+            // Call the original function multiple times for multi-click
+            for (let i = 0; i < gameState.multiClickCount; i++) {
+                // Small delay between clicks for better visual effect
+                setTimeout(() => {
+                    originalClickWizard(event);
+                }, i * 100);
+            }
+        };
+        
+        // Store the auto clicker interval reference
+        window.autoClickerInterval = setInterval(autoClick, 1000);
+        
+        // Add sound to upgrade purchases
+        const upgradeButtons = document.querySelectorAll('.upgrade-btn');
+        upgradeButtons.forEach(button => {
+            const originalClickHandler = button.onclick;
+            button.addEventListener('click', function() {
+                if (!button.disabled) {
+                    playSound(upgradeSound);
+                }
+            });
+        });
+        
+        // Function to display a new joke
+        function displayNewJoke() {
+            // Get a random joke
+            const randomJoke = wizardJokes[Math.floor(Math.random() * wizardJokes.length)];
+            
+            // Start exit animation
+            jokeContainer.classList.remove('joke-visible');
+            jokeContainer.classList.add('joke-exit');
+            
+            // After exit animation, change text and start enter animation
+            setTimeout(() => {
+                jokeText.textContent = randomJoke;
+                jokeContainer.classList.remove('joke-exit');
+                jokeContainer.classList.add('joke-enter');
+                
+                // Start visible animation
+                setTimeout(() => {
+                    jokeContainer.classList.remove('joke-enter');
+                    jokeContainer.classList.add('joke-visible');
+                }, 50);
+            }, 500);
+        }
+        
+        // Show initial joke with delay
+        setTimeout(() => {
+            jokeContainer.classList.remove('joke-enter');
+            jokeContainer.classList.add('joke-visible');
+        }, 1000);
+        
+        // Set up joke interval (15 seconds)
+        setInterval(displayNewJoke, 15000);
+        
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html> 

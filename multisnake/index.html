@@ -448,38 +448,66 @@
                 margin: 0 5px;
             }
         }
+        
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #006400;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+        }
     </style>
     </head>
     <body>
-    <div class="star-container"></div>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-    </div>
-    <div id="deathMessage" class="death-message"></div>
-    <div class="mobile-controls">
-        <div class="control-row">
-            <div class="controller red-player">
-                <div class="controller-label">Red Player</div>
-                <div class="d-pad">
-                    <button class="control-button btn-up" id="red-up" data-direction="up1">↑</button>
-                    <button class="control-button btn-left" id="red-left" data-direction="left1">←</button>
-                    <button class="control-button btn-down" id="red-down" data-direction="down1">↓</button>
-                    <button class="control-button btn-right" id="red-right" data-direction="right1">→</button>
-                    <div class="btn-center"></div>
+        <a href="/" class="back-button" title="Back to ScroggyGames.com">&#8592;</a>
+        
+        <div class="star-container"></div>
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+        <div id="deathMessage" class="death-message"></div>
+        <div class="mobile-controls">
+            <div class="control-row">
+                <div class="controller red-player">
+                    <div class="controller-label">Red Player</div>
+                    <div class="d-pad">
+                        <button class="control-button btn-up" id="red-up" data-direction="up1">↑</button>
+                        <button class="control-button btn-left" id="red-left" data-direction="left1">←</button>
+                        <button class="control-button btn-down" id="red-down" data-direction="down1">↓</button>
+                        <button class="control-button btn-right" id="red-right" data-direction="right1">→</button>
+                        <div class="btn-center"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="controller blue-player">
-                <div class="controller-label">Blue Player</div>
-                <div class="d-pad">
-                    <button class="control-button btn-up" id="blue-up" data-direction="up2">↑</button>
-                    <button class="control-button btn-left" id="blue-left" data-direction="left2">←</button>
-                    <button class="control-button btn-down" id="blue-down" data-direction="down2">↓</button>
-                    <button class="control-button btn-right" id="blue-right" data-direction="right2">→</button>
-                    <div class="btn-center"></div>
+                <div class="controller blue-player">
+                    <div class="controller-label">Blue Player</div>
+                    <div class="d-pad">
+                        <button class="control-button btn-up" id="blue-up" data-direction="up2">↑</button>
+                        <button class="control-button btn-left" id="blue-left" data-direction="left2">←</button>
+                        <button class="control-button btn-down" id="blue-down" data-direction="down2">↓</button>
+                        <button class="control-button btn-right" id="blue-right" data-direction="right2">→</button>
+                        <div class="btn-center"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');

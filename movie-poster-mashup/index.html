@@ -15,6 +15,33 @@
             position: relative;
             overflow-x: hidden;
         }
+        
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(50, 50, 50, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        
+        .back-button:hover {
+            background-color: rgba(70, 70, 70, 0.9);
+            transform: scale(1.05);
+        }
+        
         .container {
             background-color: white;
             padding: 20px;
@@ -1383,6 +1410,10 @@
     </style>
 </head>
 <body>
+    <a href="/" class="back-button" title="Back to ScroggyGames.com">←</a>
+    
+    <h1 style="text-align: center;">Movie Poster Mashup Generator</h1>
+    
     <div class="stickman-container" id="stickmanContainer"></div>
     <div class="container">
         <div class="canvas-container">
