@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheelie Poppers - Fighting Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-area">
+            <div id="player1" class="character nerd"></div>
+            <div id="player2" class="character punk"></div>
+        </div>
+        <div class="ui">
+            <div class="health-bars">
+                <div class="health-bar">
+                    <div class="label">NERD</div>
+                    <div class="bar">
+                        <div id="p1-health" class="health"></div>
+                    </div>
+                </div>
+                <div class="health-bar">
+                    <div class="label">PUNK</div>
+                    <div class="bar">
+                        <div id="p2-health" class="health"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="controls-info">
+                <p>NERD: ← → ↑ ↓</p>
+                <p>PUNK: W A S D</p>
+            </div>
+            <div class="instructions">
+                <p>JUMP ON YOUR OPPONENT TO DEAL DAMAGE!</p>
+            </div>
+        </div>
+        
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <div class="controller">
+                <!-- Player 2 Controls (PUNK) -->
+                <div class="dpad" id="p2-dpad">
+                    <div class="dpad-btn up" data-key="w">↑</div>
+                    <div class="dpad-btn left" data-key="a">←</div>
+                    <div class="dpad-center"></div>
+                    <div class="dpad-btn right" data-key="d">→</div>
+                    <div class="dpad-btn down" data-key="s">↓</div>
+                </div>
+                
+                <!-- Player 1 Controls (NERD) -->
+                <div class="dpad" id="p1-dpad">
+                    <div class="dpad-btn up" data-key="ArrowUp">↑</div>
+                    <div class="dpad-btn left" data-key="ArrowLeft">←</div>
+                    <div class="dpad-center"></div>
+                    <div class="dpad-btn right" data-key="ArrowRight">→</div>
+                    <div class="dpad-btn down" data-key="ArrowDown">↓</div>
+                </div>
+            </div>
+        </div>
+        </div>
+    <script src="game.js"></script>
+</body>
+</html> 

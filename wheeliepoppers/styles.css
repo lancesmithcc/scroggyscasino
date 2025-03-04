@@ -1,0 +1,430 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #222;
+    background-size: 20px 20px;
+    overflow: hidden;
+    color: white;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.game-area {
+    height: 60vh;
+    min-height: 400px;
+    background-image: url('sprites/bg.png');
+    background-size: cover;
+    background-position: center;
+    border: 8px solid #FFD700;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+.game-area::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20%;
+    z-index: 1;
+}
+
+/* Background explosions */
+.bg-explosion {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,87,34,0.6) 50%, rgba(0,0,0,0) 70%);
+    z-index: 0;
+    transform: scale(0);
+    animation: bgExplode 1.5s ease-out forwards;
+    opacity: 0.7;
+    filter: blur(2px);
+}
+
+@keyframes bgExplode {
+    0% {
+        transform: scale(0);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.character {
+    position: absolute;
+    width: 200px;
+    height: 350px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    z-index: 2;
+    transform-origin: center center;
+    transition: transform 0.1s ease-out;
+    will-change: transform, bottom;
+    backface-visibility: visible;
+}
+
+.nerd {
+    background-image: url('sprites/nerd.png');
+    bottom: 20%;
+    right: 20%;
+}
+
+.punk {
+    background-image: url('sprites/punk.png');
+    bottom: 20%;
+    left: 20%;
+}
+
+.character.flip {
+    transform: scaleX(-1);
+}
+
+.character.jump {
+    animation: simpleJump 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.character.attack {
+    animation: attack 0.3s ease-in-out;
+}
+
+.character.hit {
+    animation: hit 0.5s ease-in-out;
+}
+
+@keyframes simpleJump {
+    0% { 
+        bottom: 20%; 
+    }
+    50% { 
+        bottom: 60%; 
+    }
+    100% { 
+        bottom: 20%; 
+    }
+}
+
+@keyframes frontFlip {
+    0% { 
+        bottom: 20%; 
+        transform: rotateX(0deg) translateY(0);
+    }
+    15% { 
+        bottom: 35%; 
+        transform: rotateX(90deg) translateY(-10px);
+    }
+    50% { 
+        bottom: 60%; 
+        transform: rotateX(180deg) translateY(-10px);
+    }
+    85% { 
+        bottom: 35%; 
+        transform: rotateX(270deg) translateY(-10px);
+    }
+    100% { 
+        bottom: 20%; 
+        transform: rotateX(360deg) translateY(0);
+    }
+}
+
+@keyframes attack {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes hit {
+    0% { transform: scale(1); opacity: 1; }
+    25% { transform: scale(1.2); opacity: 0.8; }
+    50% { transform: scale(0.8); opacity: 0.6; }
+    75% { transform: scale(1.1); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.ui {
+    padding: 15px;
+    background-color: #333;
+    border: 5px solid #FFD700;
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.health-bars {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.health-bar {
+    width: 45%;
+}
+
+.label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #FFD700;
+    letter-spacing: 2px;
+    font-size: 14px;
+}
+
+.bar {
+    height: 25px;
+    background-color: #555;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 3px solid #FFD700;
+}
+
+.health {
+    height: 100%;
+    width: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease;
+}
+
+#p1-health {
+    background: linear-gradient(to right, #00FFFF, #2196F3);
+}
+
+#p2-health {
+    background: linear-gradient(to right, #FF5722, #FF9800);
+}
+
+.controls-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.instructions {
+    text-align: center;
+    font-size: 14px;
+    color: #FFEB3B;
+    animation: pulse 2s infinite;
+    margin-top: 10px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Character dialogue text - simplified from previous explosion styles */
+.explosion {
+    position: absolute;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    z-index: 10;
+    text-align: center;
+    animation: fadeText 1.5s ease-out forwards;
+}
+
+/* Character-specific text */
+.explosion.nerd {
+    color: #E8F5FF;
+}
+
+.explosion.punk {
+    color: #FFF1E8;
+}
+
+@keyframes fadeText {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+    80% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Remove all explosion effects */
+.explosion::before {
+    display: none;
+}
+
+.explosion:after {
+    display: none;
+}
+
+/* Remove old comic book styles */
+.explosion.pow, .explosion.bam, .explosion.whap, .explosion.kapow, 
+.explosion.kajonk, .explosion.boosh, .explosion.kablong {
+    background-color: transparent;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .game-container {
+        width: 95%;
+    }
+    
+    .game-area {
+        height: 50vh;
+    }
+    
+    .character {
+        width: 150px;
+        height: 262px;
+    }
+    
+    .nerd {
+        right: 10%;
+    }
+    
+    .punk {
+        left: 10%;
+    }
+    
+    .health-bars {
+        flex-direction: column;
+    }
+    
+    .health-bar {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .controls-info {
+        flex-direction: column;
+    }
+}
+
+/* Mobile controls */
+.mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 100;
+}
+
+.controller {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
+    width: 150px;
+    height: 150px;
+}
+
+.dpad-btn {
+    background-color: #444;
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.dpad-btn:active {
+    background-color: #FF5722;
+}
+
+.dpad-btn.up {
+    grid-column: 2;
+    grid-row: 1;
+    border-radius: 50% 50% 10px 10px;
+}
+
+.dpad-btn.left {
+    grid-column: 1;
+    grid-row: 2;
+    border-radius: 50% 10px 10px 50%;
+}
+
+.dpad-btn.right {
+    grid-column: 3;
+    grid-row: 2;
+    border-radius: 10px 50% 50% 10px;
+}
+
+.dpad-btn.down {
+    grid-column: 2;
+    grid-row: 3;
+    border-radius: 10px 10px 50% 50%;
+}
+
+.dpad-center {
+    grid-column: 2;
+    grid-row: 2;
+    background-color: #333;
+    border: 2px solid #FFD700;
+    border-radius: 50%;
+}
+
+/* Show mobile controls only on smaller screens */
+@media (max-width: 1024px) {
+    .mobile-controls {
+        display: block;
+    }
+    
+    .controller {
+        justify-content: space-around;
+    }
+    
+    .instructions {
+        margin-bottom: 80px; /* Make room for controls */
+    }
+} 
