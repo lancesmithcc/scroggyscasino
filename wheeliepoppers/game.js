@@ -1,9 +1,10 @@
 // Game constants
 const GAME_SPEED = 60; // fps
 const MOVEMENT_SPEED = 5;
-const JUMP_POWER = 30; // Doubled the jump power
-const GRAVITY = 0.8;
-const STOMP_DAMAGE = 5; // reduced damage per hit
+const JUMP_POWER = 20; // Moderate jump power for a Mario-style jump
+const GRAVITY = 1.0; // Standard gravity for a classic platformer feel
+const STOMP_DAMAGE = 5; // Damage per hit
+const REPULSION_FORCE = 15; // Force to push characters apart on collision
 const STOMP_COOLDOWN = 800; // ms
 const INVINCIBILITY_TIME = 1000; // ms
 const BG_EXPLOSION_INTERVAL = 2000; // ms
@@ -11,23 +12,19 @@ const MUSIC_VOLUME = 0.5; // 50% volume for background music
 
 // Replace explosion words with character dialogue phrases
 const NERD_PHRASES = [
-    "Oh my stars and garters!",
-    "That was highly illogical!",
-    "Well that's statistically improbable!",
-    "Oh golly gee whiz!",
-    "My calculations were off!",
-    "Inconceivable!",
-    "That defies the laws of physics!"
+    "Where is the beef!",
+    "I am not loving it",
+    "bah-dah-bah-dah-bah",
+    "would you like fries with that?",
+    "super size me baby"
 ];
 
 const PUNK_PHRASES = [
-    "Oh man that smarts!",
-    "What the heck dude!",
-    "Not cool, bro!",
-    "That's gonna leave a mark!",
-    "Golly gee brother!",
-    "Totally bogus!",
-    "That was harsh, man!"
+    "we will rise up against you",
+    "You are destroying us all",
+    "deny defend dispose",
+    "Die corporate scum!",
+    "capitalist pig!"
 ];
 
 // Background explosion colors
@@ -188,6 +185,12 @@ function initTouchControls() {
     // Get all d-pad buttons
     const dpadButtons = document.querySelectorAll('.dpad-btn');
     
+    // Track active touches to allow multiple simultaneous presses
+    const activeTouches = {
+        p1: new Set(),
+        p2: new Set()
+    };
+    
     // Add touch event listeners to each button
     dpadButtons.forEach(button => {
         const key = button.getAttribute('data-key');
@@ -196,25 +199,90 @@ function initTouchControls() {
         // Touch start (press down)
         button.addEventListener('touchstart', function(e) {
             e.preventDefault(); // Prevent scrolling
+            
+            // Store touch identifier
+            Array.from(e.changedTouches).forEach(touch => {
+                activeTouches[player].add(touch.identifier);
+            });
+            
             touchControls[player][key] = true;
             gameState.keys[key.toLowerCase()] = true;
             button.classList.add('active');
         });
         
+        // Touch move - check if touch is still over this button
+        button.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Prevent scrolling
+            
+            // Get button position
+            const rect = button.getBoundingClientRect();
+            
+            // Check each active touch
+            Array.from(e.changedTouches).forEach(touch => {
+                const isInside = 
+                    touch.clientX >= rect.left && 
+                    touch.clientX <= rect.right && 
+                    touch.clientY >= rect.top && 
+                    touch.clientY <= rect.bottom;
+                
+                // If touch moved outside button but was previously active
+                if (!isInside && activeTouches[player].has(touch.identifier)) {
+                    activeTouches[player].delete(touch.identifier);
+                    
+                    // Only deactivate if no other touches are active on this button
+                    if (!Array.from(e.touches).some(t => 
+                        t.identifier !== touch.identifier && 
+                        t.clientX >= rect.left && 
+                        t.clientX <= rect.right && 
+                        t.clientY >= rect.top && 
+                        t.clientY <= rect.bottom)) {
+                        touchControls[player][key] = false;
+                        gameState.keys[key.toLowerCase()] = false;
+                        button.classList.remove('active');
+                    }
+                }
+                // If touch moved inside button but wasn't previously active
+                else if (isInside && !activeTouches[player].has(touch.identifier)) {
+                    activeTouches[player].add(touch.identifier);
+                    touchControls[player][key] = true;
+                    gameState.keys[key.toLowerCase()] = true;
+                    button.classList.add('active');
+                }
+            });
+        });
+        
         // Touch end (release)
         button.addEventListener('touchend', function(e) {
             e.preventDefault(); // Prevent scrolling
-            touchControls[player][key] = false;
-            gameState.keys[key.toLowerCase()] = false;
-            button.classList.remove('active');
+            
+            // Remove touch identifiers
+            Array.from(e.changedTouches).forEach(touch => {
+                activeTouches[player].delete(touch.identifier);
+            });
+            
+            // Only deactivate if no other touches are active on this button
+            if (activeTouches[player].size === 0) {
+                touchControls[player][key] = false;
+                gameState.keys[key.toLowerCase()] = false;
+                button.classList.remove('active');
+            }
         });
         
         // Touch cancel (e.g. gesture interruption)
         button.addEventListener('touchcancel', function(e) {
             e.preventDefault(); // Prevent scrolling
-            touchControls[player][key] = false;
-            gameState.keys[key.toLowerCase()] = false;
-            button.classList.remove('active');
+            
+            // Remove touch identifiers
+            Array.from(e.changedTouches).forEach(touch => {
+                activeTouches[player].delete(touch.identifier);
+            });
+            
+            // Only deactivate if no other touches are active on this button
+            if (activeTouches[player].size === 0) {
+                touchControls[player][key] = false;
+                gameState.keys[key.toLowerCase()] = false;
+                button.classList.remove('active');
+            }
         });
         
         // For regular mouse clicks (useful for testing on desktop)
@@ -230,6 +298,71 @@ function initTouchControls() {
             button.classList.remove('active');
         });
     });
+    
+    // Add special handling for diagonal movement (up + left/right)
+    const setupDiagonalTouch = (player, direction) => {
+        const dpad = document.getElementById(`${player}-dpad`);
+        const upBtn = dpad.querySelector('.up');
+        const dirBtn = dpad.querySelector(`.${direction}`);
+        
+        if (!upBtn || !dirBtn) return;
+        
+        const upKey = upBtn.getAttribute('data-key');
+        const dirKey = dirBtn.getAttribute('data-key');
+        
+        // Create a small invisible overlay for diagonal touch
+        const overlay = document.createElement('div');
+        overlay.className = `diagonal-overlay ${direction}`;
+        overlay.style.position = 'absolute';
+        overlay.style.width = '40px';
+        overlay.style.height = '40px';
+        overlay.style.backgroundColor = 'transparent';
+        overlay.style.zIndex = '5';
+        
+        // Position the overlay at the corner between up and direction
+        if (direction === 'left') {
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+        } else { // right
+            overlay.style.top = '0';
+            overlay.style.right = '0';
+        }
+        
+        dpad.appendChild(overlay);
+        
+        // Add touch handlers for the overlay
+        overlay.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            
+            // Activate both buttons
+            touchControls[player][upKey] = true;
+            touchControls[player][dirKey] = true;
+            gameState.keys[upKey.toLowerCase()] = true;
+            gameState.keys[dirKey.toLowerCase()] = true;
+            
+            upBtn.classList.add('active');
+            dirBtn.classList.add('active');
+        });
+        
+        overlay.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            
+            // Deactivate both buttons
+            touchControls[player][upKey] = false;
+            touchControls[player][dirKey] = false;
+            gameState.keys[upKey.toLowerCase()] = false;
+            gameState.keys[dirKey.toLowerCase()] = false;
+            
+            upBtn.classList.remove('active');
+            dirBtn.classList.remove('active');
+        });
+    };
+    
+    // Setup diagonal touch areas for both players
+    setupDiagonalTouch('p1', 'left');
+    setupDiagonalTouch('p1', 'right');
+    setupDiagonalTouch('p2', 'left');
+    setupDiagonalTouch('p2', 'right');
 }
 
 // Initialize Web Audio API and Speech Synthesis
@@ -262,8 +395,15 @@ function initAudio() {
     }
     
     // Initialize Speech Synthesis
-    speechSynthesis = window.speechSynthesis;
-    if (!speechSynthesis) {
+    if ('speechSynthesis' in window) {
+        speechSynthesis = window.speechSynthesis;
+        console.log('Speech Synthesis initialized successfully');
+        
+        // Try to preload voices
+        speechSynthesis.onvoiceschanged = function() {
+            console.log('Speech Synthesis voices loaded:', speechSynthesis.getVoices().length);
+        };
+    } else {
         console.error('Speech Synthesis is not supported in this browser');
     }
 }
@@ -475,27 +615,15 @@ function handlePlayerControls(player) {
         p.element.classList.remove('flip');
     }
     
-    // Jump
+    // Jump - only if on the ground
     if (gameState.keys[p.controls.up.toLowerCase()] && !p.isJumping) {
         p.velocity.y = -JUMP_POWER;
         p.isJumping = true;
         
-        // Remove jump class first
-        p.element.classList.remove('jump');
-        
-        // Force reflow to ensure animation starts fresh
-        void p.element.offsetWidth;
-        
-        // Apply jump class
-        p.element.classList.add('jump');
+        // No animation classes - just physics-driven movement
         
         // Play jump sound
         playSound('jump');
-        
-        // Remove jump animation class after animation completes
-        setTimeout(() => {
-            p.element.classList.remove('jump');
-        }, 800); // Match with CSS animation duration
     }
 }
 
@@ -503,16 +631,8 @@ function handlePlayerControls(player) {
 function applyPhysics(player) {
     const p = gameState.players[player];
     
-    // Apply gravity with a smoother curve for natural jump physics
-    if (p.isJumping) {
-        // Gradual gravity curve that increases as jump progresses
-        const jumpProgress = Math.min(1, (p.position.y - gameState.boundaries.bottom) / (-JUMP_POWER * 10));
-        const gravityMultiplier = 0.7 + (0.3 * (1 - jumpProgress));
-        p.velocity.y += GRAVITY * gravityMultiplier;
-    } else {
-        // Normal gravity otherwise
-        p.velocity.y += GRAVITY;
-    }
+    // Simple, consistent gravity for a classic platformer feel
+    p.velocity.y += GRAVITY;
     
     // Update position
     p.position.x += p.velocity.x;
@@ -536,13 +656,23 @@ function applyPhysics(player) {
         p.velocity.y = 0;
         p.isJumping = false;
     }
+    
+    // Top boundary to prevent going off screen
+    const gameAreaHeight = gameState.gameArea.clientHeight;
+    const characterHeight = p.element.clientHeight;
+    const maxJumpHeight = gameAreaHeight - characterHeight * 0.6; // Allow character to be partly visible at top
+    
+    if (p.position.y < gameState.boundaries.bottom - maxJumpHeight) {
+        p.position.y = gameState.boundaries.bottom - maxJumpHeight;
+        p.velocity.y = 0; // Stop upward movement instead of bouncing
+    }
 }
 
 // Update player position in the DOM
 function updatePlayerPosition(player) {
     const p = gameState.players[player];
     
-    // Set position
+    // Set position with straightforward style updates - no transforms
     p.element.style.left = p.position.x + 'px';
     p.element.style.bottom = (gameState.boundaries.bottom - p.position.y) + 'px';
 }
@@ -552,168 +682,237 @@ function checkCollisions() {
     const p1 = gameState.players.p1;
     const p2 = gameState.players.p2;
     
-    const p1Rect = p1.element.getBoundingClientRect();
-    const p2Rect = p2.element.getBoundingClientRect();
+    // Get character dimensions
+    const p1Width = p1.element.getBoundingClientRect().width;
+    const p1Height = p1.element.getBoundingClientRect().height;
+    const p2Width = p2.element.getBoundingClientRect().width;
+    const p2Height = p2.element.getBoundingClientRect().height;
     
-    // Check if players are colliding
-    if (
-        p1Rect.right > p2Rect.left &&
-        p1Rect.left < p2Rect.right &&
-        p1Rect.bottom > p2Rect.top &&
-        p1Rect.top < p2Rect.bottom
-    ) {
-        // Check for stomps (player 1 stomping player 2)
-        if (p1.velocity.y > 0 && p1Rect.bottom < p2Rect.top + p2Rect.height * 0.4 && !p2.isInvincible) {
+    // Check horizontal overlap - use a smaller collision box (75% of width) for more precise collisions
+    const p1Left = p1.position.x + (p1Width * 0.125);
+    const p1Right = p1.position.x + (p1Width * 0.875);
+    const p2Left = p2.position.x + (p2Width * 0.125);
+    const p2Right = p2.position.x + (p2Width * 0.875);
+    
+    // Reduce height collision area for more precise stomping (70% of height)
+    const p1Top = p1.position.y;
+    const p1Bottom = p1.position.y + (p1Height * 0.7);
+    const p2Top = p2.position.y;
+    const p2Bottom = p2.position.y + (p2Height * 0.7);
+    
+    // Check if characters are horizontally overlapping
+    const horizontalOverlap = !(p1Right < p2Left || p1Left > p2Right);
+    
+    // Check if characters are vertically overlapping
+    const verticalOverlap = !(p1Bottom < p2Top || p1Top > p2Bottom);
+    
+    // Collision detected
+    if (horizontalOverlap && verticalOverlap) {
+        const now = Date.now();
+        
+        // Check who is higher and if they're airborne
+        if (p1.isJumping && p1.position.y < p2.position.y && now - p1.lastStompTime > STOMP_COOLDOWN && !p2.isInvincible) {
+            // Player 1 is airborne and higher - they deal damage
             handleStomp('p1', 'p2');
-        }
-        
-        // Check for stomps (player 2 stomping player 1)
-        if (p2.velocity.y > 0 && p2Rect.bottom < p1Rect.top + p1Rect.height * 0.4 && !p1.isInvincible) {
+            
+            // Repel players away from each other
+            repelPlayers(p1, p2);
+        } 
+        else if (p2.isJumping && p2.position.y < p1.position.y && now - p2.lastStompTime > STOMP_COOLDOWN && !p1.isInvincible) {
+            // Player 2 is airborne and higher - they deal damage
             handleStomp('p2', 'p1');
+            
+            // Repel players away from each other
+            repelPlayers(p2, p1);
         }
-        
-        // Push players apart to prevent clipping
-        if (p1.position.x < p2.position.x) {
-            p1.position.x -= MOVEMENT_SPEED / 2;
-            p2.position.x += MOVEMENT_SPEED / 2;
-        } else {
-            p1.position.x += MOVEMENT_SPEED / 2;
-            p2.position.x -= MOVEMENT_SPEED / 2;
+        else {
+            // Just a horizontal collision - repel without damage
+            // Only apply if one of them is moving
+            if (Math.abs(p1.velocity.x) > 0 || Math.abs(p2.velocity.x) > 0) {
+                repelPlayers(p1, p2);
+            }
         }
     }
 }
 
-// Handle stomp between two players
-function handleStomp(stomper, stompee) {
-    const s = gameState.players[stomper];
-    const t = gameState.players[stompee];
+// Repel players away from each other
+function repelPlayers(player1, player2) {
+    // Determine the direction to push based on relative positions
+    // Positive means push player1 right and player2 left
+    // Negative means push player1 left and player2 right
+    const pushDirection = player1.position.x < player2.position.x ? -1 : 1;
     
-    const now = Date.now();
-    if (now - s.lastStompTime > STOMP_COOLDOWN) {
-        s.lastStompTime = now;
+    // Apply horizontal repulsion
+    player1.velocity.x = pushDirection * -REPULSION_FORCE;
+    player2.velocity.x = pushDirection * REPULSION_FORCE;
+    
+    // Ensure boundaries are respected after repulsion
+    updatePlayerPosition('p1');
+    updatePlayerPosition('p2');
+}
+
+// Handle stomp damage and effects
+function handleStomp(stomper, target) {
+    const s = gameState.players[stomper];
+    const t = gameState.players[target];
+    
+    // If target is already invincible, do nothing
+    if (t.isInvincible) return;
+    
+    // Make target invincible temporarily
+    t.isInvincible = true;
+    
+    // Apply hit effect (shake animation)
+    t.element.classList.add('hit');
+    
+    // Reduce health
+    t.health -= STOMP_DAMAGE;
+    updateHealthBar(target, t.health);
+    
+    // Create blood splatter effect immediately
+    createBloodSplatter(t.element);
+    // Create a second blood splatter for more emphasis
+    setTimeout(() => createBloodSplatter(t.element), 100);
+
+    setTimeout(() => {
+        t.isInvincible = false;
+        t.element.classList.remove('hit');
+    }, INVINCIBILITY_TIME);
+
+    // Show hit effect with plain text instead of dialogue bubbles
+    createHitText(t.element, stomper === 'p1' ? 'nerd' : 'punk');
+    
+    // Bounce the stomper up
+    s.velocity.y = -JUMP_POWER * 0.7;
+    
+    // Play stomp sound
+    playSound('stomp');
+}
+
+// Update health bar display
+function updateHealthBar(player, health) {
+    const healthBar = document.getElementById(`${player}-health`);
+    if (healthBar) {
+        healthBar.style.width = `${health}%`;
         
-        // Reduce health
-        t.health = Math.max(0, t.health - STOMP_DAMAGE);
-        
-        // Update health bar
-        t.healthBar.style.width = t.health + '%';
-        
-        // Add hit animation
-        t.element.classList.add('hit');
-        
-        // Create character dialogue bubble
-        createDialogueBubble(t.element, stompee === 'p1' ? 'nerd' : 'punk');
-        
-        // Create additional background explosions for dramatic effect
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                createBackgroundExplosion();
-            }, i * 200);
+        // Add visual cues based on health level
+        if (health < 30) {
+            healthBar.style.backgroundColor = '#ff0000'; // Red for low health
+        } else if (health < 60) {
+            healthBar.style.backgroundColor = '#ffaa00'; // Orange for medium health
+        } else {
+            healthBar.style.backgroundColor = '#00cc00'; // Green for high health
         }
-        
-        // Make stompee invincible briefly
-        t.isInvincible = true;
-        setTimeout(() => {
-            t.isInvincible = false;
-            t.element.classList.remove('hit');
-        }, INVINCIBILITY_TIME);
-        
-        // Bounce the stomper up
-        s.velocity.y = -JUMP_POWER * 0.7;
-        
-        // Play stomp sound
-        playSound('stomp');
     }
 }
 
-// Create a dialogue bubble for character reactions
-function createDialogueBubble(targetElement, characterType) {
-    // Get a random phrase based on character type
+// Create blood splatter effect
+function createBloodSplatter(targetElement) {
+    const targetRect = targetElement.getBoundingClientRect();
+    const gameAreaRect = gameState.gameArea.getBoundingClientRect();
+    
+    // Create multiple blood splatters for more effect
+    const numSplatters = Math.floor(Math.random() * 5) + 5; // 5-10 splatters for more blood
+    
+    for (let i = 0; i < numSplatters; i++) {
+        const splatter = document.createElement('div');
+        splatter.className = 'blood-splatter';
+        
+        // Calculate random position near the hit point
+        const offsetX = (Math.random() - 0.5) * 120; // Random offset -60px to 60px
+        const offsetY = (Math.random() - 0.5) * 120;
+        
+        // Position relative to center of character
+        const centerX = targetRect.left - gameAreaRect.left + (targetRect.width / 2);
+        const centerY = targetRect.top - gameAreaRect.top + (targetRect.height / 2);
+        
+        // Set position
+        splatter.style.left = `${centerX + offsetX}px`;
+        splatter.style.top = `${centerY + offsetY}px`;
+        
+        // Random size variation
+        const size = 30 + Math.random() * 40; // 30-70px for larger splatters
+        splatter.style.width = `${size}px`;
+        splatter.style.height = `${size}px`;
+        
+        // Random rotation
+        splatter.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+        // Add to game area
+        gameState.gameArea.appendChild(splatter);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (splatter.parentNode) {
+                splatter.parentNode.removeChild(splatter);
+            }
+        }, 500);
+    }
+}
+
+// Create a simple text display for hit reactions (replacing dialogue bubbles)
+function createHitText(targetElement, characterType) {
+    // Get a random phrase from the character's phrase list
     const phrases = characterType === 'nerd' ? NERD_PHRASES : PUNK_PHRASES;
-    const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+    const text = phrases[Math.floor(Math.random() * phrases.length)];
     
     // Create text element with simple styling
     const textElement = document.createElement('div');
     textElement.className = `explosion ${characterType}`;
-    textElement.textContent = phrase;
+    textElement.textContent = text;
     
-    // Position the element near the target
-    const targetRect = targetElement.getBoundingClientRect();
+    // Position the element in the center of the screen for more visibility
     const gameAreaRect = gameState.gameArea.getBoundingClientRect();
     
-    // Calculate position relative to game area - position near the hit point
-    // Use midpoint of character for horizontal positioning
-    const posX = targetRect.left - gameAreaRect.left + (targetRect.width / 2) - (textElement.offsetWidth / 2 || 50);
-    // Position just above character's head
-    const posY = gameAreaRect.bottom - targetRect.top - (targetRect.height / 2);
-    
-    textElement.style.left = `${posX}px`;
-    textElement.style.top = `${posY}px`;
+    textElement.style.left = '50%'; // Center horizontally
+    textElement.style.top = '50%'; // Center vertically
+    textElement.style.transform = 'translate(-50%, -50%)'; // Center precisely
     
     // Add to game area
     gameState.gameArea.appendChild(textElement);
     
-    // Speak the phrase using speech synthesis with character voice
-    speakPhrase(phrase, characterType);
+    // Speak the phrase using speech synthesis
+    speakPhrase(text, characterType);
     
-    // Remove after animation completes
+    // Remove after animation completes - shorter duration for quick flash
     setTimeout(() => {
         if (textElement.parentNode) {
             textElement.parentNode.removeChild(textElement);
         }
-    }, 1500);
+    }, 1000); // 1 second to match animation
 }
 
-// Speak a phrase using Speech Synthesis with character-specific voice
-function speakPhrase(phrase, characterType) {
-    if (!speechSynthesis) return;
+// Function to speak phrases with character-specific voice settings
+function speakPhrase(text, characterType) {
+    if (!('speechSynthesis' in window)) {
+        console.error('Speech synthesis not available');
+        return;
+    }
     
     // Cancel any ongoing speech
-    speechSynthesis.cancel();
+    window.speechSynthesis.cancel();
     
-    // Create utterance
-    const utterance = new SpeechSynthesisUtterance(phrase);
+    // Create a new speech utterance
+    const utterance = new SpeechSynthesisUtterance(text);
     
-    // Get available voices
-    const voices = speechSynthesis.getVoices();
-    
-    // Configure voice based on character type
+    // Configure speech properties based on character type
     if (characterType === 'nerd') {
-        // Nerd voice: higher pitch, slightly slower, more proper
-        utterance.volume = 0.9;
-        utterance.rate = 1.1;
-        utterance.pitch = 1.4; // Higher pitch
+        // Nerd/Rotten Ronnie - lower voice
+        utterance.pitch = 0.7; // Lower pitch
+        utterance.rate = 0.9; // Slightly slower
     } else {
-        // Punk voice: lower pitch, faster, more casual
-        utterance.volume = 1.0;
-        utterance.rate = 1.3;
-        utterance.pitch = 0.8; // Lower pitch
+        // Punk/Luigi - higher voice
+        utterance.pitch = 1.5; // Higher pitch
+        utterance.rate = 1.2; // Faster speech
     }
     
-    // Try to find an appropriate voice if available
-    if (voices.length > 0) {
-        // Look for voices in English
-        const englishVoices = voices.filter(voice => voice.lang.includes('en-'));
-        
-        if (englishVoices.length > 0) {
-            if (characterType === 'nerd') {
-                // Prefer a younger or female voice for the nerd
-                const nerdVoice = englishVoices.find(voice => 
-                    voice.name.includes('Female') || voice.name.includes('Google UK English Female'));
-                utterance.voice = nerdVoice || englishVoices[0];
-            } else {
-                // Prefer a deeper or male voice for the punk
-                const punkVoice = englishVoices.find(voice => 
-                    voice.name.includes('Male') || voice.name.includes('Google UK English Male'));
-                utterance.voice = punkVoice || englishVoices[englishVoices.length - 1];
-            }
-        } else {
-            utterance.voice = voices[0];
-        }
-    }
+    // Set volume for both
+    utterance.volume = 0.9;
     
     // Speak the phrase
-    speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance);
+    
+    console.log(`Speaking phrase as ${characterType}:`, text);
 }
 
 // Play sound effects using Web Audio API
@@ -825,7 +1024,7 @@ function checkGameEnd() {
         clearInterval(bgExplosionInterval);
         
         // Announce winner
-        const winner = gameState.players.p1.health <= 0 ? 'PUNK' : 'NERD';
+        const winner = gameState.players.p1.health <= 0 ? 'LUIGI' : 'ROTTEN RONNIE';
         
         // Play win sound
         playSound('win');
