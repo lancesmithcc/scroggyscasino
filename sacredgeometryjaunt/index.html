@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacred Geometry Dash</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: black;
+        }
+        #gameCanvas {
+            width: 800px;
+            height: 600px;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        // Get canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game constants
+        const GROUND_Y = 500;           // Ground position
+        const PLAYER_SCREEN_X = 200;    // Fixed x-position of player on screen
+        const SPEED = 5;                // Scrolling speed
+        const GRAVITY = 0.5;            // Gravity strength
+        const JUMP_STRENGTH = 5;      // Jump velocity (negative because y increases downward)
+        const PLAYER_RADIUS = 30;       // Collision radius for player
+        const OBSTACLE_RADIUS = 20;     // Collision radius for obstacles
+        const SHAPE_SCALE = 50;         // Scaling factor for shapes
+        const FOCAL_LENGTH = 1;         // Perspective projection focal length
+        const Z_OFFSET = 2;             // Z offset to avoid division by zero
+
+        // Star Tetrahedron definition
+        const starTetrahedron = {
+            vertices: [
+                [1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1],  // First tetrahedron
+                [-1, -1, -1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]   // Second tetrahedron
+            ],
+            edges: [
+                [0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3],     // First tetrahedron edges
+                [4, 5], [4, 6], [4, 7], [5, 6], [5, 7], [6, 7]      // Second tetrahedron edges
+            ]
+        };
+
+        // Cube definition for obstacles
+        const cube = {
+            vertices: [
+                [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+                [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
+            ],
+            edges: [
+                [0, 1], [1, 2], [2, 3], [3, 0],
+                [4, 5], [5, 6], [6, 7], [7, 4],
+                [0, 4], [1, 5], [2, 6], [3, 7]
+            ]
+        };
+
+        // Background objects for parallax
+        const backgroundObjects = [];
+        for (let i = 0; i < 20; i++) {
+            backgroundObjects.push({
+                worldX: Math.random() * 2000 - 1000,
+                y: Math.random() * GROUND_Y,
+                radius: Math.random() * 10 + 5
+            });
+        }
+
+        // Game state variables
+        let gameState = 'menu';
+        let playerWorldX = 0;
+        let playerY = GROUND_Y;
+        let playerVY = 0;  // Vertical velocity
+        let obstacles = [];
+
+        // Rotation function around Y-axis
+        function rotateY(vertex, theta) {
+            const [x, y, z] = vertex;
+            return [
+                x * Math.cos(theta) + z * Math.sin(theta),
+                y,
+                -x * Math.sin(theta) + z * Math.cos(theta)
+            ];
+        }
+
+        // Perspective projection
+        function project(vertex) {
+            const [x, y, z] = vertex;
+            return [
+                FOCAL_LENGTH * x / (z + Z_OFFSET) * SHAPE_SCALE,
+                FOCAL_LENGTH * y / (z + Z_OFFSET) * SHAPE_SCALE
+            ];
+        }
+
+        // Draw a 3D shape
+        function drawShape(shape, screenX, screenY, rotation, color) {
+            const rotatedVertices = shape.vertices.map(v => rotateY(v, rotation));
+            const projectedVertices = rotatedVertices.map(v => project(v));
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            shape.edges.forEach(([i, j]) => {
+                const [px1, py1] = projectedVertices[i];
+                const [px2, py2] = projectedVertices[j];
+                ctx.moveTo(screenX + px1, screenY + py1);
+                ctx.lineTo(screenX + px2, screenY + py2);
+            });
+            ctx.stroke();
+        }
+
+        // Handle clicks
+        canvas.addEventListener('mousedown', () => {
+            if (gameState === 'menu') {
+                // Start game
+                gameState = 'playing';
+                playerWorldX = 0;
+                playerY = GROUND_Y;
+                playerVY = 0;
+                obstacles = [];
+                for (let i = 1; i < 10; i++) {
+                    obstacles.push({
+                        worldX: 400 + i * 200 + Math.random() * 100,
+                        rotationSpeed: 1 + Math.random()
+                    });
+                }
+            } else if (gameState === 'playing' && playerY === GROUND_Y) {
+                // Jump
+                playerVY = JUMP_STRENGTH;
+            }
+        });
+
+        // Update game state
+        function update() {
+            if (gameState !== 'playing') return;
+
+            // Move player in world space
+            playerWorldX += SPEED;
+
+            // Apply gravity and update position
+            playerY += playerVY;
+            playerVY += GRAVITY;
+            if (playerY > GROUND_Y) {
+                playerY = GROUND_Y;
+                playerVY = 0;
+            }
+
+            // Collision detection
+            obstacles.forEach(obstacle => {
+                const dx = playerWorldX - obstacle.worldX;
+                const dy = playerY - GROUND_Y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < PLAYER_RADIUS + OBSTACLE_RADIUS) {
+                    gameState = 'menu';  // Reset to menu on collision
+                }
+            });
+
+            // Spawn new obstacles
+            if (obstacles.length === 0 || 
+                obstacles[obstacles.length - 1].worldX - playerWorldX < canvas.width) {
+                const lastX = obstacles.length > 0 ? 
+                    obstacles[obstacles.length - 1].worldX : 
+                    playerWorldX + canvas.width;
+                obstacles.push({
+                    worldX: lastX + 150 + Math.random() * 100,
+                    rotationSpeed: 1 + Math.random()
+                });
+            }
+
+            // Remove off-screen obstacles
+            obstacles = obstacles.filter(o => o.worldX > playerWorldX - 100);
+        }
+
+        // Render the scene
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const time = Date.now() / 1000;
+
+            if (gameState === 'menu') {
+                // Menu screen
+                drawShape(starTetrahedron, canvas.width / 2, canvas.height / 2, time, 'red');
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Click to Start', canvas.width / 2, canvas.height / 2 + 100);
+            } else if (gameState === 'playing') {
+                // Background with parallax
+                backgroundObjects.forEach(bg => {
+                    const screenX = PLAYER_SCREEN_X + (bg.worldX - playerWorldX) * 0.5;
+                    ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                    ctx.beginPath();
+                    ctx.arc(screenX, bg.y, bg.radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+
+                // Ground
+                ctx.fillStyle = 'gray';
+                ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+
+                // Obstacles
+                obstacles.forEach(obstacle => {
+                    const screenX = PLAYER_SCREEN_X + (obstacle.worldX - playerWorldX);
+                    if (screenX > -50 && screenX < canvas.width + 50) {
+                        drawShape(cube, screenX, GROUND_Y, time * obstacle.rotationSpeed, 'orange');
+                    }
+                });
+
+                // Player
+                drawShape(starTetrahedron, PLAYER_SCREEN_X, playerY, time, 'red');
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+    </script>
+</body>
+</html>

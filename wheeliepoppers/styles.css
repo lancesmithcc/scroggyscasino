@@ -540,4 +540,186 @@ body {
     .dpad-btn {
         font-size: 20px;
     }
+}
+
+/* Game mode selection */
+.mode-selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.mode-selection h2 {
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    margin-bottom: 40px;
+    text-align: center;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.mode-btn {
+    background: linear-gradient(to bottom, #444, #222);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    border: 3px solid #fff;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.mode-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.mode-btn:active {
+    transform: scale(0.95);
+}
+
+/* Game over screen */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 100;
+    font-family: 'Press Start 2P', cursive;
+    border: 3px solid white;
+}
+
+.game-over h2 {
+    color: #ff0;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #f00;
+}
+
+.game-over button {
+    background: linear-gradient(to bottom, #444, #222);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    border: 3px solid #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.game-over button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px white;
+}
+
+/* Character selection */
+.character-selection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.character-selection h2 {
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    margin-bottom: 40px;
+    text-align: center;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+.character-buttons {
+    display: flex;
+    gap: 40px;
+}
+
+.character-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 15px;
+    border: 4px solid transparent;
+    border-radius: 10px;
+}
+
+.character-btn:hover {
+    transform: scale(1.1);
+    border-color: white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.character-btn .char-preview {
+    width: 100px;
+    height: 150px;
+    margin-bottom: 15px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.character-btn .ronnie {
+    background-image: url('sprites/nerd.png');
+}
+
+.character-btn .luigi {
+    background-image: url('sprites/punk.png');
+}
+
+.character-btn .char-name {
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    text-align: center;
+    text-shadow: 0 0 5px #000;
+}
+
+.character-btn.ronnie-btn:hover {
+    border-color: #00FFFF;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+}
+
+.character-btn.luigi-btn:hover {
+    border-color: #FF00FF;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+}
+
+/* Falling animation */
+.character.falling {
+    animation: falling 2s forwards;
+    z-index: 5;
+}
+
+@keyframes falling {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(180deg);
+    }
 } 

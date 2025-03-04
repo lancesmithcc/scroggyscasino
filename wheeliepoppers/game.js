@@ -1,20 +1,20 @@
 // Game constants
 const GAME_SPEED = 60; // fps
-const MOVEMENT_SPEED = 5;
+const MOVEMENT_SPEED = 4;
 const JUMP_POWER = 20; // Moderate jump power for a Mario-style jump
 const GRAVITY = 1.0; // Standard gravity for a classic platformer feel
 const STOMP_DAMAGE = 5; // Damage per hit
-const REPULSION_FORCE = 15; // Force to push characters apart on collision
+const REPULSION_FORCE = 33; // Force to push characters apart on collision
 const STOMP_COOLDOWN = 800; // ms
 const INVINCIBILITY_TIME = 1000; // ms
 const BG_EXPLOSION_INTERVAL = 2000; // ms
-const MUSIC_VOLUME = 0.5; // 50% volume for background music
+const MUSIC_VOLUME = 0.2; // 50% volume for background music
 
 // Replace explosion words with character dialogue phrases
 const NERD_PHRASES = [
     "Where is the beef!",
     "I am not loving it",
-    "bah-dah-bah-dah-bah",
+    "bah-dah. bah-dah-bah",
     "would you like fries with that?",
     "super size me baby"
 ];
@@ -61,6 +61,8 @@ const touchControls = {
 // Game state
 const gameState = {
     running: true,
+    gameMode: '2P', // Default to 2 player mode ('1P' or '2P')
+    playerCharacter: 'p1', // Default to p1 (Rotten Ronnie), can be changed to 'p2' (Luigi)
     isMobile: false,
     musicEnabled: true, // Track if music is enabled
     players: {
@@ -70,16 +72,22 @@ const gameState = {
             healthBar: null,
             position: { x: 0, y: 0 },
             velocity: { x: 0, y: 0 },
-            facingRight: false,
+            facingRight: true,
             isJumping: false,
             lastStompTime: 0,
             isInvincible: false,
+            isAI: false, // Flag for AI control
+            aiTimer: 0,  // Timer for AI decision making
+            type: 'ronnie', // Character type: Rotten Ronnie
             controls: {
                 left: 'ArrowLeft',
                 right: 'ArrowRight',
                 up: 'ArrowUp',
                 down: 'ArrowDown'
-            }
+            },
+            aiMoveLeft: false,
+            aiMoveRight: false,
+            aiJump: false
         },
         p2: {
             element: null,
@@ -91,12 +99,18 @@ const gameState = {
             isJumping: false,
             lastStompTime: 0,
             isInvincible: false,
+            isAI: false, // Flag for AI control
+            aiTimer: 0,  // Timer for AI decision making
+            type: 'luigi', // Character type: Luigi
             controls: {
                 left: 'a',
                 right: 'd',
                 up: 'w',
                 down: 's'
-            }
+            },
+            aiMoveLeft: false,
+            aiMoveRight: false,
+            aiJump: false
         }
     },
     keys: {},
@@ -123,10 +137,113 @@ function initGame() {
     // Set game boundaries
     updateBoundaries();
 
+    // Initialize audio
+    initAudio();
+    
+    // Initialize background music
+    initBackgroundMusic();
+
+    // Show game mode selection
+    showModeSelection();
+}
+
+// Show game mode selection screen
+function showModeSelection() {
+    // Create mode selection overlay
+    const modeSelection = document.createElement('div');
+    modeSelection.className = 'mode-selection';
+    modeSelection.innerHTML = `
+        <h2>SELECT GAME MODE</h2>
+        <div class="mode-buttons">
+            <button id="mode-1p" class="mode-btn">1 PLAYER</button>
+            <button id="mode-2p" class="mode-btn">2 PLAYERS</button>
+        </div>
+    `;
+    
+    // Add to game container
+    document.querySelector('.game-container').appendChild(modeSelection);
+    
+    // Add event listeners for buttons
+    document.getElementById('mode-1p').addEventListener('click', () => {
+        gameState.gameMode = '1P';
+        modeSelection.remove();
+        showCharacterSelection();
+    });
+    
+    document.getElementById('mode-2p').addEventListener('click', () => {
+        gameState.gameMode = '2P';
+        gameState.players.p2.isAI = false;
+        startGame();
+        modeSelection.remove();
+    });
+}
+
+// Show character selection for 1-player mode
+function showCharacterSelection() {
+    // Create character selection overlay
+    const charSelection = document.createElement('div');
+    charSelection.className = 'character-selection';
+    charSelection.innerHTML = `
+        <h2>CHOOSE YOUR CHARACTER</h2>
+        <div class="character-buttons">
+            <div id="select-ronnie" class="character-btn ronnie-btn">
+                <div class="char-preview ronnie"></div>
+                <div class="char-name">ROTTEN RONNIE</div>
+            </div>
+            <div id="select-luigi" class="character-btn luigi-btn">
+                <div class="char-preview luigi"></div>
+                <div class="char-name">LUIGI</div>
+            </div>
+        </div>
+    `;
+    
+    // Add to game container
+    document.querySelector('.game-container').appendChild(charSelection);
+    
+    // Add event listeners for character selection
+    document.getElementById('select-ronnie').addEventListener('click', () => {
+        // Player chooses Rotten Ronnie (p1)
+        console.log("Player selected Rotten Ronnie");
+        
+        // Set player character
+        gameState.playerCharacter = 'p1';
+        
+        // Reset AI flags - only p2 should be AI
+        gameState.players.p1.isAI = false;
+        gameState.players.p2.isAI = true;
+        
+        // Start the game
+        charSelection.remove();
+        startGame();
+    });
+    
+    document.getElementById('select-luigi').addEventListener('click', () => {
+        // Player chooses Luigi (p2)
+        console.log("Player selected Luigi");
+        
+        // Set player character
+        gameState.playerCharacter = 'p2';
+        
+        // Reset AI flags - only p1 should be AI
+        gameState.players.p1.isAI = true;
+        gameState.players.p2.isAI = false;
+        
+        // Swap controls so player uses arrow keys for Luigi
+        swapPlayers();
+        
+        // Start the game
+        charSelection.remove();
+        startGame();
+    });
+}
+
+// Start the game after mode selection
+function startGame() {
     // Set initial positions
     const p1Rect = gameState.players.p1.element.getBoundingClientRect();
     const p2Rect = gameState.players.p2.element.getBoundingClientRect();
     
+    // Reset player positions
     gameState.players.p1.position = {
         x: gameState.boundaries.right - 150,
         y: gameState.boundaries.bottom - p1Rect.height
@@ -136,17 +253,36 @@ function initGame() {
         x: gameState.boundaries.left + 150,
         y: gameState.boundaries.bottom - p2Rect.height
     };
+    
+    // Reset player velocities and AI timers
+    gameState.players.p1.velocity = { x: 0, y: 0 };
+    gameState.players.p2.velocity = { x: 0, y: 0 };
+    gameState.players.p1.aiTimer = 0;
+    gameState.players.p2.aiTimer = 0;
+    
+    // Initialize AI movement flags
+    gameState.players.p1.aiMoveLeft = false;
+    gameState.players.p1.aiMoveRight = false;
+    gameState.players.p1.aiJump = false;
+    gameState.players.p2.aiMoveLeft = false;
+    gameState.players.p2.aiMoveRight = false;
+    gameState.players.p2.aiJump = false;
+    
+    // Make sure characters' health is reset
+    gameState.players.p1.health = 100;
+    gameState.players.p2.health = 100;
+    
+    // Update health bars
+    updateHealthBar('p1', 100);
+    updateHealthBar('p2', 100);
 
     // Update initial positions
     updatePlayerPosition('p1');
     updatePlayerPosition('p2');
-
-    // Initialize audio
-    initAudio();
     
-    // Initialize background music
-    initBackgroundMusic();
-
+    // Make sure the game is marked as running
+    gameState.running = true;
+    
     // Start background explosions
     startBackgroundExplosions();
 
@@ -157,9 +293,22 @@ function initGame() {
     
     // Add touch controls
     initTouchControls();
+    
+    // Add music controls
+    addMusicControls();
+    
+    console.log("Game started with mode: " + gameState.gameMode);
+    if (gameState.gameMode === '1P') {
+        console.log("Player character: " + gameState.playerCharacter);
+        console.log("P1 (Rotten Ronnie) is AI: " + gameState.players.p1.isAI);
+        console.log("P2 (Luigi) is AI: " + gameState.players.p2.isAI);
+    }
 
     // Start game loop
     setInterval(gameLoop, 1000 / GAME_SPEED);
+    
+    // Start background music
+    startBackgroundMusic();
 }
 
 // Check if device is mobile
@@ -562,23 +711,68 @@ function updateBoundaries() {
 
 // Handle key down events
 function handleKeyDown(e) {
-    gameState.keys[e.key.toLowerCase()] = true;
+    // Prevent default action for arrow keys (scrolling)
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+    }
+    
+    // Convert key to lowercase for case-insensitive comparison
+    const key = e.key.toLowerCase();
+    
+    // Update key state
+    gameState.keys[key] = true;
+    
+    // Debug log
+    console.log(`Key pressed: ${key}`);
 }
 
 // Handle key up events
 function handleKeyUp(e) {
-    gameState.keys[e.key.toLowerCase()] = false;
+    // Convert key to lowercase for case-insensitive comparison
+    const key = e.key.toLowerCase();
+    
+    // Update key state
+    gameState.keys[key] = false;
+    
+    // Debug log
+    console.log(`Key released: ${key}`);
 }
 
-// Main game loop
+// Game loop
 function gameLoop() {
     if (!gameState.running) return;
 
-    // Handle player 1 controls
-    handlePlayerControls('p1');
-    
-    // Handle player 2 controls
-    handlePlayerControls('p2');
+    // In 1-player mode
+    if (gameState.gameMode === '1P') {
+        // Reset only the human player's velocity at the start of each frame
+        // (AI will set its own velocity in handleAI)
+        if (gameState.playerCharacter === 'p1') {
+            // Reset only the human player's velocity
+            gameState.players.p1.velocity.x = 0;
+            
+            // Human plays as Rotten Ronnie (p1)
+            handlePlayerControls('p1');
+            // AI controls Luigi (p2)
+            handleAI('p2');
+        } else {
+            // Reset only the human player's velocity
+            gameState.players.p2.velocity.x = 0;
+            
+            // Human plays as Luigi (p2)
+            handlePlayerControls('p2');
+            // AI controls Rotten Ronnie (p1)
+            handleAI('p1');
+        }
+    } 
+    // In 2-player mode, both characters are human-controlled
+    else {
+        // Reset both players' velocities
+        gameState.players.p1.velocity.x = 0;
+        gameState.players.p2.velocity.x = 0;
+        
+        handlePlayerControls('p1');
+        handlePlayerControls('p2');
+    }
 
     // Apply physics
     applyPhysics('p1');
@@ -599,30 +793,47 @@ function gameLoop() {
 function handlePlayerControls(player) {
     const p = gameState.players[player];
     
-    // Reset x velocity
-    p.velocity.x = 0;
-
-    // Movement
-    if (gameState.keys[p.controls.left.toLowerCase()]) {
+    // Skip controls processing if this is an AI character in 1-player mode
+    if (gameState.gameMode === '1P' && 
+        ((player === 'p1' && gameState.playerCharacter === 'p2') || 
+         (player === 'p2' && gameState.playerCharacter === 'p1'))) {
+        console.log(`Skipping controls for AI character ${player}`);
+        return;
+    }
+    
+    console.log(`Processing controls for player ${player}`);
+    
+    // Get the controls for this player
+    const controls = p.controls;
+    
+    // Convert control keys to lowercase for case-insensitive comparison
+    const leftKey = controls.left.toLowerCase();
+    const rightKey = controls.right.toLowerCase();
+    const upKey = controls.up.toLowerCase();
+    
+    // Check if any direction keys are pressed
+    const leftPressed = gameState.keys[leftKey] === true;
+    const rightPressed = gameState.keys[rightKey] === true;
+    const upPressed = gameState.keys[upKey] === true;
+    
+    console.log(`Controls for ${player}: Left=${leftPressed}, Right=${rightPressed}, Up=${upPressed}`);
+    
+    // Apply movement based on keys
+    if (leftPressed) {
         p.velocity.x = -MOVEMENT_SPEED;
         p.facingRight = false;
         p.element.classList.add('flip');
-    }
-    
-    if (gameState.keys[p.controls.right.toLowerCase()]) {
+    } 
+    else if (rightPressed) {
         p.velocity.x = MOVEMENT_SPEED;
         p.facingRight = true;
         p.element.classList.remove('flip');
     }
     
-    // Jump - only if on the ground
-    if (gameState.keys[p.controls.up.toLowerCase()] && !p.isJumping) {
+    // Apply jump if the up key is pressed and player is on the ground
+    if (upPressed && !p.isJumping) {
         p.velocity.y = -JUMP_POWER;
         p.isJumping = true;
-        
-        // No animation classes - just physics-driven movement
-        
-        // Play jump sound
         playSound('jump');
     }
 }
@@ -1020,65 +1231,76 @@ function checkGameEnd() {
     if (gameState.players.p1.health <= 0 || gameState.players.p2.health <= 0) {
         gameState.running = false;
         
+        // Stop the background music
+        if (backgroundMusic) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        }
+        
         // Clear background explosion interval
         clearInterval(bgExplosionInterval);
         
-        // Announce winner
-        const winner = gameState.players.p1.health <= 0 ? 'LUIGI' : 'ROTTEN RONNIE';
+        // Determine winner and loser
+        const isP1Loser = gameState.players.p1.health <= 0;
+        const winner = isP1Loser ? 'LUIGI' : 'ROTTEN RONNIE';
+        const loserElement = isP1Loser ? gameState.players.p1.element : gameState.players.p2.element;
+        
+        // Make the loser fall off the screen
+        animateLoserFalling(isP1Loser ? 'p1' : 'p2');
         
         // Play win sound
         playSound('win');
         
-        // Create game over message
-        const gameOver = document.createElement('div');
-        gameOver.className = 'game-over';
-        gameOver.innerHTML = `
-            <h2>${winner} WINS!</h2>
-            <button id="restart">PLAY AGAIN!</button>
-        `;
-        gameOver.style.position = 'absolute';
-        gameOver.style.top = '50%';
-        gameOver.style.left = '50%';
-        gameOver.style.transform = 'translate(-50%, -50%)';
-        gameOver.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        gameOver.style.color = '#FFD700';
-        gameOver.style.padding = '30px';
-        gameOver.style.borderRadius = '10px';
-        gameOver.style.textAlign = 'center';
-        gameOver.style.zIndex = '10';
-        gameOver.style.fontFamily = "'Press Start 2P', cursive";
-        gameOver.style.border = '5px solid #FFD700';
-        gameOver.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
-        
-        // Style button
-        const button = document.createElement('style');
-        button.textContent = `
-            #restart {
-                background-color: #FF5722;
-                color: white;
-                border: none;
-                padding: 15px;
-                margin-top: 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-family: 'Press Start 2P', cursive;
-                font-size: 14px;
-                border: 3px solid #FFD700;
-                box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-                transition: all 0.3s;
-            }
-            #restart:hover {
-                transform: scale(1.1);
-                background-color: #FF9800;
-            }
-        `;
-        document.head.appendChild(button);
-        
-        gameState.gameArea.appendChild(gameOver);
-        
-        // Add restart event listener
-        document.getElementById('restart').addEventListener('click', restartGame);
+        // Create game over message - but delay it until after falling animation
+        setTimeout(() => {
+            const gameOver = document.createElement('div');
+            gameOver.className = 'game-over';
+            gameOver.innerHTML = `
+                <h2>${winner} WINS!</h2>
+                <button id="restart">PLAY AGAIN!</button>
+            `;
+            gameOver.style.position = 'absolute';
+            gameOver.style.top = '50%';
+            gameOver.style.left = '50%';
+            gameOver.style.transform = 'translate(-50%, -50%)';
+            gameOver.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            gameOver.style.color = 'white';
+            gameOver.style.padding = '30px';
+            gameOver.style.borderRadius = '10px';
+            gameOver.style.textAlign = 'center';
+            gameOver.style.zIndex = '100';
+            
+            document.querySelector('.game-container').appendChild(gameOver);
+            
+            // Add restart button listener
+            document.getElementById('restart').addEventListener('click', restartGame);
+        }, 2000); // Delay by 2 seconds to show falling animation
     }
+}
+
+// Animate the loser falling off the screen
+function animateLoserFalling(loser) {
+    const loserPlayer = gameState.players[loser];
+    const loserElement = loserPlayer.element;
+    
+    // Add falling class
+    loserElement.classList.add('falling');
+    
+    // Create animation with javascript
+    let fallDistance = 0;
+    const fallInterval = setInterval(() => {
+        fallDistance += 10;
+        loserPlayer.position.y += 10;
+        
+        // Update element position
+        updatePlayerPosition(loser);
+        
+        // If fallen below screen height, stop animation
+        if (fallDistance > window.innerHeight) {
+            clearInterval(fallInterval);
+            loserElement.style.display = 'none';
+        }
+    }, 50);
 }
 
 // Restart the game
@@ -1095,41 +1317,150 @@ function restartGame() {
     gameState.players.p2.health = 100;
     
     // Reset health bars
-    gameState.players.p1.healthBar.style.width = '100%';
-    gameState.players.p2.healthBar.style.width = '100%';
+    updateHealthBar('p1', 100);
+    updateHealthBar('p2', 100);
     
-    // Reset positions
-    gameState.players.p1.position = {
-        x: gameState.boundaries.right - 150,
-        y: gameState.boundaries.bottom
-    };
+    // Show mode selection again
+    showModeSelection();
+}
+
+// AI control function for 1-player mode
+function handleAI(player) {
+    const ai = gameState.players[player];
     
-    gameState.players.p2.position = {
-        x: gameState.boundaries.left + 150,
-        y: gameState.boundaries.bottom
-    };
+    // Debug log to verify AI is being called for the correct player
+    console.log(`AI thinking for ${player} (${ai.type})`);
     
-    // Reset velocities
-    gameState.players.p1.velocity = { x: 0, y: 0 };
-    gameState.players.p2.velocity = { x: 0, y: 0 };
+    // Determine the human player (target)
+    const targetPlayer = player === 'p1' ? 'p2' : 'p1';
+    const human = gameState.players[targetPlayer];
     
-    // Reset invincibility
-    gameState.players.p1.isInvincible = false;
-    gameState.players.p2.isInvincible = false;
+    // Update AI timer
+    ai.aiTimer++;
     
-    // Update positions
-    updatePlayerPosition('p1');
-    updatePlayerPosition('p2');
-    
-    // Reset music if it stopped
-    if (gameState.musicEnabled && backgroundMusic && backgroundMusic.paused) {
-        backgroundMusic.play().catch(error => {
-            console.log("Couldn't restart music:", error);
-        });
+    // Make decision every 10 frames (0.17 seconds at 60fps) - increased frequency for better responsiveness
+    if (ai.aiTimer >= 10) {
+        ai.aiTimer = 0;
+        
+        // Distance to human player
+        const distanceX = human.position.x - ai.position.x;
+        const distanceY = human.position.y - ai.position.y;
+        const absDistanceX = Math.abs(distanceX);
+        
+        // Store previous movement intentions
+        const prevMoveLeft = ai.aiMoveLeft;
+        const prevMoveRight = ai.aiMoveRight;
+        
+        // Reset direction intentions
+        ai.aiMoveLeft = false;
+        ai.aiMoveRight = false;
+        ai.aiJump = false;
+        
+        // Basic AI behavior:
+        // 1. Move toward human player
+        if (distanceX > 40) {  // Smaller threshold to be more responsive
+            // Move right toward human
+            ai.aiMoveRight = true;
+            ai.facingRight = true;
+            ai.element.classList.remove('flip');
+        } else if (distanceX < -40) {  // Smaller threshold to be more responsive
+            // Move left toward human
+            ai.aiMoveLeft = true;
+            ai.facingRight = false;
+            ai.element.classList.add('flip');
+        }
+        
+        // 2. Jump if human player is above or if close enough to human player to attempt a stomp
+        const shouldJump = 
+            // Jump if human is above
+            (distanceY < -50 && absDistanceX < 100) || 
+            // Jump if close, for possible stomp
+            (absDistanceX < 70 && Math.random() > 0.3) ||
+            // Occasionally jump randomly
+            (Math.random() < 0.1);
+            
+        if (shouldJump && !ai.isJumping) {
+            ai.aiJump = true;
+        }
+        
+        // 3. Avoid getting stomped
+        if (distanceY < -100 && absDistanceX < 80 && human.velocity.y > 0) {
+            // Human is falling toward AI - move away!
+            if (distanceX > 0) {
+                ai.aiMoveLeft = true;
+                ai.aiMoveRight = false;
+            } else {
+                ai.aiMoveLeft = false;
+                ai.aiMoveRight = true;
+            }
+        }
+        
+        // 4. Don't fall off the edge of the platform
+        if (ai.position.x < gameState.boundaries.left + 50) {
+            ai.aiMoveRight = true;
+            ai.aiMoveLeft = false;
+        } else if (ai.position.x > gameState.boundaries.right - 50) {
+            ai.aiMoveRight = false;
+            ai.aiMoveLeft = true;
+        }
+        
+        // Log AI decisions if they changed
+        if (prevMoveLeft !== ai.aiMoveLeft || prevMoveRight !== ai.aiMoveRight) {
+            console.log(`AI ${player} movement updated: left=${ai.aiMoveLeft}, right=${ai.aiMoveRight}`);
+        }
     }
     
-    // Restart background explosions
-    startBackgroundExplosions();
+    // Apply AI movement using full MOVEMENT_SPEED (exactly as player movement)
+    // This runs every frame, not just when decisions are made
+    if (ai.aiMoveLeft) {
+        ai.velocity.x = -MOVEMENT_SPEED;
+    } else if (ai.aiMoveRight) {
+        ai.velocity.x = MOVEMENT_SPEED;
+    } else {
+        ai.velocity.x = 0;
+    }
+    
+    // Apply jump if needed
+    if (ai.aiJump && !ai.isJumping) {
+        ai.velocity.y = -JUMP_POWER;
+        ai.isJumping = true;
+        ai.aiJump = false;  // Reset jump flag
+        playSound('jump');
+    }
+}
+
+// Swap player characters (for 1-player mode)
+function swapPlayers() {
+    // When player chooses Luigi, we need to swap the controls
+    // We want Luigi (p2) to use arrow keys and Rotten Ronnie (p1) to use WASD
+    
+    // Save original p1 controls (arrow keys)
+    const arrowControls = {
+        left: 'ArrowLeft',
+        right: 'ArrowRight',
+        up: 'ArrowUp',
+        down: 'ArrowDown'
+    };
+    
+    // Save original p2 controls (WASD)
+    const wasdControls = {
+        left: 'a',
+        right: 'd',
+        up: 'w',
+        down: 's'
+    };
+    
+    // Assign arrow keys to p2 (Luigi) - the player's character
+    gameState.players.p2.controls = arrowControls;
+    
+    // Assign WASD to p1 (Rotten Ronnie) - the AI character
+    gameState.players.p1.controls = wasdControls;
+    
+    // Update controls info display
+    const controlsInfo = document.querySelector('.controls-info');
+    if (controlsInfo) {
+        controlsInfo.innerHTML = '<p>LUIGI: ← → ↑ ↓</p><p>ROTTEN RONNIE: W A S D</p>';
+    }
 }
 
 // Wait for DOM to load then initialize game
