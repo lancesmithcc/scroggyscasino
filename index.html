@@ -22,6 +22,87 @@
             font-style: normal;
         }
 
+        /* Theme variables */
+        :root {
+            /* Default theme - Wizard (Green/Gold) */
+            --bg-color: #1a1a1a;
+            --container-bg: linear-gradient(45deg, #000000, #172d30);
+            --border-color: rgb(250, 242, 5);
+            --title-color: #f7a965;
+            --text-color: gold;
+            --card-bg: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            --card-border: gold;
+            --card-text: #cccccc;
+            --aurora-colors: linear-gradient(
+                45deg,
+                rgba(139, 69, 19, 0.3) 0%,
+                rgba(34, 139, 34, 0.3) 25%,
+                rgba(177, 86, 21, 0.3) 50%,
+                rgba(34, 139, 34, 0.3) 75%,
+                rgba(139, 69, 19, 0.3) 100%
+            );
+        }
+
+        /* Cosmic theme (Purple/Blue) */
+        [data-theme="cosmic"] {
+            --bg-color: #0a0a1a;
+            --container-bg: linear-gradient(45deg, #0a0a1a, #1a1a3a);
+            --border-color: #9370DB;
+            --title-color: #9370DB;
+            --text-color: #9370DB;
+            --card-bg: linear-gradient(145deg, #1a1a3a, #0a0a1a);
+            --card-border: #9370DB;
+            --card-text: #b0c4de;
+            --aurora-colors: linear-gradient(
+                45deg,
+                rgba(147, 112, 219, 0.3) 0%,
+                rgba(65, 105, 225, 0.3) 25%,
+                rgba(138, 43, 226, 0.3) 50%,
+                rgba(65, 105, 225, 0.3) 75%,
+                rgba(147, 112, 219, 0.3) 100%
+            );
+        }
+
+        /* Inferno theme (Red/Orange) */
+        [data-theme="inferno"] {
+            --bg-color: #1a0a0a;
+            --container-bg: linear-gradient(45deg, #1a0a0a, #3a1a1a);
+            --border-color: #ff4500;
+            --title-color: #ff7f50;
+            --text-color: #ff4500;
+            --card-bg: linear-gradient(145deg, #3a1a1a, #1a0a0a);
+            --card-border: #ff4500;
+            --card-text: #ffb6c1;
+            --aurora-colors: linear-gradient(
+                45deg,
+                rgba(255, 69, 0, 0.3) 0%,
+                rgba(255, 140, 0, 0.3) 25%,
+                rgba(178, 34, 34, 0.3) 50%,
+                rgba(255, 140, 0, 0.3) 75%,
+                rgba(255, 69, 0, 0.3) 100%
+            );
+        }
+
+        /* Ocean theme (Blue/Cyan) */
+        [data-theme="ocean"] {
+            --bg-color: #0a1a1a;
+            --container-bg: linear-gradient(45deg, #0a1a1a, #1a3a3a);
+            --border-color: #00bfff;
+            --title-color: #87ceeb;
+            --text-color: #00bfff;
+            --card-bg: linear-gradient(145deg, #1a3a3a, #0a1a1a);
+            --card-border: #00bfff;
+            --card-text: #e0ffff;
+            --aurora-colors: linear-gradient(
+                45deg,
+                rgba(0, 191, 255, 0.3) 0%,
+                rgba(32, 178, 170, 0.3) 25%,
+                rgba(0, 139, 139, 0.3) 50%,
+                rgba(32, 178, 170, 0.3) 75%,
+                rgba(0, 191, 255, 0.3) 100%
+            );
+        }
+
         /* Aurora and Stars Background */
         @keyframes aurora {
             0% {
@@ -51,7 +132,7 @@
             height: 100%;
             overflow: hidden;
             z-index: -2;
-            background: #1a1a1a;
+            background: var(--bg-color);
         }
 
         .aurora {
@@ -60,14 +141,7 @@
             height: 200%;
             top: 50%;
             left: 50%;
-            background: linear-gradient(
-                45deg,
-                rgba(139, 69, 19, 0.3) 0%,
-                rgba(34, 139, 34, 0.3) 25%,
-                rgba(177, 86, 21, 0.3) 50%,
-                rgba(34, 139, 34, 0.3) 75%,
-                rgba(139, 69, 19, 0.3) 100%
-            );
+            background: var(--aurora-colors);
             filter: blur(60px);
             animation: aurora 15s linear infinite;
             mix-blend-mode: screen;
@@ -106,7 +180,7 @@
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: var(--bg-color);
             font-family: 'Nunito', sans-serif;
             min-height: 100vh;
             min-height: -webkit-fill-available; /* iOS viewport fix */
@@ -114,7 +188,7 @@
             align-items: center;
             justify-content: center;
             padding: 10px;
-            color: gold; /* Ensure text is visible while font loads */
+            color: var(--text-color); /* Ensure text is visible while font loads */
             flex-direction: column;
         }
 
@@ -127,9 +201,9 @@
             width: min(95vw, 800px);
             margin: auto;
             padding: clamp(15px, 4vw, 30px);
-            border: clamp(4px, 1.5vw, 8px) solid rgb(250, 242, 5);
+            border: clamp(4px, 1.5vw, 8px) solid var(--border-color);
             border-radius: clamp(15px, 4vw, 20px);
-            background: linear-gradient(45deg, #000000, #172d30);
+            background: var(--container-bg);
             text-align: center;
             opacity: 0.9;
             position: relative;
@@ -139,7 +213,7 @@
         h1 {
             font-size: var(--title-size);
             margin-bottom: clamp(20px, 4vw, 30px);
-            color: #f7a965;
+            color: var(--title-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -162,12 +236,12 @@
         }
 
         .game-card {
-            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            background: var(--card-bg);
             border-radius: 15px;
             padding: 20px;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid gold;
+            border: 2px solid var(--card-border);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -189,12 +263,12 @@
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: gold;
+            color: var(--text-color);
         }
 
         .game-description {
             font-size: 14px;
-            color: #cccccc;
+            color: var(--card-text);
         }
 
         .coming-soon {
@@ -272,12 +346,108 @@
             color: #888;
             font-size: 14px;
             text-align: center;
+            position: relative;
+        }
+
+        /* Theme Picker */
+        .theme-picker {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .theme-toggle {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-options {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+        }
+
+        .theme-options.show {
+            display: flex;
+        }
+
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .theme-option:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-option.active {
+            border: 2px solid white;
+            box-shadow: 0 0 10px white;
+        }
+
+        .theme-wizard {
+            background: linear-gradient(45deg, #172d30, #50ff50);
+        }
+
+        .theme-cosmic {
+            background: linear-gradient(45deg, #1a1a3a, #9370DB);
+        }
+
+        .theme-inferno {
+            background: linear-gradient(45deg, #3a1a1a, #ff4500);
+        }
+
+        .theme-ocean {
+            background: linear-gradient(45deg, #1a3a3a, #00bfff);
         }
 
         /* Responsive adjustments */
         @media (max-width: 600px) {
             .games-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .theme-picker {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .theme-toggle {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .theme-option {
+                width: 25px;
+                height: 25px;
             }
         }
     </style>
@@ -335,366 +505,18 @@
         &copy; 2025 Scroggalicious
     </footer>
 
+    <!-- Theme Picker -->
+    <div class="theme-picker">
+        <div class="theme-toggle" id="themeToggle">🎨</div>
+        <div class="theme-options" id="themeOptions">
+            <div class="theme-option theme-wizard active" data-theme="wizard" title="Wizard Theme"></div>
+            <div class="theme-option theme-cosmic" data-theme="cosmic" title="Cosmic Theme"></div>
+            <div class="theme-option theme-inferno" data-theme="inferno" title="Inferno Theme"></div>
+            <div class="theme-option theme-ocean" data-theme="ocean" title="Ocean Theme"></div>
+        </div>
+    </div>
+
     <script>
-        // Move these variables to the top of the script, right after the emoji definitions
-        const emojis = ['💩', '🌮', '🍩', '🤮', '🤑', '🥒'];
-        const reel1 = document.getElementById('reel1');
-        const reel2 = document.getElementById('reel2');
-        const reel3 = document.getElementById('reel3');
-        const spinButton = document.getElementById('spin-button');
-        const betAllButton = document.getElementById('bet-all-button');
-        const message = document.getElementById('message');
-        const moneyDisplay = document.getElementById('money');
-        const jackpotAnimation = document.getElementById('jackpot-animation');
-
-        // Debt collector characters with their threatening messages
-        const debtCollectors = [
-            { emoji: '😈', message: "Listen up {name}, pay your debt or I'll use your kneecaps as hockey pucks! 🏒" },
-            { emoji: '👹', message: "Yo {name}! Your debt's bigger than my nose, and that's saying something! Pay up or else! 💥" },
-            { emoji: '🦹‍♂️', message: "I've been watching you {name}... in the bathroom... in the kitchen... PAY YOUR DEBT! 👁️" },
-            { emoji: '🧛‍♂️', message: "Your debt is making me thirsty, {name}. I vant to suck your vallet! 🩸" },
-            { emoji: '🤡', message: "Knock knock, {name}! Who's there? YOUR WORST DEBT NIGHTMARE! HAHAHA! 🔪" },
-            { emoji: '🦖', message: "RAWR! Your debt stinks worse than my breath, {name}! And I eat garbage! 🦴" },
-            { emoji: '🧟‍♀️', message: "Your debt's the only thing more rotten than me, {name}! BRAAAINS... AND MONEY! 🧠" },
-            { emoji: '🕵️‍♂️', message: "I've seen your browser history, {name}. Pay your debt or everyone else will too! 🔍" },
-            { emoji: '👮‍♀️', message: "You have the right to remain broke, {name}! Anything you earn will be used to pay your debt! 🚨" },
-            { emoji: '🧙‍♂️', message: "By the power of compound interest, {name}, your debt has TRIPLED! Abracadabra, pay up! ✨" },
-            { emoji: '👽', message: "We've probed your bank account, {name}. It's emptier than Uranus! 🛸" },
-            { emoji: '🤖', message: "SCANNING {name}'s ASSETS... RESULT: PATHETIC. INITIATING DEBT COLLECTION PROTOCOL. BEEP BOOP. 🔋" }
-        ];
-        
-        // Current debt collector index
-        let currentCollectorIndex = 0;
-
-        // Prize values for each emoji combination
-        const PRIZES = {
-            '💩': 10000,              // Poop - 100
-            '🌮': 5000,              // Taco - 500
-            '🍩': 1000,             // Donut - 1k
-            '🤮': 500000,             // Barf - 5k
-            '🤑': 1000000000,           // Money Face - 100 Trillion
-            '🥒': 2500              // Pickle - 2.5k
-        };
-
-        // Weighted probabilities (higher number = more common)
-        const WEIGHTS = {
-            '💩': 100,    // Common
-            '🌮': 80,     // Common
-            '🍩': 80,     // Common
-            '🥒': 60,     // Less common
-            '🤮': 30,     // Rare
-            '🤑': 5       // Very rare
-        };
-
-        // Rarity labels for jackpots
-        const RARITY = {
-            '💩': 'Common',
-            '🌮': 'Common',
-            '🍩': 'Common',
-            '🥒': 'Uncommon',
-            '🤮': 'Rare',
-            '🤑': 'Legendary'
-        };
-
-        let money = 500;
-        let legitimateMoney = 500; // Track legitimate earnings separately
-        const SPIN_COST = 25;
-        let spinCounter = 0;
-        let jackpotHistory = []; // Track jackpot wins history
-
-        // Audio Context and Sounds
-        let audioContext;
-        
-        // Initialize audio on first user interaction
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
-        // Create beep sound
-        function createBeep(frequency, duration) {
-            if (!audioContext) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + duration);
-        }
-
-        // Play victory tune
-        function playVictoryTune() {
-            if (!audioContext) return;
-            
-            const notes = [
-                { freq: 1800, duration: 0.1 }, // High C - Ding!
-                { freq: 1800, duration: 0.1 }, // High C - Ding!
-                { freq: 1800, duration: 0.1 }, // High C - Ding!
-                { freq: 2000, duration: 0.2 }, // Final higher note
-                { freq: 2400, duration: 0.3 }  // Highest celebratory note
-            ];
-            
-            notes.forEach((note, index) => {
-                setTimeout(() => {
-                    createBeep(note.freq, note.duration);
-                }, index * 150); // Slightly faster timing between notes
-            });
-        }
-
-        // Play spinning sound
-        function playSpinSound(reel) {
-            const baseFreq = 300 + (reel * 100); // Different frequency for each reel
-            const interval = setInterval(() => {
-                createBeep(baseFreq + Math.random() * 200, 0.05);
-            }, 100);
-            
-            return interval;
-        }
-
-        let playerName = '';
-        let playerEmoji = '';
-        const nameInput = document.getElementById('nameInput');
-        const playerNameInput = document.getElementById('playerName');
-        const startButton = document.querySelector('.name-input-container button');
-
-        // Initialize emoji selection
-        document.querySelectorAll('.emoji-option').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.emoji-option').forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-                playerEmoji = option.dataset.emoji;
-                validateNameInput();
-            });
-        });
-
-        // Validate name input and emoji selection
-        function validateNameInput() {
-            const name = playerNameInput.value.trim();
-            startButton.disabled = !name || !playerEmoji;
-        }
-
-        playerNameInput.addEventListener('input', validateNameInput);
-
-        // Start game function
-        function startGame() {
-            const name = playerNameInput.value.trim();
-            if (name && playerEmoji) {
-                playerName = name;
-                nameInput.style.display = 'none';
-                message.textContent = `Welcome to the casino, ${playerEmoji} ${playerName}! Let's GO! 🎰`;
-                message.classList.add('show');
-                saveGameState(); // Save immediately after setting name
-                loadGameState(); // Load any existing state for this player
-            }
-        }
-
-        // Updated taunting messages with name placeholders
-        const taunts = [
-            "Nice try, {name} you filthy dinglehopper! 🏴‍☠️",
-            "You call that a spin, {name}? My grandma spins better! 👵",
-            "What kind of crap was that, {name}? 💩",
-            "Maybe you should try tax fraud instead, {name}! 📋",
-            "Did your fingers slip {name}, or are you just that bad? 🤪",
-            "Even a blind goblin could spin better than you, {name}! 👺",
-            "Is that the best you got, {name}? Pathetic! 😤",
-            "Back to wizard school with ye, {name}! 🧙‍♂️",
-            "{name}, Scroggy is not impressed! 🙄",
-            "Have you considered a career in potato farming, {name}? 🥔",
-            "That's not how you make money, {name}! 💸",
-            "{name}, your luck is as bad as your fashion sense! 👕",
-            "Keep trying {name}, you'll get there... maybe... probably not! 😅"
-        ];
-
-        function updateMoney() {
-            console.log('Updating money display:', money);
-            const moneyDisplay = document.getElementById('money');
-            const spinButton = document.getElementById('spin-button');
-            const betAllButton = document.getElementById('bet-all-button');
-            
-            moneyDisplay.textContent = money.toLocaleString();
-            const isNegative = money < 0;
-            moneyDisplay.classList.toggle('negative', isNegative);
-            
-            // Update button states
-            spinButton.disabled = false; // Allow spinning even with negative money
-            betAllButton.disabled = money <= 0;
-            
-            console.log('Button states updated - Spin:', spinButton.disabled, 'Bet All:', betAllButton.disabled);
-            
-            const devilPopup = document.getElementById('devil-popup');
-            if (isNegative) {
-                // Always show a debt collector when money is negative
-                showDebtCollector();
-            } else {
-                devilPopup.classList.remove('show');
-            }
-
-            // Update legitimate money for non-cheat users
-            if (playerName.toLowerCase() !== 'cashmeoutside' || playerEmoji !== '🤑') {
-                legitimateMoney = money;
-            }
-        }
-
-        // Function to show a debt collector
-        function showDebtCollector() {
-            const devilPopup = document.getElementById('devil-popup');
-            
-            // Pick the next debt collector in the array
-            const collector = debtCollectors[currentCollectorIndex];
-            console.log('Showing debt collector:', collector.emoji, collector.message);
-            
-            // Update the collector emoji and message
-            devilPopup.querySelector('.speech-bubble').textContent = 
-                `${collector.message.replace('{name}', playerName)}`;
-            
-            // Update the emoji displayed
-            devilPopup.querySelector('.collector-emoji').textContent = collector.emoji;
-            
-            // Show the popup
-            devilPopup.classList.add('show');
-            console.log('Debt collector popup shown, speech bubble should be visible');
-            
-            // Force a reflow to ensure the animation triggers properly
-            setTimeout(() => {
-                const speechBubble = devilPopup.querySelector('.speech-bubble');
-                speechBubble.style.opacity = '1';
-                speechBubble.style.transform = 'translateY(0)';
-                console.log('Speech bubble visibility enforced');
-            }, 100);
-            
-            // Increment the collector index for next time
-            currentCollectorIndex = (currentCollectorIndex + 1) % debtCollectors.length;
-            
-            // Hide the popup after 12 seconds
-            setTimeout(() => {
-                devilPopup.classList.remove('show');
-                console.log('Debt collector popup hidden');
-            }, 12000);
-        }
-
-        function createCoin(x, y) {
-            const coin = document.createElement('div');
-            coin.className = 'coin';
-            coin.textContent = '💰';
-            coin.style.left = x + 'px';
-            coin.style.top = y + 'px';
-            
-            // Random direction
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 100 + Math.random() * 200;
-            const tx = Math.cos(angle) * distance;
-            const ty = Math.sin(angle) * distance;
-            
-            coin.style.setProperty('--tx', `${tx}px`);
-            coin.style.setProperty('--ty', `${ty}px`);
-            coin.style.animation = 'coinFly 1s ease-out forwards';
-            
-            return coin;
-        }
-
-        function celebrateJackpot() {
-            const centerX = jackpotAnimation.offsetWidth / 2;
-            const centerY = jackpotAnimation.offsetHeight / 2;
-            
-            // Create multiple coins
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const coin = createCoin(centerX, centerY);
-                    jackpotAnimation.appendChild(coin);
-                    
-                    // Remove coin after animation
-                    setTimeout(() => coin.remove(), 1000);
-                }, i * 50);
-            }
-        }
-
-        // Play losing sound
-        function playLosingSound() {
-            if (!audioContext) return;
-            
-            const notes = [
-                { freq: 300, duration: 0.1 },
-                { freq: 250, duration: 0.1 },
-                { freq: 200, duration: 0.2 }
-            ];
-            
-            notes.forEach((note, index) => {
-                setTimeout(() => {
-                    createBeep(note.freq, note.duration);
-                }, index * 150);
-            });
-        }
-
-        // Initialize game state on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadGameState();
-            createStars();
-            updateScrollArrows();
-            
-            // Initialize buttons
-            const spinButton = document.getElementById('spin-button');
-            const betAllButton = document.getElementById('bet-all-button');
-            
-            // Add click event listeners
-            spinButton.addEventListener('click', () => {
-                console.log('Spin button clicked');
-                if (!spinButton.disabled) {
-                    spin();
-                }
-            });
-            
-            betAllButton.addEventListener('click', () => {
-                console.log('Bet All button clicked');
-                if (!betAllButton.disabled) {
-                    betAll();
-                }
-            });
-            
-            // Initialize mute button
-            let muted = false;
-            const muteButton = document.querySelector('.mute-button');
-            muteButton.addEventListener('click', () => {
-                muted = !muted;
-                muteButton.innerHTML = muted ? '🔇' : '🔊';
-                if (audioContext) {
-                    audioContext.destination.gain.value = muted ? 0 : 1;
-                }
-            });
-
-            // Initialize profile emoji grid
-            const profileOverlay = document.getElementById('profileOverlay');
-            const profileEmojiGrid = profileOverlay.querySelector('.emoji-grid');
-            const originalEmojiGrid = document.querySelector('#nameInput .emoji-grid');
-            
-            // Clone emoji grid content
-            profileEmojiGrid.innerHTML = originalEmojiGrid.innerHTML;
-            
-            // Add click handlers to the profile emoji options
-            profileEmojiGrid.querySelectorAll('.emoji-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    profileEmojiGrid.querySelectorAll('.emoji-option').forEach(opt => 
-                        opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                });
-            });
-
-            // Add scroll event listener for profile emoji grid
-            profileEmojiGrid.addEventListener('scroll', updateScrollArrows);
-            
-            // Update initial button states
-            updateMoney();
-        });
-
         // Create background stars
         function createStars() {
             const starsContainer = document.querySelector('.stars');
@@ -712,825 +534,66 @@
             }
         }
 
-        // Handle emoji scrolling
-        function scrollEmojis(button, direction) {
-            console.log('Scrolling emojis:', direction);
-            const container = button.closest('.emoji-scroll-container');
-            const emojiGrid = container.querySelector('.emoji-grid');
-            const scrollAmount = direction === 'up' ? -120 : 120;
+        // Theme switcher functionality
+        function initThemeSwitcher() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeOptions = document.getElementById('themeOptions');
+            const themeButtons = document.querySelectorAll('.theme-option');
             
-            emojiGrid.scrollBy({
-                top: scrollAmount,
-                behavior: 'smooth'
-            });
-            
-            // Update arrow states after scrolling
-            setTimeout(() => updateScrollArrows(), 100);
-        }
-
-        // Update scroll arrow states
-        function updateScrollArrows() {
-            document.querySelectorAll('.emoji-scroll-container').forEach(container => {
-                const grid = container.querySelector('.emoji-grid');
-                const upArrow = container.querySelector('.emoji-scroll-arrow.up');
-                const downArrow = container.querySelector('.emoji-scroll-arrow.down');
+            // Load saved theme
+            const savedTheme = localStorage.getItem('scroggyTheme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
                 
-                if (!grid || !upArrow || !downArrow) return;
-                
-                // Check if we can scroll up
-                upArrow.disabled = grid.scrollTop <= 0;
-                
-                // Check if we can scroll down
-                const canScrollDown = grid.scrollHeight > grid.clientHeight && 
-                                    grid.scrollTop < (grid.scrollHeight - grid.clientHeight - 5);
-                downArrow.disabled = !canScrollDown;
-            });
-        }
-
-        // Spin function - main game mechanic
-        function spin() {
-            console.log('Spin function called');
-            if (spinButton.disabled) {
-                console.log('Spin button is disabled');
-                return;
-            }
-            
-            initAudio();
-            money -= SPIN_COST;
-            updateMoney();
-            
-            spinCounter++; // increment spin counter
-            
-            // Is this a cheat user? (cashmeoutside user with money emoji)
-            const isCheatUser = playerName && playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑';
-            
-            // Is this a guaranteed jackpot spin for the cheat user?
-            const isJackpotSpin = isCheatUser && (spinCounter % 10 === 0);
-            
-            spinButton.disabled = true;
-            betAllButton.disabled = true;
-            message.classList.remove('show');
-            
-            reel1.classList.remove('win');
-            reel2.classList.remove('win');
-            reel3.classList.remove('win');
-            
-            // Stagger the reel spins
-            const reel1Duration = 1500;
-            const reel2Duration = 2000;
-            const reel3Duration = 2500;
-            
-            setTimeout(() => spinReel(reel1, reel1Duration, isJackpotSpin), 0);
-            setTimeout(() => spinReel(reel2, reel2Duration, isJackpotSpin), 300);
-            setTimeout(() => spinReel(reel3, reel3Duration, isJackpotSpin), 600);
-            
-            // Set all reels to the same emoji for jackpot spins
-            if (isJackpotSpin) {
-                const jackpotEmoji = '🤑'; // Always give money face for cheat jackpots
-                setTimeout(() => { 
-                    reel1.innerHTML = jackpotEmoji;
-                    reel2.innerHTML = jackpotEmoji;
-                    reel3.innerHTML = jackpotEmoji;
-                    console.log('FORCED JACKPOT SPIN - Setting all reels to:', jackpotEmoji);
-                }, 2600);
-            }
-            
-            // Make sure we check for win after ALL reels have definitely stopped
-            // Add extra buffer time to ensure all animations are complete
-            const checkWinDelay = Math.max(reel3Duration + 1000, 3500);
-            console.log(`Will check for win after ${checkWinDelay}ms`);
-            
-            setTimeout(() => {
-                console.log('All reels should be stopped now, checking for win...');
-                checkWin();
-            }, checkWinDelay);
-        }
-
-        function checkWin() {
-            console.log('=========== CHECKING FOR WIN ===========');
-            // Get the actual text content directly from the DOM elements
-            const emoji1 = reel1.textContent.trim();
-            const emoji2 = reel2.textContent.trim();
-            const emoji3 = reel3.textContent.trim();
-            
-            console.log('REEL 1 CONTENT:', emoji1, '(Length:', emoji1.length, 'Code:', emoji1.codePointAt(0), ')');
-            console.log('REEL 2 CONTENT:', emoji2, '(Length:', emoji2.length, 'Code:', emoji2.codePointAt(0), ')');
-            console.log('REEL 3 CONTENT:', emoji3, '(Length:', emoji3.length, 'Code:', emoji3.codePointAt(0), ')');
-            
-            // Check if all emojis match by comparing their code points
-            const allMatch = 
-                emoji1.codePointAt(0) === emoji2.codePointAt(0) && 
-                emoji2.codePointAt(0) === emoji3.codePointAt(0);
-            
-            console.log('ALL REELS MATCH?', allMatch);
-            
-            if (allMatch) {
-                const winningEmoji = emoji1;
-                console.log('JACKPOT! Winning emoji:', winningEmoji);
-                
-                // Make sure prize exists for this emoji
-                const prize = PRIZES[winningEmoji] || 1000; // Default prize if not defined
-                
-                reel1.classList.add('win');
-                reel2.classList.add('win');
-                reel3.classList.add('win');
-                
-                const formattedPrize = prize.toLocaleString();
-                message.textContent = `${winningEmoji} JACKPOT! ${playerName} WINS +${formattedPrize} SCROGGY COINS! 🎉`;
-                message.classList.add('show');
-                money += prize;
-                
-                // Add to jackpot history
-                if (playerName) {
-                    jackpotHistory.push({
-                        emoji: winningEmoji,
-                        prize: prize,
-                        timestamp: Date.now(),
-                        reported: false
-                    });
-                }
-                
-                if (winningEmoji === '🤑') {
-                    message.style.fontSize = 'larger';
-                    message.style.color = '#50ff50';
-                    celebrateJackpot();
-                    celebrateJackpot();
-                } else {
-                    message.style.fontSize = '';
-                    message.style.color = '';
-                    celebrateJackpot();
-                }
-                
-                playVictoryTune();
-            } else {
-                console.log('NO JACKPOT - Reels do not match');
-                const taunt = taunts[Math.floor(Math.random() * taunts.length)].replace('{name}', playerName);
-                message.textContent = taunt;
-                message.classList.add('show');
-                message.style.fontSize = '';
-                message.style.color = '';
-                playLosingSound();
-            }
-            
-            updateMoney();
-            spinButton.disabled = false;
-            betAllButton.disabled = false;
-            
-            // Only update high score with legitimate money
-            if (legitimateMoney > highScore) {
-                highScore = legitimateMoney;
-                updatePlayerScore();
-            }
-            saveGameState();
-        }
-
-        // Function to handle reel spinning - THIS WAS MISSING
-        function spinReel(reel, duration, isJackpotSpin) {
-            console.log('Spinning reel:', reel.id, 'for', duration, 'ms');
-            let spinSound;
-            
-            // Start spinning animation
-            reel.classList.add('spinning');
-            
-            // Play spinning sound
-            spinSound = playSpinSound(Array.from(document.querySelectorAll('.reel')).indexOf(reel));
-            
-            // Set a random emoji during spinning
-            const spinInterval = setInterval(() => {
-                if (isJackpotSpin) {
-                    reel.innerHTML = '🤑'; // Force money emoji for jackpot
-                } else {
-                    // Get a random emoji weighted by rarity
-                    reel.innerHTML = getWeightedRandomEmoji();
-                }
-            }, 100);
-            
-            // Stop spinning after duration
-            setTimeout(() => {
-                clearInterval(spinInterval);
-                clearInterval(spinSound);
-                
-                reel.classList.remove('spinning');
-                reel.classList.add('stopping');
-                
-                // Forcefully ensure the final emoji is set correctly
-                if (!isJackpotSpin) {
-                    // Make sure we set a definitive final value 
-                    const finalEmoji = getWeightedRandomEmoji();
-                    console.log(`FINAL EMOJI for ${reel.id}:`, finalEmoji);
-                    
-                    // Force DOM update by using direct assignment
-                    reel.innerHTML = finalEmoji;
-                    
-                    // Double-check the value was set
-                    console.log(`Verifying ${reel.id} final value:`, reel.textContent);
-                } else {
-                    console.log(`JACKPOT EMOJI for ${reel.id}: 🤑`);
-                    
-                    // Force DOM update by using direct assignment
-                    reel.innerHTML = '🤑';
-                    
-                    // Double-check the value was set
-                    console.log(`Verifying ${reel.id} jackpot value:`, reel.textContent);
-                }
-                
-                // Remove stopping class after animation completes
-                setTimeout(() => {
-                    reel.classList.remove('stopping');
-                }, 500);
-            }, duration);
-        }
-
-        // Helper function to get a random emoji based on weighted probabilities
-        function getWeightedRandomEmoji() {
-            // Calculate total weight
-            let totalWeight = 0;
-            for (const emoji in WEIGHTS) {
-                totalWeight += WEIGHTS[emoji];
-            }
-            
-            // Get a random number between 0 and totalWeight
-            const random = Math.random() * totalWeight;
-            
-            // Find the emoji that corresponds to this random number
-            let runningTotal = 0;
-            for (const emoji in WEIGHTS) {
-                runningTotal += WEIGHTS[emoji];
-                if (random <= runningTotal) {
-                    return emoji;
-                }
-            }
-            
-            // Fallback - ensure we always return a valid emoji
-            console.log('Fallback emoji selection');
-            return emojis[Math.floor(Math.random() * emojis.length)];
-        }
-
-        // Bet All function - high risk, high reward
-        function betAll() {
-            if (betAllButton.disabled || money <= 0) {
-                return;
-            }
-            
-            initAudio();
-            
-            // Save the bet amount to use for win calculation
-            const betAmount = money;
-            money = 0; // Zero out money immediately
-            updateMoney();
-            
-            spinButton.disabled = true;
-            betAllButton.disabled = true;
-            message.classList.remove('show');
-            
-            // Clear any previous win highlights
-            reel1.classList.remove('win');
-            reel2.classList.remove('win');
-            reel3.classList.remove('win');
-            
-            // Show devil popup briefly
-            const devilPopup = document.getElementById('devil-popup');
-            devilPopup.classList.add('visible');
-            setTimeout(() => {
-                devilPopup.classList.remove('visible');
-            }, 1500);
-            
-            // Spin reels with escalating tension (longer spin times)
-            setTimeout(() => spinReel(reel1, 2000), 200);
-            setTimeout(() => spinReel(reel2, 2500), 500);
-            setTimeout(() => spinReel(reel3, 3000), 800);
-            
-            // Check for win after all reels have stopped - make sure we wait long enough
-            setTimeout(() => {
-                console.log('All reels should be stopped now, checking for Bet All win...');
-                checkBetAllWin(betAmount);
-            }, 4000);
-        }
-
-        // Function to check if Bet All resulted in a win - THIS WAS MISSING
-        function checkBetAllWin(betAmount) {
-            console.log('=========== CHECKING BET ALL WIN ===========');
-            
-            // Get the actual text content directly from the DOM elements
-            const emoji1 = reel1.textContent.trim();
-            const emoji2 = reel2.textContent.trim();
-            const emoji3 = reel3.textContent.trim();
-            
-            console.log('REEL 1 CONTENT:', emoji1, '(Length:', emoji1.length, 'Code:', emoji1.codePointAt(0), ')');
-            console.log('REEL 2 CONTENT:', emoji2, '(Length:', emoji2.length, 'Code:', emoji2.codePointAt(0), ')');
-            console.log('REEL 3 CONTENT:', emoji3, '(Length:', emoji3.length, 'Code:', emoji3.codePointAt(0), ')');
-            
-            // Check if all emojis match by comparing their code points
-            const allMatch = 
-                emoji1.codePointAt(0) === emoji2.codePointAt(0) && 
-                emoji2.codePointAt(0) === emoji3.codePointAt(0);
-            
-            console.log('ALL REELS MATCH?', allMatch);
-            
-            if (allMatch) {
-                console.log('BET ALL WIN! All reels match.');
-                const winningEmoji = emoji1;
-                
-                // Double the win amount for bet all + apply emoji multiplier
-                const multiplier = 2; // Double or nothing base
-                const emojiMultiplier = winningEmoji === '🤑' ? 100 : 
-                                       winningEmoji === '🤮' ? 10 : 
-                                       winningEmoji === '🥒' ? 5 : 
-                                       winningEmoji === '🌮' ? 3 : 2;
-                
-                const winAmount = betAmount * multiplier * emojiMultiplier;
-                
-                reel1.classList.add('win');
-                reel2.classList.add('win');
-                reel3.classList.add('win');
-                
-                // Add special badge to jackpot history for bet all wins
-                if (playerName) {
-                    jackpotHistory.push({
-                        emoji: winningEmoji,
-                        prize: winAmount,
-                        timestamp: Date.now(),
-                        reported: false,
-                        betAll: true
-                    });
-                }
-                
-                message.textContent = `🤯 BET ALL WIN! ${winningEmoji} JACKPOT! ${playerName} WINS +${winAmount.toLocaleString()} SCROGGY COINS! (${emojiMultiplier}x MULTIPLIER)`;
-                message.classList.add('show');
-                message.style.fontSize = 'larger';
-                message.style.color = '#50ff50';
-                
-                money += winAmount;
-                
-                // Extra celebration for bet all wins
-                celebrateJackpot();
-                setTimeout(() => celebrateJackpot(), 500);
-                setTimeout(() => celebrateJackpot(), 1000);
-                
-                playVictoryTune();
-            } else {
-                console.log('BET ALL LOSS! Reels do not match.');
-                // Lose everything (already set money to 0) PLUS 100% penalty
-                money = -betAmount; // Apply 100% penalty, making money negative
-                message.textContent = `💀 BET ALL LOST! ${playerName} LOST EVERYTHING AND OWES ${betAmount} MORE COINS! The debt collectors are coming!`;
-                message.classList.add('show');
-                message.style.fontSize = '';
-                message.style.color = '#ff5555';
-                
-                // Show debt collector immediately
-                showDebtCollector();
-                
-                playLosingSound();
-            }
-            
-            updateMoney();
-            spinButton.disabled = false;
-            betAllButton.disabled = money <= 0;
-            
-            // Only update high score with legitimate money
-            if (legitimateMoney > highScore) {
-                highScore = legitimateMoney;
-                updatePlayerScore();
-            }
-            
-            saveGameState();
-        }
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-
-        // Save game state
-        function saveGameState() {
-            const gameState = {
-                money: money,
-                legitimateMoney: legitimateMoney,
-                playerName: playerName,
-                playerEmoji: playerEmoji,
-                highScore: highScore,
-                spinCounter: spinCounter,
-                jackpotHistory: jackpotHistory,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('scroggysCasino_gameState', JSON.stringify(gameState));
-            console.log('Game state saved:', gameState);
-        }
-
-        // Load game state
-        function loadGameState() {
-            try {
-                const savedState = localStorage.getItem('scroggysCasino_gameState');
-                if (savedState) {
-                    const gameState = JSON.parse(savedState);
-                    console.log('Loading saved game state:', gameState);
-                    
-                    // Restore player name and emoji
-                    if (gameState.playerName && gameState.playerEmoji) {
-                        playerName = gameState.playerName;
-                        playerEmoji = gameState.playerEmoji;
-                        document.querySelector('.logo').textContent = '🧙‍♂️';
-                        // Hide name input immediately if we have saved data
-                        nameInput.style.display = 'none';
-                        message.textContent = `Welcome back, ${playerEmoji} ${playerName}! 🎰`;
-                        message.classList.add('show');
-                    }
-                    
-                    // Restore money, legitimate money, and high score
-                    money = gameState.money || 500;
-                    legitimateMoney = gameState.legitimateMoney || 500;
-                    highScore = gameState.highScore || 500;
-                    spinCounter = gameState.spinCounter || 0;
-                    
-                    // Restore jackpot history
-                    jackpotHistory = Array.isArray(gameState.jackpotHistory) ? gameState.jackpotHistory : [];
-                    
-                    updateMoney();
-                    
-                    console.log('Game state restored - Name:', playerName, 'Emoji:', playerEmoji, 'Money:', money, 'High Score:', highScore, 'Jackpots:', jackpotHistory.length);
-                } else {
-                    console.log('No saved game state found, showing name input');
-                    nameInput.style.display = 'flex';
-                    money = 500;
-                    highScore = 500;
-                    updateMoney();
-                }
-            } catch (error) {
-                console.error('Error loading game state:', error);
-                nameInput.style.display = 'flex';
-                money = 500;
-                highScore = 500;
-                updateMoney();
-            }
-        }
-
-        function resetGame() {
-            if (confirm('Are you sure you want to declare bankruptcy? This will clear your progress and set your balance back to 500 coins.')) {
-                localStorage.removeItem('scroggysCasino_gameState');
-                location.reload();
-            }
-        }
-
-        function updatePlayerScore() {
-            if (!playerName) {
-                console.log('No player name set, skipping score update');
-                return;
-            }
-
-            // Block cheat code user from leaderboard
-            if (playerName.toLowerCase() === 'cashmeoutside' && playerEmoji === '🤑') {
-                console.log('Cheat code user blocked from leaderboard');
-                return;
-            }
-
-            if (!playerEmoji || !legitimateMoney) {
-                console.log('Missing required data - Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
-                return;
-            }
-
-            console.log('Updating score for player:', playerName, 'Emoji:', playerEmoji, 'Legitimate Score:', legitimateMoney);
-            
-            // Check if there's a recent jackpot win to report
-            let latestJackpot = null;
-            if (jackpotHistory.length > 0) {
-                // Get the most recent jackpot that hasn't been reported
-                const unreportedJackpots = jackpotHistory.filter(j => !j.reported);
-                if (unreportedJackpots.length > 0) {
-                    latestJackpot = unreportedJackpots[0];
-                    // Mark this jackpot as reported
-                    latestJackpot.reported = true;
-                }
-            }
-            
-            // Check if we're running locally (without Netlify functions)
-            const isLocalEnvironment = 
-                window.location.hostname === 'localhost' || 
-                window.location.hostname === '127.0.0.1' ||
-                window.location.protocol === 'file:';
-            
-            // If we're in local mode, skip server update but still track locally
-            if (isLocalEnvironment) {
-                console.log('Running in local environment, skipping server update');
-                saveGameState();
-                message.textContent = `🏆 New high score saved locally! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
-                message.classList.add('show');
-                return;
-            }
-            
-            // Use Netlify function endpoint path
-            const apiUrl = '/.netlify/functions/leaderboard';
-            console.log('Sending score to Netlify function at:', apiUrl);
-
-            // Send score to server
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: playerName,
-                    emoji: playerEmoji,
-                    score: legitimateMoney, // Use legitimate money for leaderboard
-                    jackpotWin: latestJackpot ? {
-                        emoji: latestJackpot.emoji,
-                        prize: latestJackpot.prize
-                    } : null
-                })
-            })
-            .then(response => {
-                console.log('Server response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(result => {
-                console.log('Score saved:', result);
-                if (result.success) {
-                    console.log('Updating leaderboard display');
-                    updateLeaderboard();
-                    saveGameState();
-                    message.textContent = `🏆 New high score saved! ${playerEmoji} ${playerName}: ${legitimateMoney.toLocaleString()} coins!`;
-                    message.classList.add('show');
-                } else {
-                    console.error('Failed to save score:', result.error);
-                    message.textContent = `⚠️ Failed to save high score. Please try again later.`;
-                    message.classList.add('show');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving score:', error);
-                // Still save locally even if server update fails
-                saveGameState();
-                message.textContent = `Local save only: ${error.message}. Your progress is saved on this device!`;
-                message.classList.add('show');
-            });
-        }
-
-        // Function to toggle leaderboard visibility - THIS WAS MISSING
-        function toggleLeaderboard(show) {
-            console.log('Toggling leaderboard:', show);
-            const leaderboardOverlay = document.getElementById('leaderboardOverlay');
-            if (!leaderboardOverlay) {
-                console.error('Leaderboard overlay element not found');
-                return;
-            }
-            
-            leaderboardOverlay.style.display = show ? 'flex' : 'none';
-            
-            if (show) {
-                updateLeaderboard(); // Update leaderboard data when shown
-            }
-        }
-
-        // Function to toggle profile visibility - THIS WAS MISSING
-        function toggleProfile(show) {
-            console.log('Toggling profile:', show);
-            const profileOverlay = document.getElementById('profileOverlay');
-            if (!profileOverlay) {
-                console.error('Profile overlay element not found');
-                return;
-            }
-            
-            profileOverlay.style.display = show ? 'flex' : 'none';
-            
-            if (show) {
-                // Update profile form with current values
-                const nameInput = document.getElementById('updatePlayerName');
-                if (nameInput) {
-                    nameInput.value = playerName || '';
-                }
-                
-                // Highlight current emoji
-                const emojiOptions = profileOverlay.querySelectorAll('.emoji-option');
-                emojiOptions.forEach(option => {
-                    option.classList.toggle('selected', option.dataset.emoji === playerEmoji);
+                // Update active button
+                themeButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.theme === savedTheme);
                 });
-                
-                // Update jackpot history display
-                updateJackpotHistory();
-            }
-        }
-
-        // Function to update jackpot history display - THIS WAS MISSING
-        function updateJackpotHistory() {
-            const jackpotHistoryList = document.getElementById('jackpotHistoryList');
-            if (!jackpotHistoryList) return;
-            
-            if (jackpotHistory.length === 0) {
-                jackpotHistoryList.innerHTML = '<div class="no-jackpots">No jackpots won yet. Keep spinning!</div>';
-                return;
             }
             
-            // Sort jackpots by timestamp (most recent first)
-            const sortedJackpots = [...jackpotHistory].sort((a, b) => b.timestamp - a.timestamp);
-            
-            // Create HTML for each jackpot
-            let html = '';
-            sortedJackpots.forEach(jackpot => {
-                const date = new Date(jackpot.timestamp);
-                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-                const rarity = RARITY[jackpot.emoji] || 'Common';
-                const rarityClass = `rarity-${rarity.toLowerCase()}`;
-                
-                html += `
-                    <div class="jackpot-item">
-                        <span class="jackpot-emoji">${jackpot.emoji}</span>
-                        <div class="jackpot-details">
-                            <span class="jackpot-prize">+${jackpot.prize.toLocaleString()}</span>
-                            <span class="jackpot-date">${formattedDate}</span>
-                        </div>
-                        <span class="jackpot-rarity ${rarityClass}">${rarity}</span>
-                    </div>
-                `;
+            // Toggle theme options visibility
+            themeToggle.addEventListener('click', () => {
+                themeOptions.classList.toggle('show');
             });
             
-            jackpotHistoryList.innerHTML = html;
-        }
-
-        // Function to update profile - THIS WAS MISSING
-        function updateProfile() {
-            const nameInput = document.getElementById('updatePlayerName');
-            const selectedEmoji = document.querySelector('#profileOverlay .emoji-option.selected');
-            
-            if (nameInput && nameInput.value.trim() && selectedEmoji) {
-                const newName = nameInput.value.trim();
-                const newEmoji = selectedEmoji.dataset.emoji;
-                
-                // Update player info
-                playerName = newName;
-                playerEmoji = newEmoji;
-                
-                // Update logo
-                document.querySelector('.logo').textContent = playerEmoji;
-                
-                // Save changes
-                saveGameState();
-                
-                // Show confirmation message
-                message.textContent = `Profile updated! ${playerEmoji} ${playerName}`;
-                message.classList.add('show');
-                
-                // Close profile overlay
-                toggleProfile(false);
-            }
-        }
-
-        // Function to update leaderboard - THIS WAS MISSING
-        function updateLeaderboard() {
-            console.log('Updating leaderboard');
-            const leaderboardList = document.getElementById('leaderboardList');
-            if (!leaderboardList) {
-                console.error('Leaderboard list element not found');
-                return;
-            }
-            
-            // Show loading message
-            leaderboardList.innerHTML = '<li>Loading leaderboard...</li>';
-            
-            // Check if we're running locally
-            const isLocalEnvironment = 
-                window.location.hostname === 'localhost' || 
-                window.location.hostname === '127.0.0.1' ||
-                window.location.protocol === 'file:';
-            
-            if (isLocalEnvironment) {
-                console.log('Running in local environment, showing local leaderboard');
-                // Create local leaderboard with default data
-                const defaultData = [
-                    { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
-                    { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
-                    { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
-                ];
-                
-                // Add current player if they have a name
-                if (playerName && legitimateMoney > 0) {
-                    defaultData.push({
-                        name: playerName,
-                        emoji: playerEmoji,
-                        highScore: legitimateMoney
-                    });
-                }
-                
-                // Sort by high score and display
-                const topScores = defaultData
-                    .sort((a, b) => b.highScore - a.highScore)
-                    .slice(0, 20);
-                
-                displayLeaderboard(topScores);
-                
-                // Add notice about local mode
-                const existingNotice = leaderboardList.parentNode.querySelector('.local-mode-notice');
-                if (!existingNotice) {
-                    const notice = document.createElement('div');
-                    notice.className = 'local-mode-notice';
-                    notice.textContent = 'Playing in local mode. Deploy to Netlify for online leaderboard!';
-                    leaderboardList.parentNode.appendChild(notice);
-                }
-                
-                return;
-            }
-            
-            // Fetch leaderboard data from server using Netlify function endpoint
-            const apiUrl = '/.netlify/functions/leaderboard';
-            console.log('Fetching leaderboard from Netlify function at:', apiUrl);
-            
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch leaderboard: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(scores => {
-                    console.log('Leaderboard data received:', scores);
-                    displayLeaderboard(scores);
-                })
-                .catch(error => {
-                    console.error('Error fetching leaderboard:', error);
-                    leaderboardList.innerHTML = `<li>Error loading leaderboard: ${error.message}</li>`;
+            // Theme selection
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const theme = button.dataset.theme;
                     
-                    // Fall back to local data on error
-                    const defaultData = [
-                        { name: "Scroggy", emoji: "🧙‍♂️", highScore: 1000000000 },
-                        { name: "WizardKing", emoji: "🧝‍♂️", highScore: 500000 },
-                        { name: "LuckyCharm", emoji: "🧚‍♀️", highScore: 250000 }
-                    ];
+                    // Remove active class from all buttons
+                    themeButtons.forEach(btn => btn.classList.remove('active'));
                     
-                    if (playerName && legitimateMoney > 0) {
-                        defaultData.push({
-                            name: playerName,
-                            emoji: playerEmoji,
-                            highScore: legitimateMoney
-                        });
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Apply theme
+                    if (theme === 'wizard') {
+                        document.documentElement.removeAttribute('data-theme');
+                } else {
+                        document.documentElement.setAttribute('data-theme', theme);
                     }
                     
-                    const topScores = defaultData
-                        .sort((a, b) => b.highScore - a.highScore)
-                        .slice(0, 20);
+                    // Save theme preference
+                    localStorage.setItem('scroggyTheme', theme);
                     
-                    displayLeaderboard(topScores);
-                    
-                    // Add error notice
-                    const existingNotice = leaderboardList.parentNode.querySelector('.local-mode-notice');
-                    if (!existingNotice) {
-                        const notice = document.createElement('div');
-                        notice.className = 'local-mode-notice';
-                        notice.textContent = 'Could not connect to leaderboard server. Showing local data.';
-                        leaderboardList.parentNode.appendChild(notice);
-                    }
+                    // Hide options after selection
+                    themeOptions.classList.remove('show');
                 });
-        }
-
-        // Helper function to display leaderboard data - THIS WAS MISSING
-        function displayLeaderboard(scores) {
-            const leaderboardList = document.getElementById('leaderboardList');
-            if (!leaderboardList) return;
-            
-            let html = '';
-            scores.forEach((score, index) => {
-                const isCurrentPlayer = playerName && score.name === playerName;
-                const rank = index + 1;
-                const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
-                
-                html += `
-                    <li class="leaderboard-item rank-${rank} ${isCurrentPlayer ? 'current-player' : ''}">
-                        <div class="player-info">
-                            ${trophy ? `<span class="trophy">${trophy}</span>` : ''}
-                            <span class="player-emoji">${score.emoji || '🎲'}</span>
-                            ${score.name}
-                        </div>
-                        <div class="player-score">${score.highScore.toLocaleString()}</div>
-                    </li>
-                `;
             });
             
-            leaderboardList.innerHTML = html;
-        }
-
-        // Add a debug function to help diagnose emoji issues
-        function debugEmoji(emoji) {
-            if (!emoji) return 'undefined';
-            return {
-                value: emoji,
-                length: emoji.length,
-                codePoint: emoji.codePointAt(0),
-                hexCode: emoji.codePointAt(0).toString(16)
-            };
+            // Close theme options when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!themeToggle.contains(event.target) && !themeOptions.contains(event.target)) {
+                    themeOptions.classList.remove('show');
+                }
+            });
         }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
+            initThemeSwitcher();
         });
     </script>
 </body>
